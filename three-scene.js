@@ -553,35 +553,6 @@
   const SCAN_GRID_W = 28 * 0.6;
   const SCAN_GRID_H = 20 * 0.6;
 
-  /* ─── Dimension annotation lines + glow ──────────────── */
-  function makeAnnotation(x1, y1, x2, y2, z, tickH) {
-    const verts = [
-      x1, y1, z,  x2, y2, z,
-      x1, y1 - tickH, z,  x1, y1 + tickH, z,
-      x2, y2 - tickH, z,  x2, y2 + tickH, z,
-    ];
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(verts), 3));
-    return geo;
-  }
-
-  function makeAnnotMesh(geo, color, opacity, additive) {
-    const mat = new THREE.LineBasicMaterial({
-      color,
-      transparent: true,
-      opacity,
-      blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending,
-      depthWrite: !additive,
-    });
-    return new THREE.LineSegments(geo, mat);
-  }
-
-  // Annotation lines removed — they read as visual glitches against dark background
-  // Keep stub objects so references in animate loop don't throw errors
-  const annot1     = makeAnnotMesh(makeAnnotation(0,0,0,0,0,0), 0x4488cc, 0, false);
-  const annot1Glow = makeAnnotMesh(makeAnnotation(0,0,0,0,0,0), 0x88ccff, 0, true);
-  const annot2     = makeAnnotMesh(makeAnnotation(0,0,0,0,0,0), 0x4488cc, 0, false);
-  const annot2Glow = makeAnnotMesh(makeAnnotation(0,0,0,0,0,0), 0x88ccff, 0, true);
 
   /* ─── Assembly helpers ────────────────────────────────── */
   let partCounter = 0;
@@ -1627,10 +1598,6 @@
     horizonGrid.material.opacity = toolAlpha * 0.14;
     scanLineMat.opacity  = Math.min(edgeFade, 1) * 1.0 * toolAlpha;
     scanGlowMat.opacity  = Math.min(edgeFade, 1) * 0.50 * toolAlpha;
-    annot1.material.opacity     = toolAlpha * 0.65;
-    annot2.material.opacity     = toolAlpha * 0.65;
-    annot1Glow.material.opacity = toolAlpha * 0.22;
-    annot2Glow.material.opacity = toolAlpha * 0.22;
     sawSpot.intensity  = toolAlpha * 3.5;
     sawSpot.position.x = 0.2 + camRotY * -2.2;
 
