@@ -238,65 +238,52 @@
   document.body.appendChild(heroCopy);
 
   /* ─── Lights ──────────────────────────────────────────── */
-  // Ambient: very low — RectAreaLights provide the fill
-  const ambientLight = new THREE.AmbientLight(0x0a1420, 0.5);
+  // Minimal ambient — scene is dark, lights sculpt the form
+  const ambientLight = new THREE.AmbientLight(0x06080e, 0.35);
   scene.add(ambientLight);
 
-  // Studio key light — warm amber RectAreaLight (large softbox, upper-left)
-  const keyLight = new THREE.RectAreaLight(0xe8900a, 11, 4.0, 3.0);
-  keyLight.position.set(-3, 4, 5);
-  keyLight.lookAt(0, 0, 0);
+  // ── KEY LIGHT: large warm amber RectAreaLight — upper left, main sculpting light
+  const keyLight = new THREE.RectAreaLight(0xf0920c, 16, 5.0, 4.0);
+  keyLight.position.set(-4.0, 5.5, 5.5);
+  keyLight.lookAt(0, 0.5, 0);
   scene.add(keyLight);
 
-  // Studio fill light — cool blue RectAreaLight (right side, lower intensity)
-  const fillLight = new THREE.RectAreaLight(0x2d5fa8, 8.5, 3.0, 4.0);
-  fillLight.position.set(4, 1, 3);
-  fillLight.lookAt(0, 0, 0);
+  // ── FILL LIGHT: cool blue RectAreaLight — right side, lower intensity
+  const fillLight = new THREE.RectAreaLight(0x2255bb, 7, 3.5, 5.0);
+  fillLight.position.set(5.0, 0.5, 3.0);
+  fillLight.lookAt(0, 0.5, 0);
   scene.add(fillLight);
 
-  // Top neutral rim — RectAreaLight overhead for edge separation
-  const rimAreaLight = new THREE.RectAreaLight(0x8899bb, 6, 5.0, 1.5);
-  rimAreaLight.position.set(0, 5.5, -3.5);
-  rimAreaLight.lookAt(0, 0, 0);
+  // ── RIM / BACK LIGHT: neutral cool, overhead-rear — edge separation
+  const rimAreaLight = new THREE.RectAreaLight(0x7799cc, 5, 6.0, 1.8);
+  rimAreaLight.position.set(0, 7.0, -4.5);
+  rimAreaLight.lookAt(0, 0, 1);
   scene.add(rimAreaLight);
 
-  // Backlight — edge separation between tools and background
-  const backLight = new THREE.RectAreaLight(0x4488dd, 3.5, 3.0, 2.0);
-  backLight.position.set(0, 5.2, -3.8);
-  backLight.lookAt(0, 1.0, 1.0);
-  scene.add(backLight);
-
-  // Orbiting point light — warm amber, animates in render loop (for dynamic highlights)
-  const orbitLight = new THREE.PointLight(0xd4820a, 5.0, 18);
-  orbitLight.castShadow = true;
-  orbitLight.shadow.mapSize.width = 2048;
-  orbitLight.shadow.mapSize.height = 2048;
-  orbitLight.shadow.camera.near = 0.5;
-  orbitLight.shadow.camera.far = 22;
-  orbitLight.shadow.bias = -0.0005;
-  orbitLight.shadow.normalBias = 0.02;
-  scene.add(orbitLight);
-
-  // Blueprint accent — strong blue, illuminates grid
-  const blueprintLight = new THREE.PointLight(0x4488cc, 4.0, 22);
-  blueprintLight.position.set(-4, 3, -4);
-  scene.add(blueprintLight);
-
-  // Ground bounce — warm amber from below
-  const groundGlow = new THREE.PointLight(0xc97512, 2.2, 10);
-  groundGlow.position.set(0, -3, 2);
+  // ── FLOOR BOUNCE: warm amber point from below — fills in under-shadows
+  const groundGlow = new THREE.PointLight(0xb06010, 2.8, 12);
+  groundGlow.position.set(0, -2.2, 2.5);
   scene.add(groundGlow);
 
-  // Saw blade accent — tight spot on upper center where saw blade lives
-  const sawSpot = new THREE.SpotLight(0xffa040, 8, 12, Math.PI / 8, 0.4, 1.5);
-  sawSpot.position.set(0.5, 3.5, 4);
-  sawSpot.target.position.set(0.5, 1.8, 0.5);
+  // ── ORBITING DYNAMIC LIGHT: warm amber point, animates — keeps metals alive
+  const orbitLight = new THREE.PointLight(0xd4820a, 4.5, 20);
+  orbitLight.castShadow = true;
+  orbitLight.shadow.mapSize.width  = 1024;
+  orbitLight.shadow.mapSize.height = 1024;
+  orbitLight.shadow.camera.near = 0.5;
+  orbitLight.shadow.camera.far  = 22;
+  orbitLight.shadow.bias = -0.0005;
+  scene.add(orbitLight);
+
+  // ── SAW SPOT: tight amber spotlight on saw blade apex
+  const sawSpot = new THREE.SpotLight(0xffa040, 6, 14, Math.PI / 9, 0.35, 1.8);
+  sawSpot.position.set(0.2, 5.0, 4.5);
+  sawSpot.target.position.set(0, 1.9, -0.2);
   sawSpot.castShadow = true;
-  sawSpot.shadow.mapSize.width = 1024;
+  sawSpot.shadow.mapSize.width  = 1024;
   sawSpot.shadow.mapSize.height = 1024;
   sawSpot.shadow.camera.near = 1;
-  sawSpot.shadow.camera.far = 14;
-  sawSpot.shadow.camera.fov = 30;
+  sawSpot.shadow.camera.far  = 16;
   sawSpot.shadow.bias = -0.0003;
   scene.add(sawSpot);
   scene.add(sawSpot.target);
@@ -1460,10 +1447,6 @@ scene.add(floorGlow);
       Math.sin(lightAngle) * 5
     );
 
-    /* ── Blueprint light figure-8 oscillation ── */
-    blueprintLight.position.x = -4 + Math.sin(time * 0.00025) * 1.5;
-    blueprintLight.position.y =  3 + Math.cos(time * 0.00018) * 1.0;
-
     /* ── Fragment debris + mouse proximity reaction ── */
     const mouseWorldX = mouseX * 5.5;
     const mouseWorldY = -mouseY * 3.0;
@@ -1623,8 +1606,8 @@ scene.add(floorGlow);
     horizonGrid.material.opacity = toolAlpha * 0.14;
     scanLineMat.opacity  = Math.min(edgeFade, 1) * 1.0 * toolAlpha;
     scanGlowMat.opacity  = Math.min(edgeFade, 1) * 0.50 * toolAlpha;
-    sawSpot.intensity  = toolAlpha * 3.5;
-    sawSpot.position.x = 0.2 + camRotY * -2.2;
+    sawSpot.intensity  = toolAlpha * 6;
+    sawSpot.position.x = 0.2 + camRotY * -2.0;
 
     // Hero-scope: hide all fixed elements when scrolled past hero fold
     const heroVisible = toolAlpha > 0.01;
