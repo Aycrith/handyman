@@ -478,125 +478,107 @@
   const sparkParticles = new THREE.Points(sparkSystem.geo, sparkMat);
   scene.add(sparkParticles);
 
-  /* ─── Particle physics parameters ────────────────────── */
-  const PHYSICS_PARAMS = {
-    attractionRadius: 3.0,
-    repulsionRadius: 1.0,
-    attractionStrength: 0.0012,
-    repulsionStrength: 0.008,
-    upwardDrift: 0.0008,
-    damping: 0.962,
-    velocityCap: 0.035,
-    shockwaveRadius: 2.0,
-    shockwaveImpulse: 0.15,
-    boundaryTop: 6.0,
+  /* ─── Vortex physics parameters ──────────────────────── */
+  const VORTEX_PARAMS = {
+    vortexRadius: 4.0,          // Outer edge where vortex starts affecting particles
+    coreRadius: 0.8,            // Inner core — transitions to strong inward pull
+    tangentialStrength: 0.0018, // Rotational/spiral force (perpendicular to radial)
+    radialStrength: 0.0010,     // Inward pull force (toward vortex center)
+    coreStrength: 0.006,        // Strong pull inside core radius
+    upwardDrift: 0.0006,        // Gentle upward float outside vortex
+    damping: 0.968,             // Velocity decay per frame (slightly more fluid)
+    velocityCap: 0.042,         // Max speed (higher for dramatic spiraling)
+    shockwaveRadius: 3.0,       // Click blast radius
+    shockwaveImpulse: 0.22,     // Outward impulse strength on click
+    implosionStrength: 0.009,   // Post-shockwave pull-back force
+    implosionDelay: 0.35,       // Fraction of implosion duration before pull starts
+    boundaryTop: 6.5,
     boundaryBottom: -5.0,
   };
 
-  /* ─── Particle physics update ────────────────────────── */
-  function updateParticlePhysics(system, mouseWorldPos, deltaTime) {
-    const { positions, velocities, count } = system;
-    const params = PHYSICS_PARAMS;
+  /* ─── Vortex physics update ──────────────────────────── */
+  function updateVortexPhysics(system, mouseWorldPos, delta) {
+    const pos = system.positions;
+    const vel = system.velocities;
+    const count = system.count;
 
     for (let i = 0; i < count; i++) {
-      const pi = i * 3;
+      const ix = i * 3, iy = i * 3 + 1, iz = i * 3 + 2;
+      let px = pos[ix], py = pos[iy], pz = pos[iz];
+      let vx = vel[ix], vy = vel[iy], vz = vel[iz];
 
-      // Get particle position
-      const px = positions[pi];
-      const py = positions[pi + 1];
-      const pz = positions[pi + 2];
-
-      // Calculate distance to mouse (3D)
       const dx = px - mouseWorldPos.x;
       const dy = py - mouseWorldPos.y;
       const dz = pz - mouseWorldPos.z;
-      const distSq = dx * dx + dy * dy + dz * dz;
-      const dist = Math.sqrt(distSq);
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-      // Apply magnetic forces
-      if (dist < params.attractionRadius && dist > 0.01) {
-        if (dist < params.repulsionRadius) {
-          // Repulsion: push away
-          const force = (params.repulsionRadius - dist) * params.repulsionStrength;
-          const nx = dx / dist;
-          const ny = dy / dist;
-          velocities[pi]     += nx * force;
-          velocities[pi + 1] += ny * force;
-        } else {
-          // Attraction: pull toward
-          const force = (params.attractionRadius - dist) / params.attractionRadius * params.attractionStrength;
-          const nx = dx / dist;
-          const ny = dy / dist;
-          velocities[pi]     -= nx * force;
-          velocities[pi + 1] -= ny * force;
-        }
+      if (dist < VORTEX_PARAMS.vortexRadius && dist > 0.01) {
+        const normDist = dist / VORTEX_PARAMS.vortexRadius; // 0 = core, 1 = outer edge
+
+        // Tangential force — creates the SPIRAL (perpendicular to radial in XZ plane)
+        // Cross product of radial direction (dx,0,dz)/dist with up axis (0,1,0)
+        const tx = -dz / dist;
+        const tz =  dx / dist;
+        const tangentialForce = VORTEX_PARAMS.tangentialStrength * (1.0 - normDist * 0.6);
+        vx += tx * tangentialForce;
+        vz += tz * tangentialForce;
+
+        // Radial inward pull — stronger near core
+        const radialForce = dist < VORTEX_PARAMS.coreRadius
+          ? VORTEX_PARAMS.coreStrength
+          : VORTEX_PARAMS.radialStrength * (1.0 - normDist);
+        vx -= (dx / dist) * radialForce;
+        vy -= (dy / dist) * radialForce;
+        vz -= (dz / dist) * radialForce;
       }
 
-      // Add upward drift
-      velocities[pi + 1] += params.upwardDrift;
+      // Upward drift (always active — particles float upward outside vortex)
+      vy += VORTEX_PARAMS.upwardDrift;
 
-      // Clamp velocity magnitude
-      const vx = velocities[pi];
-      const vy = velocities[pi + 1];
-      const vz = velocities[pi + 2];
+      // Damping
+      vx *= VORTEX_PARAMS.damping;
+      vy *= VORTEX_PARAMS.damping;
+      vz *= VORTEX_PARAMS.damping;
+
+      // Velocity magnitude cap
       const vmag = Math.sqrt(vx * vx + vy * vy + vz * vz);
-      if (vmag > params.velocityCap) {
-        const scale = params.velocityCap / vmag;
-        velocities[pi]     *= scale;
-        velocities[pi + 1] *= scale;
-        velocities[pi + 2] *= scale;
+      if (vmag > VORTEX_PARAMS.velocityCap) {
+        const scale = VORTEX_PARAMS.velocityCap / vmag;
+        vx *= scale; vy *= scale; vz *= scale;
       }
 
-      // Apply damping
-      velocities[pi]     *= params.damping;
-      velocities[pi + 1] *= params.damping;
-      velocities[pi + 2] *= params.damping;
+      // Position update
+      px += vx; py += vy; pz += vz;
 
-      // Update position
-      positions[pi]     += velocities[pi];
-      positions[pi + 1] += velocities[pi + 1];
-      positions[pi + 2] += velocities[pi + 2];
-
-      // Boundary recycling
-      if (positions[pi + 1] > params.boundaryTop || positions[pi + 1] < params.boundaryBottom) {
-        // Reset to bottom with random XZ spread
-        positions[pi]     = rand(-2, 2);
-        positions[pi + 1] = params.boundaryBottom + 0.5;
-        positions[pi + 2] = rand(-2, 2);
-        velocities[pi]     = 0;
-        velocities[pi + 1] = 0;
-        velocities[pi + 2] = 0;
+      // Boundary recycling — reset to bottom of scene
+      if (py > VORTEX_PARAMS.boundaryTop || py < VORTEX_PARAMS.boundaryBottom) {
+        px = (Math.random() - 0.5) * 16;
+        py = VORTEX_PARAMS.boundaryBottom + Math.random() * 2.5;
+        pz = (Math.random() - 0.5) * 16;
+        vx = 0; vy = 0; vz = 0;
       }
+
+      pos[ix] = px; pos[iy] = py; pos[iz] = pz;
+      vel[ix] = vx; vel[iy] = vy; vel[iz] = vz;
     }
-
-    // Mark geometry as needing update
     system.geo.attributes.position.needsUpdate = true;
   }
 
-  /* ─── Click shockwave ────────────────────────────────── */
-  function applyShockwave(system, mouseWorldPos) {
-    const { positions, velocities, count } = system;
-    const params = PHYSICS_PARAMS;
-
-    for (let i = 0; i < count; i++) {
-      const pi = i * 3;
-      const px = positions[pi];
-      const py = positions[pi + 1];
-      const pz = positions[pi + 2];
-
-      const dx = px - mouseWorldPos.x;
-      const dy = py - mouseWorldPos.y;
-      const dz = pz - mouseWorldPos.z;
-      const distSq = dx * dx + dy * dy + dz * dz;
-      const dist = Math.sqrt(distSq);
-
-      if (dist < params.shockwaveRadius && dist > 0.01) {
-        const nx = dx / dist;
-        const ny = dy / dist;
-        const nz = dz / dist;
-        velocities[pi]     += nx * params.shockwaveImpulse;
-        velocities[pi + 1] += ny * params.shockwaveImpulse;
-        velocities[pi + 2] += nz * params.shockwaveImpulse;
+  /* ─── Vortex shockwave (click blast) ─────────────────── */
+  function applyVortexShockwave(system, clickWorldPos) {
+    const pos = system.positions;
+    const vel = system.velocities;
+    for (let i = 0; i < system.count; i++) {
+      const ix = i * 3, iy = i * 3 + 1, iz = i * 3 + 2;
+      const dx = pos[ix] - clickWorldPos.x;
+      const dy = pos[iy] - clickWorldPos.y;
+      const dz = pos[iz] - clickWorldPos.z;
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (dist < VORTEX_PARAMS.shockwaveRadius && dist > 0.01) {
+        const impulse = VORTEX_PARAMS.shockwaveImpulse * (1 - dist / VORTEX_PARAMS.shockwaveRadius);
+        vel[ix] += (dx / dist) * impulse;
+        vel[iy] += (dy / dist) * impulse;
+        vel[iz] += (dz / dist) * impulse;
       }
     }
   }
@@ -1390,6 +1372,12 @@ scene.add(floorGlow);
   let assemblyStartTime = null;
   let heroCopyShown     = false; // guard: only add .visible class once
   const ASSEMBLY_DURATION = 1800;
+
+  // Vortex implosion state (click shockwave → delayed pull-back)
+  let implosionActive = false;
+  let implosionStart = 0;
+  let clickWorldPos = { x: 0, y: 0, z: 0 };
+  const IMPLOSION_DURATION = 800;
   function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
 
   /* ─── Idle rotation accumulators + drag inertia ──────── */
@@ -1535,9 +1523,12 @@ scene.add(floorGlow);
       const clickX = ((e.clientX / window.innerWidth)  * 2 - 1) * 5.5;
       const clickY = -((e.clientY / window.innerHeight) * 2 - 1) * 3.0;
       emitSparks(clickX, clickY);
-      // Apply particle shockwave
-      applyShockwave(amberSystem, { x: clickX, y: clickY, z: 0 });
-      applyShockwave(sparkSystem, { x: clickX, y: clickY, z: 0 });
+      // Apply vortex shockwave + implosion pull-back
+      clickWorldPos = { x: clickX, y: clickY, z: 0 };
+      applyVortexShockwave(amberSystem, clickWorldPos);
+      applyVortexShockwave(sparkSystem, clickWorldPos);
+      implosionActive = true;
+      implosionStart = performance.now();
     }
   });
 
@@ -1785,8 +1776,36 @@ scene.add(floorGlow);
       y: -mouseY * 3.0,
       z: 0
     };
-    updateParticlePhysics(amberSystem, mouseWorldPos, delta);
-    updateParticlePhysics(sparkSystem, mouseWorldPos, delta);
+    updateVortexPhysics(amberSystem, mouseWorldPos, delta);
+    updateVortexPhysics(sparkSystem, mouseWorldPos, delta);
+
+    // Implosion pull-back phase (post-shockwave)
+    if (implosionActive) {
+      const impElapsed = performance.now() - implosionStart;
+      const impT = impElapsed / IMPLOSION_DURATION;
+      if (impT >= 1.0) {
+        implosionActive = false;
+      } else if (impT > VORTEX_PARAMS.implosionDelay) {
+        const normalizedT = (impT - VORTEX_PARAMS.implosionDelay) / (1.0 - VORTEX_PARAMS.implosionDelay);
+        const pullStrength = VORTEX_PARAMS.implosionStrength * Math.sin(normalizedT * Math.PI);
+        for (const system of [amberSystem, sparkSystem]) {
+          const pos = system.positions;
+          const vel = system.velocities;
+          for (let i = 0; i < system.count; i++) {
+            const ix = i * 3, iy = i * 3 + 1, iz = i * 3 + 2;
+            const dx = clickWorldPos.x - pos[ix];
+            const dy = clickWorldPos.y - pos[iy];
+            const dz = clickWorldPos.z - pos[iz];
+            const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            if (dist > 0.01 && dist < VORTEX_PARAMS.shockwaveRadius * 2.5) {
+              vel[ix] += (dx / dist) * pullStrength;
+              vel[iy] += (dy / dist) * pullStrength;
+              vel[iz] += (dz / dist) * pullStrength;
+            }
+          }
+        }
+      }
+    }
 
     /* ── Hub bloom pulse ── */
     // Will be calculated after sawSpinSpeed is set (see below)
