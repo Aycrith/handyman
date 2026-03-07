@@ -429,49 +429,177 @@
   pCtx.fillRect(0, 0, 32, 32);
   const particleTex = new THREE.CanvasTexture(particleCanvas);
 
-  // Amber dust particles — main layer
-  const AMBER_COUNT = 1800;
-  const amberPositions = new Float32Array(AMBER_COUNT * 3);
-  for (let i = 0; i < AMBER_COUNT; i++) {
-    const theta = rand(0, Math.PI * 2);
-    const phi = Math.acos(rand(-1, 1));
-    const r = rand(0, 11);
-    amberPositions[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
-    amberPositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-    amberPositions[i * 3 + 2] = r * Math.cos(phi);
+  /* ─── Responsive particle counts ─────────────────────── */
+  const isMobile = window.innerWidth < 768;
+  const AMBER_COUNT = isMobile ? 800 : 2000;
+  const SPARK_COUNT = isMobile ? 320 : 1100;
+
+  /* ─── Particle physics system ────────────────────────── */
+  function createParticleSystem(particleCount, positionRange) {
+    const positions = new Float32Array(particleCount * 3);
+    const velocities = new Float32Array(particleCount * 3);
+
+    // Initialize positions in a cloud formation
+    for (let i = 0; i < particleCount; i++) {
+      const theta = rand(0, Math.PI * 2);
+      const phi = Math.acos(rand(-1, 1));
+      const r = rand(0, positionRange);
+      positions[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      positions[i * 3 + 2] = r * Math.cos(phi);
+      // Velocities initialized to zero
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    return { positions, velocities, geo, count: particleCount };
   }
-  const amberParticleGeo = new THREE.BufferGeometry();
-  amberParticleGeo.setAttribute('position', new THREE.BufferAttribute(amberPositions, 3));
+
+  // Amber dust particles — main layer
+  const amberSystem = createParticleSystem(AMBER_COUNT, 11);
   const amberParticleMat = new THREE.PointsMaterial({
     map: particleTex,
     color: 0xd4820a, size: 0.022, sizeAttenuation: true,
     transparent: true, opacity: 0.75,
     blending: THREE.AdditiveBlending, depthWrite: false,
   });
-  const amberParticles = new THREE.Points(amberParticleGeo, amberParticleMat);
+  const amberParticles = new THREE.Points(amberSystem.geo, amberParticleMat);
   scene.add(amberParticles);
 
   // Blue-white spark particles — secondary layer, smaller, brighter
-  const SPARK_COUNT = 1100;
-  const sparkPositions = new Float32Array(SPARK_COUNT * 3);
-  for (let i = 0; i < SPARK_COUNT; i++) {
-    const theta = rand(0, Math.PI * 2);
-    const phi = Math.acos(rand(-1, 1));
-    const r = rand(1, 9);
-    sparkPositions[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
-    sparkPositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-    sparkPositions[i * 3 + 2] = r * Math.cos(phi);
-  }
-  const sparkGeo = new THREE.BufferGeometry();
-  sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPositions, 3));
+  const sparkSystem = createParticleSystem(SPARK_COUNT, 9);
   const sparkMat = new THREE.PointsMaterial({
     map: particleTex,
     color: 0x99ddff, size: 0.018, sizeAttenuation: true,
     transparent: true, opacity: 0.68,
     blending: THREE.AdditiveBlending, depthWrite: false,
   });
-  const sparkParticles = new THREE.Points(sparkGeo, sparkMat);
+  const sparkParticles = new THREE.Points(sparkSystem.geo, sparkMat);
   scene.add(sparkParticles);
+
+  /* ─── Particle physics parameters ────────────────────── */
+  const PHYSICS_PARAMS = {
+    attractionRadius: 3.0,
+    repulsionRadius: 1.0,
+    attractionStrength: 0.0012,
+    repulsionStrength: 0.008,
+    upwardDrift: 0.0008,
+    damping: 0.962,
+    velocityCap: 0.035,
+    shockwaveRadius: 2.0,
+    shockwaveImpulse: 0.15,
+    boundaryTop: 6.0,
+    boundaryBottom: -5.0,
+  };
+
+  /* ─── Particle physics update ────────────────────────── */
+  function updateParticlePhysics(system, mouseWorldPos, deltaTime) {
+    const { positions, velocities, count } = system;
+    const params = PHYSICS_PARAMS;
+
+    for (let i = 0; i < count; i++) {
+      const pi = i * 3;
+
+      // Get particle position
+      const px = positions[pi];
+      const py = positions[pi + 1];
+      const pz = positions[pi + 2];
+
+      // Calculate distance to mouse (3D)
+      const dx = px - mouseWorldPos.x;
+      const dy = py - mouseWorldPos.y;
+      const dz = pz - mouseWorldPos.z;
+      const distSq = dx * dx + dy * dy + dz * dz;
+      const dist = Math.sqrt(distSq);
+
+      // Apply magnetic forces
+      if (dist < params.attractionRadius && dist > 0.01) {
+        if (dist < params.repulsionRadius) {
+          // Repulsion: push away
+          const force = (params.repulsionRadius - dist) * params.repulsionStrength;
+          const nx = dx / dist;
+          const ny = dy / dist;
+          velocities[pi]     += nx * force;
+          velocities[pi + 1] += ny * force;
+        } else {
+          // Attraction: pull toward
+          const force = (params.attractionRadius - dist) / params.attractionRadius * params.attractionStrength;
+          const nx = dx / dist;
+          const ny = dy / dist;
+          velocities[pi]     -= nx * force;
+          velocities[pi + 1] -= ny * force;
+        }
+      }
+
+      // Add upward drift
+      velocities[pi + 1] += params.upwardDrift;
+
+      // Clamp velocity magnitude
+      const vx = velocities[pi];
+      const vy = velocities[pi + 1];
+      const vz = velocities[pi + 2];
+      const vmag = Math.sqrt(vx * vx + vy * vy + vz * vz);
+      if (vmag > params.velocityCap) {
+        const scale = params.velocityCap / vmag;
+        velocities[pi]     *= scale;
+        velocities[pi + 1] *= scale;
+        velocities[pi + 2] *= scale;
+      }
+
+      // Apply damping
+      velocities[pi]     *= params.damping;
+      velocities[pi + 1] *= params.damping;
+      velocities[pi + 2] *= params.damping;
+
+      // Update position
+      positions[pi]     += velocities[pi];
+      positions[pi + 1] += velocities[pi + 1];
+      positions[pi + 2] += velocities[pi + 2];
+
+      // Boundary recycling
+      if (positions[pi + 1] > params.boundaryTop || positions[pi + 1] < params.boundaryBottom) {
+        // Reset to bottom with random XZ spread
+        positions[pi]     = rand(-2, 2);
+        positions[pi + 1] = params.boundaryBottom + 0.5;
+        positions[pi + 2] = rand(-2, 2);
+        velocities[pi]     = 0;
+        velocities[pi + 1] = 0;
+        velocities[pi + 2] = 0;
+      }
+    }
+
+    // Mark geometry as needing update
+    system.geo.attributes.position.needsUpdate = true;
+  }
+
+  /* ─── Click shockwave ────────────────────────────────── */
+  function applyShockwave(system, mouseWorldPos) {
+    const { positions, velocities, count } = system;
+    const params = PHYSICS_PARAMS;
+
+    for (let i = 0; i < count; i++) {
+      const pi = i * 3;
+      const px = positions[pi];
+      const py = positions[pi + 1];
+      const pz = positions[pi + 2];
+
+      const dx = px - mouseWorldPos.x;
+      const dy = py - mouseWorldPos.y;
+      const dz = pz - mouseWorldPos.z;
+      const distSq = dx * dx + dy * dy + dz * dz;
+      const dist = Math.sqrt(distSq);
+
+      if (dist < params.shockwaveRadius && dist > 0.01) {
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const nz = dz / dist;
+        velocities[pi]     += nx * params.shockwaveImpulse;
+        velocities[pi + 1] += ny * params.shockwaveImpulse;
+        velocities[pi + 2] += nz * params.shockwaveImpulse;
+      }
+    }
+  }
 
   /* ─── Blueprint Grids ─────────────────────────────────── */
   function makeGrid(cols, rows, cell, color, opacity) {
@@ -705,7 +833,6 @@ scene.add(floorGlow);
     0, 1.06, 0, 1.2, 1.0, 0.4
   );
 
-  hammerGroup.position.set(1.4, 0.3, 2.0);
   hammerGroup.rotation.z = 0.22;
   hammerGroup.rotation.y = -0.55;
   scene.add(hammerGroup);
@@ -803,7 +930,6 @@ scene.add(floorGlow);
     wrenchGroup.add(kr);
   }
 
-  wrenchGroup.position.set(-1.6, 0.5, 2.0);
   wrenchGroup.rotation.z = 0.15;
   wrenchGroup.rotation.y = 0.60;
   scene.add(wrenchGroup);
@@ -914,7 +1040,7 @@ scene.add(floorGlow);
   // Position: upper center, face-on (blade disc is XZ plane by default from CylinderGeometry)
   // Rotate so blade faces camera (Y axis cylinder → rotate X 90deg so flat disc faces Z)
   sawGroup.rotation.x = Math.PI / 2;
-  sawGroup.position.set(0, 1.7, 0.6);
+  sawGroup.position.set(0, 1.9, -0.2);  // Triangular apex: raised and pushed back
   sawGroup.rotation.z = 0; // will spin in animation loop
   scene.add(sawGroup);
 
@@ -926,8 +1052,9 @@ scene.add(floorGlow);
   sawBounds.userData.toolId = 'saw';
   sawGroup.add(sawBounds);
 
-  // Store reference for spin animation
-  sawGroup.userData.spinSpeed = 0.007; // radians per frame, ~15s per rotation
+  // Store reference for spin animation (will be mouse-controlled)
+  sawGroup.userData.baseSawSpeed = 0.003;
+  sawGroup.userData.maxSawSpeed = 0.025;
 
 
   /* ─── All tool groups for traversal ──────────────────── */
@@ -1264,6 +1391,17 @@ scene.add(floorGlow);
     }
   });
 
+  /* ─── Touch interaction for mobile ─────────────────────── */
+  document.addEventListener('touchmove', (event) => {
+    // Get touch position from first touch point
+    const touch = event.touches[0];
+    // Convert to normalized device coordinates (-1 to 1)
+    // Use same formula as mouse handler for consistency
+    mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
+    mouseY = (touch.clientY / window.innerHeight) * 2 - 1;
+    // Physics loop will automatically respond since it reads mouseX/mouseY
+  }, false);
+
   /* ─── Disassembly state ───────────────────────────────── */
   const disassembleState = {
     hammer: { exploded: false, animating: false, startTime: 0, goingOut: false },
@@ -1355,6 +1493,9 @@ scene.add(floorGlow);
       const clickX = ((e.clientX / window.innerWidth)  * 2 - 1) * 5.5;
       const clickY = -((e.clientY / window.innerHeight) * 2 - 1) * 3.0;
       emitSparks(clickX, clickY);
+      // Apply particle shockwave
+      applyShockwave(amberSystem, { x: clickX, y: clickY, z: 0 });
+      applyShockwave(sparkSystem, { x: clickX, y: clickY, z: 0 });
     }
   });
 
@@ -1480,19 +1621,43 @@ scene.add(floorGlow);
     if (isNarrow) {
       camera.fov = 48;
       [hammerGroup, wrenchGroup, sawGroup].forEach(g => g.scale.setScalar(0.72));
-      hammerGroup.position.set(-0.15, 0.3, 2.2);
-      wrenchGroup.position.set(-1.2, 0.5, 1.4);
+      hammerGroup.position.set(0.9, 0.4, 2.1);    // left-front in triangle
+      wrenchGroup.position.set(-0.9, 0.6, 2.1);   // right-front in triangle
+      // sawGroup position handled in animate loop for apex
     } else if (isMobile) {
       camera.fov = 52;
       [hammerGroup, wrenchGroup, sawGroup].forEach(g => g.scale.setScalar(0.82));
-      hammerGroup.position.set(-0.15, 0.3, 2.0);
-      wrenchGroup.position.set(-1.5, 0.5, 1.4);
+      hammerGroup.position.set(1.1, 0.3, 2.0);    // left-front in triangle
+      wrenchGroup.position.set(-1.1, 0.5, 2.0);   // right-front in triangle
+      // sawGroup position handled in animate loop for apex
     } else {
       camera.fov = 60;
       [hammerGroup, wrenchGroup, sawGroup].forEach(g => g.scale.setScalar(1.0));
+      hammerGroup.position.set(1.2, 0.4, 2.1);    // left-front in triangle
+      wrenchGroup.position.set(-1.2, 0.6, 2.1);   // right-front in triangle
+      // sawGroup position handled in animate loop for apex
     }
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+
+    // Store base positions for float animations to preserve responsive layout
+    window.toolBasePositions = {
+      hammer: {
+        x: hammerGroup.position.x,
+        y: hammerGroup.position.y,
+        z: hammerGroup.position.z
+      },
+      wrench: {
+        x: wrenchGroup.position.x,
+        y: wrenchGroup.position.y,
+        z: wrenchGroup.position.z
+      },
+      saw: {
+        x: sawGroup.position.x,
+        y: sawGroup.position.y,
+        z: sawGroup.position.z
+      }
+    };
   }
 
   /* ─── Resize handler ──────────────────────────────────── */
@@ -1572,14 +1737,17 @@ scene.add(floorGlow);
       }
     }
 
-    /* ── Particles ── */
-    amberParticles.rotation.y += 0.00012 * delta;
-    amberParticles.rotation.x += 0.000045 * delta;
-    sparkParticles.rotation.y -= 0.00018 * delta; // counter-rotate for depth complexity
-    sparkParticles.rotation.z += 0.000055 * delta;
+    /* ── Particles (physics-driven) ── */
+    const mouseWorldPos = {
+      x: mouseX * 5.5,
+      y: -mouseY * 3.0,
+      z: 0
+    };
+    updateParticlePhysics(amberSystem, mouseWorldPos, delta);
+    updateParticlePhysics(sparkSystem, mouseWorldPos, delta);
 
     /* ── Hub bloom pulse ── */
-    hubGlowMat.opacity = 0.40 + Math.sin(time * 0.004) * 0.12;
+    // Will be calculated after sawSpinSpeed is set (see below)
 
     /* ── Scan line sweep ── */
     const scanFrac = (time * 0.00028) % 1.0;
@@ -1680,25 +1848,46 @@ scene.add(floorGlow);
     });
 
     /* ── Tool float + proximity tilt + parallax ── */
-    hammerGroup.position.y = 0.4 + Math.sin(time * 0.0006) * 0.10;
-    hammerGroup.position.x = -0.2 + camRotY * -1.8;
-    hammerGroup.position.z = 2.2 + camRotX * -0.6;
+    // Use stored responsive base positions and add float animation on top
+    if (window.toolBasePositions) {
+      hammerGroup.position.x = window.toolBasePositions.hammer.x + camRotY * -1.8;
+      hammerGroup.position.y = window.toolBasePositions.hammer.y + Math.sin(time * 0.0006) * 0.10;
+      hammerGroup.position.z = window.toolBasePositions.hammer.z + camRotX * -0.6;
+
+      wrenchGroup.position.x = window.toolBasePositions.wrench.x + camRotY * -1.6;
+      wrenchGroup.position.y = window.toolBasePositions.wrench.y + Math.sin(time * 0.0006 + 1.2) * 0.10;
+      wrenchGroup.position.z = window.toolBasePositions.wrench.z + camRotX * -0.5;
+
+      // Saw blade apex positioning with corrected float frequency and parallax
+      sawGroup.position.x = window.toolBasePositions.saw.x + camRotY * -1.4;
+      sawGroup.position.y = window.toolBasePositions.saw.y + Math.cos(time * 0.0005) * 0.08;
+      sawGroup.position.z = window.toolBasePositions.saw.z + camRotX * -0.4 + Math.sin(time * 0.0005) * 0.06;
+    }
+
     if (!spinState.hammer.spinning && dragTool !== 'hammer') {
       hammerGroup.rotation.y = hammerIdleY + 0.60 + camRotY * 0.35;
       hammerGroup.rotation.z = 0.30 + mouseX * -0.08;
     }
 
-    wrenchGroup.position.y = 0.6 + Math.sin(time * 0.0006 + 1.2) * 0.10;
-    wrenchGroup.position.x = -1.8 + camRotY * -1.6;
-    wrenchGroup.position.z = 1.6 + camRotX * -0.5;
     if (!spinState.wrench.spinning && dragTool !== 'wrench') {
       wrenchGroup.rotation.y = wrenchIdleY + 0.55 + camRotY * 0.28;
       wrenchGroup.rotation.z = 0.18 + mouseX * 0.06;
     }
 
     // Saw blade continuous spin (around its own Z axis after the X rotation)
-    sawGroup.rotation.z += sawGroup.userData.spinSpeed;
+    // Mouse-X driven speed: left (-1) = slow, right (1) = fast
+    // mouseX is already normalized to -1...1 range by mouse/touch handlers
+    const speedMultiplier = 0.5 + (mouseX * 0.5); // 0 to 1 range
+    const sawSpinSpeed = THREE.MathUtils.lerp(sawGroup.userData.baseSawSpeed, sawGroup.userData.maxSawSpeed, speedMultiplier);
+    sawGroup.rotation.z += sawSpinSpeed;
 
+    // NOW calculate speedRatio using the current frame's sawSpinSpeed
+    const baseSpeed = sawGroup.userData.baseSawSpeed;
+    const maxSpeed = sawGroup.userData.maxSawSpeed;
+    const speedRatio = (sawSpinSpeed - baseSpeed) / (maxSpeed - baseSpeed); // 0 to 1
+    // Update both hub bloom and corona with speed feedback
+    hubGlowMat.opacity = 0.30 + (speedRatio * 0.50); // Opacity from 0.3 to 0.8
+    hubCoronaMat.opacity = 0.20 + (speedRatio * 0.30); // Slightly different range for visual distinction
 
     /* ── Floor grid parallax ── */
     floorGrid.position.x = camRotY * -0.8;
@@ -1712,7 +1901,9 @@ scene.add(floorGlow);
     horizonGrid.material.opacity = toolAlpha * 0.14;
     scanLineMat.opacity  = Math.min(edgeFade, 1) * 1.0 * toolAlpha;
     scanGlowMat.opacity  = Math.min(edgeFade, 1) * 0.50 * toolAlpha;
-    sawSpot.intensity  = toolAlpha * 6;
+    // Link saw spotlight intensity to spin speed for interactive feedback
+    const spotIntensity = 4 + (speedRatio * 3); // Intensity from 4 to 7
+    sawSpot.intensity  = toolAlpha * spotIntensity;
     sawSpot.position.x = 0.2 + camRotY * -2.0;
 
     // Hero-scope: hide all fixed elements when scrolled past hero fold
