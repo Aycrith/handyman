@@ -524,6 +524,36 @@
   horizonGrid.position.set(0, -2.8, -2.0);
   scene.add(horizonGrid);
 
+/* ─── Reflective floor plane ──────────────────────────── */
+const floorPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(28, 28, 1, 1),
+  new THREE.MeshStandardMaterial({
+    color: 0x080a0f,
+    roughness: 0.08,
+    metalness: 0.92,
+    envMapIntensity: 1.4,
+  })
+);
+floorPlane.rotation.x = -Math.PI / 2;
+floorPlane.position.y = -2.55;
+floorPlane.receiveShadow = true;
+scene.add(floorPlane);
+
+// Soft glow bloom on floor — additive overlay plane slightly above floor
+const floorGlow = new THREE.Mesh(
+  new THREE.PlaneGeometry(14, 14, 1, 1),
+  new THREE.MeshBasicMaterial({
+    color: 0x1a0e04,
+    transparent: true,
+    opacity: 0.28,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  })
+);
+floorGlow.rotation.x = -Math.PI / 2;
+floorGlow.position.y = -2.50;
+scene.add(floorGlow);
+
   /* ─── Scan-line + glow layer ──────────────────────────── */
   const scanLineVerts = new Float32Array(6);
   const scanLineGeo = new THREE.BufferGeometry();
@@ -1595,6 +1625,7 @@
     allToolParts.forEach(m => { m.material.opacity = toolAlpha; });
     floorGrid.material.opacity   = toolAlpha * 0.55;
     wallGrid.material.opacity    = toolAlpha * 0.22;
+    floorGlow.material.opacity  = toolAlpha * 0.28;
     horizonGrid.material.opacity = toolAlpha * 0.14;
     scanLineMat.opacity  = Math.min(edgeFade, 1) * 1.0 * toolAlpha;
     scanGlowMat.opacity  = Math.min(edgeFade, 1) * 0.50 * toolAlpha;
