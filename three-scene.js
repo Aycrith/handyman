@@ -319,34 +319,28 @@
     return new THREE.MeshStandardMaterial({ color: baseColor, roughness, metalness });
   }
 
-  // Studio steel — near-mirror, catches RectAreaLight as sharp rectangular reflections
+  // Gunmetal — hammer head, deep dark metal
   const steelMat = new THREE.MeshStandardMaterial({
-    color: 0xd0d0d8,
-    roughness: 0.04,
+    color: 0x5a5a62,
+    roughness: 0.08,
     metalness: 0.97,
-    transparent: true,
-    opacity: 1.0,
+    envMapIntensity: 1.2,
   });
-  steelMat.envMapIntensity = 1.1;
 
-  // Dark handle — slightly metallic rubber-grip look
+  // Dark rubber grip — hammer handle and wrench grip zones
   const darkMat = new THREE.MeshStandardMaterial({
-    color: 0x1e1a14,
-    roughness: 0.72,
-    metalness: 0.18,
-    transparent: true,
-    opacity: 1.0,
+    color: 0x181410,
+    roughness: 0.75,
+    metalness: 0.12,
   });
 
-  // Chrome bright — for saw blade and carpenter's square
+  // Polished chrome — wrench jaw and saw blade body
   const chromeMat = new THREE.MeshStandardMaterial({
-    color: 0xf0f0f0,
+    color: 0xf2f0ea,
     roughness: 0.02,
     metalness: 0.99,
-    transparent: true,
-    opacity: 1.0,
+    envMapIntensity: 1.4,
   });
-  chromeMat.envMapIntensity = 1.2;
 
   // Amber emissive — for saw blade hub and highlights
   const amberEmissiveMat = new THREE.MeshStandardMaterial({
