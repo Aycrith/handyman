@@ -381,25 +381,25 @@
   const fragmentData = [];
 
   // Girder bars — strictly behind tools, slower rotation = atmospheric not distracting
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 8; i++) {
     const geo = new THREE.BoxGeometry(0.08, rand(1.8, 3.2), 0.08);
     const mat = makeMaterial(panelColors[Math.floor(Math.random() * panelColors.length)]);
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    mesh.position.set(rand(-9, 9), rand(-5, 5), rand(-14, -5));
+    mesh.position.set(rand(-9, 9), rand(-5, 5), rand(-18, -6));
     mesh.rotation.set(rand(-0.4, 0.4), rand(-Math.PI, Math.PI), rand(-0.3, 0.3));
     fragmentGroup.add(mesh);
     fragmentData.push({ mesh, rotX: rand(0.000025, 0.0001), rotY: rand(0.000025, 0.0001), rotZ: rand(0.000015, 0.00005) });
   }
 
   // Hex bolt heads — behind tools
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 5; i++) {
     const geo = new THREE.CylinderGeometry(0.12, 0.12, 0.08, 6);
     const mat = makeMaterial(panelColors[Math.floor(Math.random() * panelColors.length)]);
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true;
-    mesh.position.set(rand(-8, 8), rand(-4, 4), rand(-12, -4));
+    mesh.position.set(rand(-8, 8), rand(-4, 4), rand(-16, -6));
     mesh.rotation.set(rand(-Math.PI, Math.PI), rand(-Math.PI, Math.PI), 0);
     fragmentGroup.add(mesh);
     fragmentData.push({ mesh, rotX: rand(0.000025, 0.0001), rotY: rand(0.00003, 0.000125), rotZ: rand(0.000015, 0.00005) });
@@ -411,7 +411,7 @@
     const mat = makeMaterial(panelColors[Math.floor(Math.random() * panelColors.length)]);
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true;
-    mesh.position.set(rand(-8, 8), rand(-4, 4), rand(-12, -4));
+    mesh.position.set(rand(-8, 8), rand(-4, 4), rand(-16, -6));
     mesh.rotation.set(rand(-Math.PI, Math.PI), rand(-Math.PI, Math.PI), rand(-Math.PI, Math.PI));
     fragmentGroup.add(mesh);
     fragmentData.push({ mesh, rotX: rand(0.00003, 0.00011), rotY: rand(0.00003, 0.00011), rotZ: rand(0.000015, 0.00006) });
@@ -423,7 +423,7 @@
     const mat = makeMaterial(panelColors[Math.floor(Math.random() * panelColors.length)]);
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true;
-    mesh.position.set(rand(-8, 8), rand(-4, 4), rand(-12, -4));
+    mesh.position.set(rand(-8, 8), rand(-4, 4), rand(-16, -6));
     mesh.rotation.set(rand(-Math.PI, Math.PI), rand(-Math.PI, Math.PI), rand(-Math.PI, Math.PI));
     fragmentGroup.add(mesh);
     fragmentData.push({ mesh, rotX: rand(0.000025, 0.0001), rotY: rand(0.000025, 0.0001), rotZ: rand(0.000015, 0.00005) });
