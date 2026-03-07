@@ -587,7 +587,6 @@ scene.add(floorGlow);
   /* ─── Hammer ─────────────────────────────────────────── */
   const hammerGroup = new THREE.Group();
   const hammerParts = [];
-  const faceMat = new THREE.MeshStandardMaterial({ color: 0xd4c090, roughness: 0.04, metalness: 0.98, transparent: true, opacity: 1.0 });
 
   function addHammerPart(geo, mat, px, py, pz, sx, sy, sz) {
     const mesh = new THREE.Mesh(geo, mat);
@@ -598,59 +597,121 @@ scene.add(floorGlow);
     return mesh;
   }
 
-  // Head — wide steel block, clearly horizontal
-  addHammerPart(new THREE.BoxGeometry(1.45, 0.50, 0.54), steelMat.clone(),  0,     0.78,  0,     1.2,  0.8,  0.4);
-  // Face plate — striking face
-  addHammerPart(new THREE.BoxGeometry(0.50, 0.50, 0.09), faceMat.clone(),   0.72,  0.78,  0,     0.3,  0.6,  0.9);
-  // Claw prong A — V-split fork for readable claw silhouette
-  const clawMatA = darkMat.clone();
-  const clawA = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.38, 0.14), clawMatA);
-  clawA.castShadow = true;
-  clawA.position.set(-0.60, 0.95, 0.14);
-  clawA.rotation.z = -0.22;
-  hammerGroup.add(clawA);
-  registerPart(clawA, -1.6, 0.4, -0.2, hammerParts);
-  // Claw prong B
-  const clawMatB = darkMat.clone();
-  const clawB = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.38, 0.14), clawMatB);
-  clawB.castShadow = true;
-  clawB.position.set(-0.60, 0.95, -0.14);
-  clawB.rotation.z = -0.22;
-  hammerGroup.add(clawB);
-  registerPart(clawB, -1.6, 0.4, 0.2, hammerParts);
-  // Head top bevel strip — thin amber highlight strip
-  addHammerPart(
-    new THREE.BoxGeometry(1.45, 0.06, 0.54),
-    new THREE.MeshStandardMaterial({ color: 0xe8a040, roughness: 0.12, metalness: 0.95 }),
-    0, 1.05, 0,  1.2, 1.0, 0.4
-  );
-  // Neck
-  addHammerPart(new THREE.BoxGeometry(0.20, 0.28, 0.20), steelMat.clone(),  0,     0.28,  0,     0.0, -0.4,  0.3);
-  // Handle shaft — tapered, higher segments
-  addHammerPart(new THREE.CylinderGeometry(0.065, 0.085, 2.2, 20), steelMat.clone(), 0, -0.85, 0, -0.5, -1.2,  0.2);
-  // Grip — darker, slightly wider
-  addHammerPart(new THREE.CylinderGeometry(0.100, 0.100, 0.68, 8), darkMat.clone(),  0, -1.62, 0, -0.9, -1.8,  0.1);
+  // ── Handle: LatheGeometry — hickory profile, tapered with ergonomic waist
+  const handlePoints = [
+    new THREE.Vector2(0.055, 0.00),
+    new THREE.Vector2(0.072, 0.08),
+    new THREE.Vector2(0.068, 0.18),
+    new THREE.Vector2(0.058, 0.55),
+    new THREE.Vector2(0.052, 0.90),
+    new THREE.Vector2(0.058, 1.20),
+    new THREE.Vector2(0.062, 1.55),
+    new THREE.Vector2(0.072, 1.85),
+    new THREE.Vector2(0.078, 2.00),
+  ];
+  const handleGeo = new THREE.LatheGeometry(handlePoints, 20);
+  addHammerPart(handleGeo, darkMat.clone(), 0, -0.82, 0, -0.5, -1.2, 0.3);
 
-  // Knurling rings on handle — darker bands spaced along grip zone
-  for (let k = 0; k < 6; k++) {
-    const knurl = new THREE.Mesh(
-      new THREE.TorusGeometry(0.102, 0.008, 6, 16),
-      new THREE.MeshStandardMaterial({ color: 0x0f0d0a, roughness: 0.85, metalness: 0.2 })
+  // Handle grip rings — 5 torus rings on lower third for texture
+  for (let k = 0; k < 5; k++) {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.082, 0.007, 6, 18),
+      new THREE.MeshStandardMaterial({ color: 0x0d0b08, roughness: 0.88, metalness: 0.15 })
     );
-    knurl.castShadow = true;
-    knurl.rotation.x = Math.PI / 2;
-    knurl.position.set(0, -1.35 - k * 0.09, 0);
-    hammerGroup.add(knurl);
-    registerPart(knurl, 0, -0.8 - k * 0.2, 0.15, hammerParts);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.set(0, -1.55 + k * 0.18, 0);
+    hammerGroup.add(ring);
+    registerPart(ring, 0, -0.9 - k * 0.2, 0.2, hammerParts);
   }
 
-  hammerGroup.position.set(-0.2, 0.4, 2.2);
-  hammerGroup.rotation.z = 0.30;   // more dramatic tilt
-  hammerGroup.rotation.y = 0.60;   // rotated so claw faces toward camera
+  // ── Head: ExtrudeGeometry — rectangular head with chamfered corners
+  const headShape = new THREE.Shape();
+  const hw = 0.72, hh = 0.26, chamfer = 0.04;
+  headShape.moveTo(-hw + chamfer, -hh);
+  headShape.lineTo( hw - chamfer, -hh);
+  headShape.quadraticCurveTo( hw, -hh,  hw, -hh + chamfer);
+  headShape.lineTo( hw,  hh - chamfer);
+  headShape.quadraticCurveTo( hw,  hh,  hw - chamfer,  hh);
+  headShape.lineTo(-hw + chamfer,  hh);
+  headShape.quadraticCurveTo(-hw,  hh, -hw,  hh - chamfer);
+  headShape.lineTo(-hw, -hh + chamfer);
+  headShape.quadraticCurveTo(-hw, -hh, -hw + chamfer, -hh);
+
+  const headGeo = new THREE.ExtrudeGeometry(headShape, {
+    depth: 0.48,
+    bevelEnabled: true,
+    bevelThickness: 0.025,
+    bevelSize: 0.022,
+    bevelSegments: 3,
+  });
+  addHammerPart(headGeo, steelMat.clone(), -hw, 0.78, -0.24, 1.4, 0.7, 0.3);
+
+  // Face plate — striking face disc, polished
+  addHammerPart(
+    new THREE.CylinderGeometry(0.20, 0.20, 0.06, 20),
+    new THREE.MeshStandardMaterial({ color: 0xe0d8c0, roughness: 0.03, metalness: 0.99 }),
+    hw + 0.03, 0.78, 0, 0.3, 0.5, 0.8
+  );
+
+  // Face concentric rings — embossed detail on striking face
+  for (let r = 1; r <= 3; r++) {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(r * 0.055, 0.006, 5, 18),
+      new THREE.MeshStandardMaterial({ color: 0xb8b090, roughness: 0.12, metalness: 0.95 })
+    );
+    ring.rotation.y = Math.PI / 2;
+    ring.position.set(hw + 0.06, 0.78, 0);
+    hammerGroup.add(ring);
+  }
+
+  // ── Claw: two ExtrudeGeometry curved prongs
+  for (let side of [-1, 1]) {
+    const clawShape = new THREE.Shape();
+    clawShape.moveTo(0, 0);
+    clawShape.lineTo(0.045, 0);
+    clawShape.quadraticCurveTo(0.05, 0.18, 0.02, 0.40);
+    clawShape.quadraticCurveTo(0.01, 0.48, 0, 0.50);
+    clawShape.quadraticCurveTo(-0.01, 0.48, -0.02, 0.40);
+    clawShape.quadraticCurveTo(-0.015, 0.18, -0.045, 0);
+    clawShape.lineTo(0, 0);
+
+    const clawGeo = new THREE.ExtrudeGeometry(clawShape, {
+      depth: 0.08,
+      bevelEnabled: true,
+      bevelThickness: 0.008,
+      bevelSize: 0.007,
+      bevelSegments: 2,
+    });
+    const clawMesh = new THREE.Mesh(clawGeo, steelMat.clone());
+    clawMesh.castShadow = true;
+    clawMesh.position.set(-hw - 0.44, 0.68, side * 0.14 - 0.04);
+    clawMesh.rotation.z = -0.30;
+    clawMesh.rotation.y = side * 0.12;
+    hammerGroup.add(clawMesh);
+    registerPart(clawMesh, -1.8, 0.5, side * 0.5, hammerParts);
+  }
+
+  // ── Neck connector
+  addHammerPart(
+    new THREE.BoxGeometry(0.22, 0.32, 0.26),
+    steelMat.clone(),
+    0, 0.30, 0, 0, -0.4, 0.3
+  );
+
+  // Amber bevel strip on top of head
+  addHammerPart(
+    new THREE.BoxGeometry(1.48, 0.04, 0.50),
+    new THREE.MeshStandardMaterial({ color: 0xe8a040, roughness: 0.10, metalness: 0.96 }),
+    0, 1.06, 0, 1.2, 1.0, 0.4
+  );
+
+  hammerGroup.position.set(1.4, 0.3, 2.0);
+  hammerGroup.rotation.z = 0.22;
+  hammerGroup.rotation.y = -0.55;
   scene.add(hammerGroup);
 
   const hmBounds = new THREE.Mesh(
-    new THREE.BoxGeometry(1.8, 3.0, 0.8),
+    new THREE.BoxGeometry(2.0, 3.2, 0.9),
     new THREE.MeshBasicMaterial({ visible: false })
   );
   hmBounds.userData.toolId = 'hammer';
