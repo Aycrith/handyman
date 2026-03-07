@@ -669,41 +669,86 @@ scene.add(floorGlow);
     return mesh;
   }
 
-  // Handle — tapered cylinder, higher segment count for smoothness
-  addWrenchPart(new THREE.CylinderGeometry(0.085, 0.115, 2.6, 24), steelMat.clone(),  0,     -0.60, 0,  -1.0, -1.5,  0.2);
-  // Jaw body — wider bridge connecting handle to jaw arms
-  addWrenchPart(new THREE.BoxGeometry(0.95, 0.35, 0.28),           steelMat.clone(),  0,      0.78, 0,   0.5,  1.0,  0.3);
-  // Fixed lower jaw — LEFT arm, wider and taller
-  addWrenchPart(new THREE.BoxGeometry(0.28, 0.60, 0.28),           steelMat.clone(), -0.34,   1.20, 0,  -1.2,  0.8, -0.1);
-  // Adjustable upper jaw — RIGHT arm, creating open C gap
-  addWrenchPart(new THREE.BoxGeometry(0.28, 0.50, 0.28),           steelMat.clone(),  0.34,   1.38, 0,   1.2,  0.6,  0.2);
-  // Jaw gap — taller dark slot makes C-opening clearly legible
-  addWrenchPart(new THREE.BoxGeometry(0.22, 0.22, 0.32),           darkMat.clone(),   0,      1.05, 0,  -0.3, -0.5,  0.4);
-  // Throat — connector between handle and jaw body
-  addWrenchPart(new THREE.BoxGeometry(0.22, 0.22, 0.28),           darkMat.clone(),   0,      0.55, 0,  -0.3, -0.5,  0.4);
-  // Left jaw cheek ridge — adds depth definition
-  addWrenchPart(new THREE.BoxGeometry(0.06, 0.55, 0.06),           steelMat.clone(), -0.50,   0.96, 0,  -0.8,  0.5, -0.2);
-  // Right jaw cheek ridge
-  addWrenchPart(new THREE.BoxGeometry(0.06, 0.55, 0.06),           steelMat.clone(),  0.50,   0.96, 0,   0.8,  0.5,  0.2);
+  // ── Handle: LatheGeometry — smooth machined taper, slight ergonomic waist
+  const wrHandlePoints = [
+    new THREE.Vector2(0.060, 0.00),
+    new THREE.Vector2(0.075, 0.10),
+    new THREE.Vector2(0.070, 0.40),
+    new THREE.Vector2(0.062, 0.85),
+    new THREE.Vector2(0.068, 1.25),
+    new THREE.Vector2(0.078, 1.65),
+    new THREE.Vector2(0.092, 2.00),
+    new THREE.Vector2(0.105, 2.30),
+  ];
+  const wrHandleGeo = new THREE.LatheGeometry(wrHandlePoints, 22);
+  addWrenchPart(wrHandleGeo, steelMat.clone(), 0, -0.65, 0, -1.0, -1.6, 0.2);
 
-  // Worm screw adjuster — small perpendicular cylinder for adjustment mechanism
-  const wormScrew = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.06, 0.06, 0.30, 12),
-    new THREE.MeshStandardMaterial({ color: 0xd0d0d8, roughness: 0.06, metalness: 0.98 })
-  );
-  wormScrew.castShadow = true;
-  wormScrew.rotation.z = Math.PI / 2;
-  wormScrew.position.set(0, 0.55, 0);
-  wrenchGroup.add(wormScrew);
-  registerPart(wormScrew, 0.3, 0.8, -0.5, wrenchParts);
+  // Knurl band — grip section, 4 torus rings
+  for (let k = 0; k < 4; k++) {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.074, 0.009, 6, 18),
+      new THREE.MeshStandardMaterial({ color: 0x0e0c09, roughness: 0.85, metalness: 0.2 })
+    );
+    ring.rotation.x = Math.PI / 2;
+    ring.position.set(0, -1.30 + k * 0.22, 0);
+    wrenchGroup.add(ring);
+    registerPart(ring, -0.4, -0.8 - k * 0.2, 0.2, wrenchParts);
+  }
 
-  wrenchGroup.position.set(-1.8, 0.6, 1.6);
-  wrenchGroup.rotation.z = 0.18;
-  wrenchGroup.rotation.y = 0.55;  // jaw opening faces ~50° toward camera
+  // ── Jaw body: ExtrudeGeometry — adjustable wrench C-jaw profile
+  const jawShape = new THREE.Shape();
+  jawShape.moveTo(-0.50, 0);
+  jawShape.lineTo( 0.50, 0);
+  jawShape.lineTo( 0.50, 0.30);
+  jawShape.lineTo( 0.25, 0.30);
+  jawShape.lineTo( 0.25, 0.82);
+  jawShape.lineTo( 0.10, 0.82);
+  jawShape.lineTo( 0.10, 0.30);
+  jawShape.lineTo(-0.10, 0.30);
+  jawShape.lineTo(-0.10, 0.95);
+  jawShape.lineTo(-0.25, 0.95);
+  jawShape.lineTo(-0.25, 0.30);
+  jawShape.lineTo(-0.50, 0.30);
+  jawShape.lineTo(-0.50, 0);
+
+  const jawGeo = new THREE.ExtrudeGeometry(jawShape, {
+    depth: 0.26,
+    bevelEnabled: true,
+    bevelThickness: 0.018,
+    bevelSize: 0.015,
+    bevelSegments: 2,
+  });
+  addWrenchPart(jawGeo, chromeMat.clone(), -0.50, 1.30, -0.13, 0.6, 0.9, 0.3);
+
+  // Worm adjuster wheel — cylindrical roller between jaw arms
+  const wormGeo = new THREE.CylinderGeometry(0.062, 0.062, 0.32, 14);
+  const wormMesh = new THREE.Mesh(wormGeo, new THREE.MeshStandardMaterial({
+    color: 0xd8d0b8, roughness: 0.06, metalness: 0.98
+  }));
+  wormMesh.castShadow = true;
+  wormMesh.rotation.z = Math.PI / 2;
+  wormMesh.position.set(0.18, 1.58, 0);
+  wrenchGroup.add(wormMesh);
+  registerPart(wormMesh, 0.6, 0.8, -0.5, wrenchParts);
+
+  // Worm knurling rings — 8 thin rings along roller
+  for (let k = 0; k < 8; k++) {
+    const kr = new THREE.Mesh(
+      new THREE.TorusGeometry(0.064, 0.005, 5, 14),
+      new THREE.MeshStandardMaterial({ color: 0x0e0c09, roughness: 0.9, metalness: 0.1 })
+    );
+    kr.rotation.y = Math.PI / 2;
+    kr.position.set(0.18, 1.58, -0.14 + k * 0.04);
+    wrenchGroup.add(kr);
+  }
+
+  wrenchGroup.position.set(-1.6, 0.5, 2.0);
+  wrenchGroup.rotation.z = 0.15;
+  wrenchGroup.rotation.y = 0.60;
   scene.add(wrenchGroup);
 
   const wrBounds = new THREE.Mesh(
-    new THREE.BoxGeometry(1.2, 3.2, 0.6),
+    new THREE.BoxGeometry(1.2, 3.4, 0.6),
     new THREE.MeshBasicMaterial({ visible: false })
   );
   wrBounds.userData.toolId = 'wrench';
