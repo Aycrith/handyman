@@ -50,7 +50,8 @@
   // Fake IBL via CubeCamera — gives metallic materials something to reflect
   const envScene = new THREE.Scene();
   envScene.background = new THREE.Color(0x07090f);
-  const envColors = [0x8f5510, 0x2255aa, 0x334455, 0x0a0a14, 0x1a1408, 0x060810];
+  // +X warm amber, -X cool blue, +Y neutral top, -Y dark floor, +Z front, -Z back dark
+  const envColors = [0xb06010, 0x1a3d88, 0x1a2030, 0x050508, 0x120e08, 0x040508];
   const envDirs   = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
   envDirs.forEach(([x,y,z], i) => {
     const m = new THREE.Mesh(
