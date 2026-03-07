@@ -712,234 +712,276 @@ scene.add(floorGlow);
     mesh.rotation.copy(mesh.userData.spreadRot);
   }
 
-  /* ─── Hammer ─────────────────────────────────────────── */
-  const hammerGroup = new THREE.Group();
-  const hammerParts = [];
+  /* ─── Cordless Power Drill ────────────────────────────────── */
+  const drillGroup = new THREE.Group();
+  const drillParts = [];
 
-  function addHammerPart(geo, mat, px, py, pz, sx, sy, sz) {
+  function addDrillPart(geo, mat, px, py, pz, sx, sy, sz) {
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true;
     mesh.position.set(px, py, pz);
-    hammerGroup.add(mesh);
-    registerPart(mesh, sx, sy, sz, hammerParts);
+    drillGroup.add(mesh);
+    registerPart(mesh, sx, sy, sz, drillParts);
     return mesh;
   }
 
-  // ── Handle: LatheGeometry — hickory profile, tapered with ergonomic waist
-  const handlePoints = [
-    new THREE.Vector2(0.055, 0.00),
-    new THREE.Vector2(0.072, 0.08),
-    new THREE.Vector2(0.068, 0.18),
-    new THREE.Vector2(0.058, 0.55),
-    new THREE.Vector2(0.052, 0.90),
-    new THREE.Vector2(0.058, 1.20),
-    new THREE.Vector2(0.062, 1.55),
-    new THREE.Vector2(0.072, 1.85),
-    new THREE.Vector2(0.078, 2.00),
-  ];
-  const handleGeo = new THREE.LatheGeometry(handlePoints, 20);
-  addHammerPart(handleGeo, darkMat.clone(), 0, -0.82, 0, -0.5, -1.2, 0.3);
+  // ── Body: pistol-grip profile via ExtrudeGeometry
+  const barrelShape = new THREE.Shape();
+  barrelShape.moveTo(-0.55, 0.10);
+  barrelShape.lineTo( 0.55, 0.10);
+  barrelShape.quadraticCurveTo(0.60, 0.10, 0.60, 0.16);
+  barrelShape.lineTo( 0.60, 0.52);
+  barrelShape.quadraticCurveTo(0.60, 0.58, 0.54, 0.58);
+  barrelShape.lineTo(-0.42, 0.58);
+  barrelShape.quadraticCurveTo(-0.55, 0.58, -0.60, 0.52);
+  barrelShape.lineTo(-0.60, 0.16);
+  barrelShape.quadraticCurveTo(-0.60, 0.10, -0.55, 0.10);
+  barrelShape.closePath();
 
-  // Handle grip rings — 5 torus rings on lower third for texture
-  for (let k = 0; k < 5; k++) {
+  const gripShape = new THREE.Shape();
+  gripShape.moveTo(-0.10, 0);
+  gripShape.lineTo( 0.10, 0);
+  gripShape.lineTo( 0.14, -0.90);
+  gripShape.quadraticCurveTo(0.14, -0.98, 0.06, -0.98);
+  gripShape.lineTo(-0.06, -0.98);
+  gripShape.quadraticCurveTo(-0.14, -0.98, -0.14, -0.90);
+  gripShape.closePath();
+
+  const extrudeOpts = { depth: 0.32, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.022, bevelSegments: 3 };
+
+  addDrillPart(
+    new THREE.ExtrudeGeometry(barrelShape, extrudeOpts),
+    darkMat.clone(), 0, 0.34, -0.16, -0.5, 0.8, 0.4
+  );
+  addDrillPart(
+    new THREE.ExtrudeGeometry(gripShape, extrudeOpts),
+    darkMat.clone(), 0, 0.10, -0.16, 0.3, -1.0, 0.3
+  );
+
+  // ── Motor housing (rear barrel) — tapered cylinder
+  addDrillPart(
+    new THREE.CylinderGeometry(0.26, 0.28, 0.55, 16),
+    steelMat.clone(), -0.28, 0.34, 0, -1.2, 0.5, 0.3
+  );
+
+  // ── Chuck assembly (front)
+  addDrillPart(
+    new THREE.CylinderGeometry(0.14, 0.18, 0.30, 16),
+    chromeMat.clone(), 0.70, 0.34, 0, 1.2, 0.4, 0.3
+  );
+  // Chuck tip opening
+  const chuckTip = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.06, 0.06, 0.05, 12),
+    new THREE.MeshStandardMaterial({ color: 0x020202, roughness: 1.0, metalness: 0.0 })
+  );
+  chuckTip.position.set(0.86, 0.34, 0);
+  drillGroup.add(chuckTip);
+
+  // Chuck key slots (3× at 120deg)
+  for (let k = 0; k < 3; k++) {
+    const angle = (k / 3) * Math.PI * 2;
+    const slot = new THREE.Mesh(
+      new THREE.BoxGeometry(0.036, 0.13, 0.025),
+      chromeMat.clone()
+    );
+    slot.position.set(0.70, 0.34 + Math.sin(angle) * 0.10, Math.cos(angle) * 0.10);
+    slot.rotation.x = angle;
+    drillGroup.add(slot);
+  }
+
+  // ── Battery pack (bottom of grip)
+  addDrillPart(
+    new THREE.BoxGeometry(0.40, 0.28, 0.34),
+    new THREE.MeshStandardMaterial({ color: 0x1a1814, roughness: 0.65, metalness: 0.05, transparent: true, opacity: 1 }),
+    0, -1.02, -0.03, 0.3, -1.4, 0.5
+  );
+  // Battery rail connector
+  addDrillPart(
+    new THREE.BoxGeometry(0.42, 0.04, 0.36),
+    new THREE.MeshStandardMaterial({ color: 0x0e0c0a, roughness: 0.55, metalness: 0.15, transparent: true, opacity: 1 }),
+    0, -0.90, -0.03, 0.3, -1.0, 0.4
+  );
+  // Battery cell ridges (4×)
+  for (let b = 0; b < 4; b++) {
+    const bx = -0.15 + b * 0.10;
+    const ridge = new THREE.Mesh(
+      new THREE.BoxGeometry(0.06, 0.04, 0.30),
+      new THREE.MeshStandardMaterial({ color: 0x121009, roughness: 0.6, metalness: 0.1 })
+    );
+    ridge.position.set(bx, -0.87, -0.03);
+    drillGroup.add(ridge);
+  }
+  // Amber accent stripe on battery
+  addDrillPart(
+    new THREE.BoxGeometry(0.42, 0.03, 0.36),
+    tapeBandMat.clone(), 0, -0.76, -0.03, 0.3, -0.8, 0.4
+  );
+
+  // ── Trigger
+  addDrillPart(
+    new THREE.BoxGeometry(0.06, 0.20, 0.09),
+    new THREE.MeshStandardMaterial({ color: 0x141210, roughness: 0.82, metalness: 0.08, transparent: true, opacity: 1 }),
+    0.10, -0.10, 0, 0.4, 0.5, 0.2
+  );
+
+  // ── Ventilation slots on motor housing (6×)
+  for (let v = 0; v < 6; v++) {
+    const angle = (v / 6) * Math.PI * 2;
+    const vSlot = new THREE.Mesh(
+      new THREE.BoxGeometry(0.008, 0.08, 0.36),
+      new THREE.MeshStandardMaterial({ color: 0x020202, roughness: 1.0, metalness: 0.0 })
+    );
+    vSlot.position.set(-0.28 + Math.cos(angle) * 0.28, 0.34 + Math.sin(angle) * 0.28, 0);
+    vSlot.rotation.z = angle;
+    drillGroup.add(vSlot);
+  }
+
+  // ── Grip texture rings (5×)
+  for (let g = 0; g < 5; g++) {
     const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(0.082, 0.007, 6, 18),
+      new THREE.TorusGeometry(0.11, 0.007, 6, 18),
       new THREE.MeshStandardMaterial({ color: 0x0d0b08, roughness: 0.88, metalness: 0.15 })
     );
     ring.rotation.x = Math.PI / 2;
-    ring.position.set(0, -1.55 + k * 0.18, 0);
-    hammerGroup.add(ring);
-    registerPart(ring, 0, -0.9 - k * 0.2, 0.2, hammerParts);
+    ring.position.set(0, -0.25 - g * 0.12, 0);
+    drillGroup.add(ring);
   }
 
-  // ── Head: ExtrudeGeometry — rectangular head with chamfered corners
-  const headShape = new THREE.Shape();
-  const hw = 0.72, hh = 0.26, chamfer = 0.04;
-  headShape.moveTo(-hw + chamfer, -hh);
-  headShape.lineTo( hw - chamfer, -hh);
-  headShape.quadraticCurveTo( hw, -hh,  hw, -hh + chamfer);
-  headShape.lineTo( hw,  hh - chamfer);
-  headShape.quadraticCurveTo( hw,  hh,  hw - chamfer,  hh);
-  headShape.lineTo(-hw + chamfer,  hh);
-  headShape.quadraticCurveTo(-hw,  hh, -hw,  hh - chamfer);
-  headShape.lineTo(-hw, -hh + chamfer);
-  headShape.quadraticCurveTo(-hw, -hh, -hw + chamfer, -hh);
-
-  const headGeo = new THREE.ExtrudeGeometry(headShape, {
-    depth: 0.48,
-    bevelEnabled: true,
-    bevelThickness: 0.025,
-    bevelSize: 0.022,
-    bevelSegments: 3,
-  });
-  addHammerPart(headGeo, steelMat.clone(), -hw, 0.78, -0.24, 1.4, 0.7, 0.3);
-
-  // Face plate — striking face disc, polished
-  addHammerPart(
-    new THREE.CylinderGeometry(0.20, 0.20, 0.06, 20),
-    new THREE.MeshStandardMaterial({ color: 0xe0d8c0, roughness: 0.03, metalness: 0.99 }),
-    hw + 0.03, 0.78, 0, 0.3, 0.5, 0.8
-  );
-
-  // Face concentric rings — embossed detail on striking face
-  for (let r = 1; r <= 3; r++) {
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(r * 0.055, 0.006, 5, 18),
-      new THREE.MeshStandardMaterial({ color: 0xb8b090, roughness: 0.12, metalness: 0.95 })
-    );
-    ring.rotation.y = Math.PI / 2;
-    ring.position.set(hw + 0.06, 0.78, 0);
-    hammerGroup.add(ring);
-  }
-
-  // ── Claw: two ExtrudeGeometry curved prongs
-  for (let side of [-1, 1]) {
-    const clawShape = new THREE.Shape();
-    clawShape.moveTo(0, 0);
-    clawShape.lineTo(0.045, 0);
-    clawShape.quadraticCurveTo(0.05, 0.18, 0.02, 0.40);
-    clawShape.quadraticCurveTo(0.01, 0.48, 0, 0.50);
-    clawShape.quadraticCurveTo(-0.01, 0.48, -0.02, 0.40);
-    clawShape.quadraticCurveTo(-0.015, 0.18, -0.045, 0);
-    clawShape.lineTo(0, 0);
-
-    const clawGeo = new THREE.ExtrudeGeometry(clawShape, {
-      depth: 0.08,
-      bevelEnabled: true,
-      bevelThickness: 0.008,
-      bevelSize: 0.007,
-      bevelSegments: 2,
-    });
-    const clawMesh = new THREE.Mesh(clawGeo, steelMat.clone());
-    clawMesh.castShadow = true;
-    clawMesh.position.set(-hw - 0.44, 0.68, side * 0.14 - 0.04);
-    clawMesh.rotation.z = -0.30;
-    clawMesh.rotation.y = side * 0.12;
-    hammerGroup.add(clawMesh);
-    registerPart(clawMesh, -1.8, 0.5, side * 0.5, hammerParts);
-  }
-
-  // ── Neck connector
-  addHammerPart(
-    new THREE.BoxGeometry(0.22, 0.32, 0.26),
-    steelMat.clone(),
-    0, 0.30, 0, 0, -0.4, 0.3
-  );
-
-  // Amber bevel strip on top of head
-  addHammerPart(
-    new THREE.BoxGeometry(1.48, 0.04, 0.50),
-    new THREE.MeshStandardMaterial({ color: 0xe8a040, roughness: 0.10, metalness: 0.96 }),
-    0, 1.06, 0, 1.2, 1.0, 0.4
-  );
-
-  hammerGroup.rotation.z = 0.22;
-  hammerGroup.rotation.y = -0.55;
-  scene.add(hammerGroup);
-
-  const hmBounds = new THREE.Mesh(
-    new THREE.BoxGeometry(2.0, 3.2, 0.9),
+  // ── Raycasting bounds
+  const drillBounds = new THREE.Mesh(
+    new THREE.BoxGeometry(1.8, 2.2, 0.7),
     new THREE.MeshBasicMaterial({ visible: false })
   );
-  hmBounds.userData.toolId = 'hammer';
-  hammerGroup.add(hmBounds);
+  drillBounds.userData.toolId = 'drill';
+  drillGroup.add(drillBounds);
 
-  /* ─── Wrench ─────────────────────────────────────────── */
-  const wrenchGroup = new THREE.Group();
-  const wrenchParts = [];
+  drillGroup.rotation.z = 0.18;
+  drillGroup.rotation.y = -0.50;
+  scene.add(drillGroup);
 
-  function addWrenchPart(geo, mat, px, py, pz, sx, sy, sz) {
+  /* ─── Angle Grinder ─────────────────────────────────────────── */
+  const grinderGroup = new THREE.Group();
+  const grinderParts = [];
+
+  function addGrinderPart(geo, mat, px, py, pz, sx, sy, sz) {
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true;
     mesh.position.set(px, py, pz);
-    wrenchGroup.add(mesh);
-    registerPart(mesh, sx, sy, sz, wrenchParts);
+    grinderGroup.add(mesh);
+    registerPart(mesh, sx, sy, sz, grinderParts);
     return mesh;
   }
 
-  // ── Handle: LatheGeometry — smooth machined taper, slight ergonomic waist
-  const wrHandlePoints = [
-    new THREE.Vector2(0.060, 0.00),
-    new THREE.Vector2(0.075, 0.10),
-    new THREE.Vector2(0.070, 0.40),
-    new THREE.Vector2(0.062, 0.85),
-    new THREE.Vector2(0.068, 1.25),
-    new THREE.Vector2(0.078, 1.65),
-    new THREE.Vector2(0.092, 2.00),
-    new THREE.Vector2(0.105, 2.30),
-  ];
-  const wrHandleGeo = new THREE.LatheGeometry(wrHandlePoints, 22);
-  addWrenchPart(wrHandleGeo, steelMat.clone(), 0, -0.65, 0, -1.0, -1.6, 0.2);
+  // ── Main barrel body (horizontal)
+  const barrelMesh = addGrinderPart(
+    new THREE.CylinderGeometry(0.22, 0.24, 1.30, 16),
+    darkMat.clone(), 0, 0, 0, -0.5, 0.8, 0.4
+  );
+  barrelMesh.rotation.z = Math.PI / 2;
 
-  // Knurl band — grip section, 4 torus rings
-  for (let k = 0; k < 4; k++) {
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(0.074, 0.009, 6, 18),
-      new THREE.MeshStandardMaterial({ color: 0x0e0c09, roughness: 0.85, metalness: 0.2 })
-    );
-    ring.rotation.x = Math.PI / 2;
-    ring.position.set(0, -1.30 + k * 0.22, 0);
-    wrenchGroup.add(ring);
-    registerPart(ring, -0.4, -0.8 - k * 0.2, 0.2, wrenchParts);
-  }
+  // ── Gear head (front of barrel, disc side)
+  const gearHead = addGrinderPart(
+    new THREE.CylinderGeometry(0.30, 0.28, 0.28, 16),
+    steelMat.clone(), 0.80, 0, 0, 1.0, 0.5, 0.3
+  );
+  gearHead.rotation.z = Math.PI / 2;
 
-  // ── Jaw body: ExtrudeGeometry — adjustable wrench C-jaw profile
-  const jawShape = new THREE.Shape();
-  jawShape.moveTo(-0.50, 0);
-  jawShape.lineTo( 0.50, 0);
-  jawShape.lineTo( 0.50, 0.30);
-  jawShape.lineTo( 0.25, 0.30);
-  jawShape.lineTo( 0.25, 0.82);
-  jawShape.lineTo( 0.10, 0.82);
-  jawShape.lineTo( 0.10, 0.30);
-  jawShape.lineTo(-0.10, 0.30);
-  jawShape.lineTo(-0.10, 0.95);
-  jawShape.lineTo(-0.25, 0.95);
-  jawShape.lineTo(-0.25, 0.30);
-  jawShape.lineTo(-0.50, 0.30);
-  jawShape.lineTo(-0.50, 0);
+  // ── Disc guard (protective half-shield)
+  const guardMesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.46, 0.46, 0.030, 32, 1, true, 0, Math.PI),
+    steelMat.clone()
+  );
+  guardMesh.castShadow = true;
+  guardMesh.rotation.z = Math.PI / 2;
+  guardMesh.rotation.y = Math.PI / 2;
+  guardMesh.position.set(1.00, 0, 0);
+  grinderGroup.add(guardMesh);
+  registerPart(guardMesh, 1.2, 0.5, 0.3, grinderParts);
 
-  const jawGeo = new THREE.ExtrudeGeometry(jawShape, {
-    depth: 0.26,
-    bevelEnabled: true,
-    bevelThickness: 0.018,
-    bevelSize: 0.015,
-    bevelSegments: 2,
+  // Guard rim torus
+  const guardRim = new THREE.Mesh(
+    new THREE.TorusGeometry(0.46, 0.015, 8, 32),
+    steelMat.clone()
+  );
+  guardRim.rotation.y = Math.PI / 2;
+  guardRim.position.set(1.00, 0, 0);
+  grinderGroup.add(guardRim);
+  registerPart(guardRim, 1.2, 0.4, 0.3, grinderParts);
+
+  // ── Grinding disc
+  const discMat = new THREE.MeshStandardMaterial({
+    color: 0x2a2620, roughness: 0.85, metalness: 0.20, transparent: true, opacity: 1.0
   });
-  addWrenchPart(jawGeo, chromeMat.clone(), -0.50, 1.30, -0.13, 0.6, 0.9, 0.3);
+  addGrinderPart(
+    new THREE.CylinderGeometry(0.44, 0.44, 0.020, 36),
+    discMat, 1.00, 0, 0, 1.2, 0.6, 0.3
+  ).rotation.z = Math.PI / 2;
 
-  // Worm adjuster wheel — cylindrical roller between jaw arms
-  const wormGeo = new THREE.CylinderGeometry(0.062, 0.062, 0.32, 14);
-  const wormMesh = new THREE.Mesh(wormGeo, new THREE.MeshStandardMaterial({
-    color: 0xd8d0b8, roughness: 0.06, metalness: 0.98
-  }));
-  wormMesh.castShadow = true;
-  wormMesh.rotation.z = Math.PI / 2;
-  wormMesh.position.set(0.18, 1.58, 0);
-  wrenchGroup.add(wormMesh);
-  registerPart(wormMesh, 0.6, 0.8, -0.5, wrenchParts);
-
-  // Worm knurling rings — 8 thin rings along roller
-  for (let k = 0; k < 8; k++) {
-    const kr = new THREE.Mesh(
-      new THREE.TorusGeometry(0.064, 0.005, 5, 14),
-      new THREE.MeshStandardMaterial({ color: 0x0e0c09, roughness: 0.9, metalness: 0.1 })
+  // Disc radial scoring lines (8×)
+  for (let s = 0; s < 8; s++) {
+    const angle = (s / 8) * Math.PI * 2;
+    const scoreMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.008, 0.020, 0.44),
+      new THREE.MeshStandardMaterial({ color: 0x161412, roughness: 0.9, metalness: 0.1 })
     );
-    kr.rotation.y = Math.PI / 2;
-    kr.position.set(0.18, 1.58, -0.14 + k * 0.04);
-    wrenchGroup.add(kr);
+    scoreMesh.position.set(1.00, 0, 0);
+    scoreMesh.rotation.x = angle;
+    scoreMesh.rotation.z = Math.PI / 2;
+    grinderGroup.add(scoreMesh);
   }
 
-  wrenchGroup.rotation.z = 0.15;
-  wrenchGroup.rotation.y = 0.60;
-  scene.add(wrenchGroup);
+  // ── Rear end cap
+  const rearCap = addGrinderPart(
+    new THREE.CylinderGeometry(0.18, 0.16, 0.22, 14),
+    steelMat.clone(), -0.75, 0, 0, -1.2, 0.4, 0.3
+  );
+  rearCap.rotation.z = Math.PI / 2;
 
-  const wrBounds = new THREE.Mesh(
-    new THREE.BoxGeometry(1.2, 3.4, 0.6),
+  // ── Side handle (D-grip perpendicular to barrel)
+  addGrinderPart(
+    new THREE.CylinderGeometry(0.055, 0.060, 0.55, 12),
+    new THREE.MeshStandardMaterial({ color: 0x151210, roughness: 0.80, metalness: 0.10, transparent: true, opacity: 1 }),
+    0, 0.50, 0, 0.3, 1.2, 0.4
+  );
+  // Side handle end cap sphere
+  const sideHandleEnd = new THREE.Mesh(
+    new THREE.SphereGeometry(0.065, 10, 8),
+    new THREE.MeshStandardMaterial({ color: 0x151210, roughness: 0.80, metalness: 0.10 })
+  );
+  sideHandleEnd.position.set(0, 0.80, 0);
+  grinderGroup.add(sideHandleEnd);
+  registerPart(sideHandleEnd, 0.3, 1.5, 0.4, grinderParts);
+
+  // ── Grip texture rings on barrel (4×)
+  for (let g = 0; g < 4; g++) {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.23, 0.009, 6, 18),
+      new THREE.MeshStandardMaterial({ color: 0x0d0b08, roughness: 0.88, metalness: 0.15 })
+    );
+    ring.position.set(-0.20 + g * 0.18, 0, 0);
+    ring.rotation.y = Math.PI / 2;
+    grinderGroup.add(ring);
+    registerPart(ring, -0.4, 0.4, 0.3, grinderParts);
+  }
+
+  // ── Power cable stub (rear)
+  const cableMat = new THREE.MeshStandardMaterial({ color: 0x120f0d, roughness: 0.82, metalness: 0.05 });
+  const cable1 = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.22, 8), cableMat.clone());
+  cable1.position.set(-0.90, -0.10, 0);
+  grinderGroup.add(cable1);
+  registerPart(cable1, -1.2, -0.5, 0.3, grinderParts);
+
+  // ── Raycasting bounds
+  const grinderBounds = new THREE.Mesh(
+    new THREE.BoxGeometry(1.8, 1.2, 0.7),
     new THREE.MeshBasicMaterial({ visible: false })
   );
-  wrBounds.userData.toolId = 'wrench';
-  wrenchGroup.add(wrBounds);
+  grinderBounds.userData.toolId = 'grinder';
+  grinderGroup.add(grinderBounds);
+
+  grinderGroup.rotation.z = 0.12;
+  grinderGroup.rotation.y = 0.55;
+  scene.add(grinderGroup);
 
   /* ─── Circular Saw Blade ──────────────────────────────── */
   const sawGroup = new THREE.Group();
@@ -1058,7 +1100,7 @@ scene.add(floorGlow);
 
 
   /* ─── All tool groups for traversal ──────────────────── */
-  const allToolParts = [...hammerParts, ...wrenchParts, ...sawParts];
+  const allToolParts = [...drillParts, ...grinderParts, ...sawParts];
 
   /* ─── Tooltip overlay (opacity/visibility transition) ─── */
   const tooltip = document.createElement('div');
@@ -1085,20 +1127,20 @@ scene.add(floorGlow);
   let tooltipHideTimer = null;
 
   const toolInfo = {
-    hammer: {
-      title: 'FRAMING HAMMER', sub: 'Drop Forged Steel',
-      desc: 'Framing · Demolition\nFastening · Finishing',
+    drill: {
+      title: 'CORDLESS POWER DRILL', sub: '18V Brushless',
+      desc: 'Drilling · Driving\nFastening · Assembly',
       hint: '[H] panel  ·  drag to spin  ·  dbl-click burst',
-      specs: { Weight: '1.8 kg', Head: 'Drop Forged', Handle: 'Fibreglass', Length: '380 mm' },
-      apps: ['Framing & Demolition', 'Fastening & Finishing'],
+      specs: { Voltage: '18V', Chuck: '13 mm Keyless', Torque: '65 Nm', Weight: '1.4 kg' },
+      apps: ['Drilling & Driving', 'Fastening & Assembly'],
       cta: 'Get a Quote',
     },
-    wrench: {
-      title: 'ADJUSTABLE WRENCH', sub: 'Chrome Vanadium',
-      desc: 'Plumbing · Fixtures\nMechanical · Assembly',
+    grinder: {
+      title: 'ANGLE GRINDER', sub: '115mm 850W',
+      desc: 'Grinding · Cutting\nPolishing · Finishing',
       hint: '[W] panel  ·  drag to spin  ·  dbl-click burst',
-      specs: { Range: '0–32 mm', Drive: 'Chrome Vanadium', Finish: 'Mirror Polish', Length: '250 mm' },
-      apps: ['Plumbing & Fixtures', 'Mechanical Assembly'],
+      specs: { Disc: '115 mm', Power: '850 W', Speed: '11000 RPM', Guard: 'Steel' },
+      apps: ['Grinding & Cutting', 'Polishing & Finishing'],
       cta: 'Get a Quote',
     },
     saw: {
@@ -1326,18 +1368,18 @@ scene.add(floorGlow);
   const raycaster = new THREE.Raycaster();
   const mouseVec  = new THREE.Vector2();
   let hoveredTool = null;
-  const hoverEmissive = { hammer: 0, wrench: 0, saw: 0 };
+  const hoverEmissive = { drill: 0, grinder: 0, saw: 0 };
 
   function getToolGroup(id) {
-    if (id === 'hammer') return hammerGroup;
-    if (id === 'wrench') return wrenchGroup;
+    if (id === 'drill') return drillGroup;
+    if (id === 'grinder') return grinderGroup;
     return sawGroup;
   }
 
   /* ─── Spin animation state ────────────────────────────── */
   const spinState = {
-    hammer: { spinning: false, spinStart: 0, spinFrom: 0 },
-    wrench: { spinning: false, spinStart: 0, spinFrom: 0 },
+    drill: { spinning: false, spinStart: 0, spinFrom: 0 },
+    grinder: { spinning: false, spinStart: 0, spinFrom: 0 },
     saw:    { spinning: false, spinStart: 0, spinFrom: 0 },
   };
   const SPIN_DURATION = 820;
@@ -1351,9 +1393,9 @@ scene.add(floorGlow);
   function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
 
   /* ─── Idle rotation accumulators + drag inertia ──────── */
-  let hammerIdleY = 0;
-  let wrenchIdleY = 0;
-  const inertia = { hammer: 0, wrench: 0, saw: 0 };
+  let drillIdleY = 0;
+  let grinderIdleY = 0;
+  const inertia = { drill: 0, grinder: 0, saw: 0 };
 
   /* ─── Mouse tracking ──────────────────────────────────── */
   let mouseX = 0, mouseY = 0;
@@ -1373,7 +1415,7 @@ scene.add(floorGlow);
     raycaster.setFromCamera(mouseVec, camera);
 
     const targets = [];
-    [hammerGroup, wrenchGroup, sawGroup].forEach(grp => {
+    [drillGroup, grinderGroup, sawGroup].forEach(grp => {
       grp.traverse(o => { if (o.userData.toolId) targets.push(o); });
     });
     const hits = raycaster.intersectObjects(targets);
@@ -1404,15 +1446,15 @@ scene.add(floorGlow);
 
   /* ─── Disassembly state ───────────────────────────────── */
   const disassembleState = {
-    hammer: { exploded: false, animating: false, startTime: 0, goingOut: false },
-    wrench: { exploded: false, animating: false, startTime: 0, goingOut: false },
+    drill: { exploded: false, animating: false, startTime: 0, goingOut: false },
+    grinder: { exploded: false, animating: false, startTime: 0, goingOut: false },
     saw:    { exploded: false, animating: false, startTime: 0, goingOut: false },
   };
   const DISASSEMBLE_DURATION = 900;
 
   function getToolParts(id) {
-    if (id === 'hammer') return hammerParts;
-    if (id === 'wrench') return wrenchParts;
+    if (id === 'drill') return drillParts;
+    if (id === 'grinder') return grinderParts;
     return sawParts;
   }
 
@@ -1508,7 +1550,7 @@ scene.add(floorGlow);
     mouseVec.set(tx, ty);
     raycaster.setFromCamera(mouseVec, camera);
     const targets = [];
-    [hammerGroup, wrenchGroup, sawGroup].forEach(grp => {
+    [drillGroup, grinderGroup, sawGroup].forEach(grp => {
       grp.traverse(o => { if (o.userData.toolId) targets.push(o); });
     });
     const hits = raycaster.intersectObjects(targets);
@@ -1548,8 +1590,8 @@ scene.add(floorGlow);
     if (!dragTool) return;
     canvas.style.cursor = hoveredTool ? 'pointer' : 'default';
     // Sync idle accumulator to current rotation so idle resumes seamlessly
-    if (dragTool === 'hammer') hammerIdleY = hammerGroup.rotation.y;
-    if (dragTool === 'wrench') wrenchIdleY = wrenchGroup.rotation.y;
+    if (dragTool === 'drill') drillIdleY = drillGroup.rotation.y;
+    if (dragTool === 'grinder') grinderIdleY = grinderGroup.rotation.y;
     // Store drag velocity for inertia decay
     inertia[dragTool] = dragVel;
     dragTool = null;
@@ -1589,8 +1631,8 @@ scene.add(floorGlow);
   /* ─── Keyboard shortcuts ───────────────────────────────── */
   window.addEventListener('keydown', (e) => {
     const key = e.key.toUpperCase();
-    if (key === 'H') { openPanel('hammer'); hoverEmissive.hammer = 0.38; }
-    if (key === 'W') { openPanel('wrench'); hoverEmissive.wrench = 0.38; }
+    if (key === 'H') { openPanel('drill'); hoverEmissive.drill = 0.38; }
+    if (key === 'W') { openPanel('grinder'); hoverEmissive.grinder = 0.38; }
     if (key === 'S') { openPanel('saw');  hoverEmissive.saw  = 0.38; }
     if (e.key === 'Escape') { closePanel(); }
   });
@@ -1620,21 +1662,21 @@ scene.add(floorGlow);
 
     if (isNarrow) {
       camera.fov = 48;
-      [hammerGroup, wrenchGroup, sawGroup].forEach(g => g.scale.setScalar(0.72));
-      hammerGroup.position.set(0.9, 0.4, 2.1);    // left-front in triangle
-      wrenchGroup.position.set(-0.9, 0.6, 2.1);   // right-front in triangle
+      [drillGroup, grinderGroup, sawGroup].forEach(g => g.scale.setScalar(0.72));
+      drillGroup.position.set(0.9, 0.4, 2.1);    // left-front in triangle
+      grinderGroup.position.set(-0.9, 0.6, 2.1);   // right-front in triangle
       // sawGroup position handled in animate loop for apex
     } else if (isMobile) {
       camera.fov = 52;
-      [hammerGroup, wrenchGroup, sawGroup].forEach(g => g.scale.setScalar(0.82));
-      hammerGroup.position.set(1.1, 0.3, 2.0);    // left-front in triangle
-      wrenchGroup.position.set(-1.1, 0.5, 2.0);   // right-front in triangle
+      [drillGroup, grinderGroup, sawGroup].forEach(g => g.scale.setScalar(0.82));
+      drillGroup.position.set(1.1, 0.3, 2.0);    // left-front in triangle
+      grinderGroup.position.set(-1.1, 0.5, 2.0);   // right-front in triangle
       // sawGroup position handled in animate loop for apex
     } else {
       camera.fov = 60;
-      [hammerGroup, wrenchGroup, sawGroup].forEach(g => g.scale.setScalar(1.0));
-      hammerGroup.position.set(1.2, 0.4, 2.1);    // left-front in triangle
-      wrenchGroup.position.set(-1.2, 0.6, 2.1);   // right-front in triangle
+      [drillGroup, grinderGroup, sawGroup].forEach(g => g.scale.setScalar(1.0));
+      drillGroup.position.set(1.2, 0.4, 2.1);    // left-front in triangle
+      grinderGroup.position.set(-1.2, 0.6, 2.1);   // right-front in triangle
       // sawGroup position handled in animate loop for apex
     }
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -1642,15 +1684,15 @@ scene.add(floorGlow);
 
     // Store base positions for float animations to preserve responsive layout
     window.toolBasePositions = {
-      hammer: {
-        x: hammerGroup.position.x,
-        y: hammerGroup.position.y,
-        z: hammerGroup.position.z
+      drill: {
+        x: drillGroup.position.x,
+        y: drillGroup.position.y,
+        z: drillGroup.position.z
       },
-      wrench: {
-        x: wrenchGroup.position.x,
-        y: wrenchGroup.position.y,
-        z: wrenchGroup.position.z
+      grinder: {
+        x: grinderGroup.position.x,
+        y: grinderGroup.position.y,
+        z: grinderGroup.position.z
       },
       saw: {
         x: sawGroup.position.x,
@@ -1765,7 +1807,7 @@ scene.add(floorGlow);
 
     /* ── Hover emissive lerp ── */
     const lerpE = 1 - Math.pow(0.04, delta / 16);
-    ['hammer', 'wrench', 'saw'].forEach(id => {
+    ['drill', 'grinder', 'saw'].forEach(id => {
       const target = (hoveredTool === id || activePanelTool === id) ? 0.38 : 0;
       hoverEmissive[id] += (target - hoverEmissive[id]) * lerpE;
       const ev = hoverEmissive[id];
@@ -1779,7 +1821,7 @@ scene.add(floorGlow);
       });
     });
     /* ── Spin animation ── */
-    ['hammer', 'wrench', 'saw'].forEach(id => {
+    ['drill', 'grinder', 'saw'].forEach(id => {
       const st = spinState[id];
       if (!st.spinning || dragTool === id) return;
       const elapsed = performance.now() - st.spinStart;
@@ -1792,7 +1834,7 @@ scene.add(floorGlow);
     });
 
     /* ── Disassembly animation ── */
-    ['hammer', 'wrench', 'saw'].forEach(id => {
+    ['drill', 'grinder', 'saw'].forEach(id => {
       const ds = disassembleState[id];
       if (!ds.animating) return;
       const elapsed = performance.now() - ds.startTime;
@@ -1831,18 +1873,18 @@ scene.add(floorGlow);
 
     /* ── Idle rotation (when assembled + not spinning + not dragging) ── */
     if (assemblyDone) {
-      if (!spinState.hammer.spinning && dragTool !== 'hammer') {
-        hammerIdleY += 0.00018 * delta;
+      if (!spinState.drill.spinning && dragTool !== 'drill') {
+        drillIdleY += 0.00018 * delta;
       }
-      if (!spinState.wrench.spinning && dragTool !== 'wrench') {
-        wrenchIdleY -= 0.00014 * delta;
+      if (!spinState.grinder.spinning && dragTool !== 'grinder') {
+        grinderIdleY -= 0.00014 * delta;
       }
     }
     // Inertia decay — continues spinning after drag release
-    ['hammer', 'wrench', 'saw'].forEach(id => {
+    ['drill', 'grinder', 'saw'].forEach(id => {
       if (!inertia[id]) return;
-      if (id === 'hammer') hammerIdleY += inertia[id] * delta;
-      if (id === 'wrench') wrenchIdleY += inertia[id] * delta;
+      if (id === 'drill') drillIdleY += inertia[id] * delta;
+      if (id === 'grinder') grinderIdleY += inertia[id] * delta;
       inertia[id] *= 0.92;
       if (Math.abs(inertia[id]) < 0.0001) inertia[id] = 0;
     });
@@ -1850,13 +1892,13 @@ scene.add(floorGlow);
     /* ── Tool float + proximity tilt + parallax ── */
     // Use stored responsive base positions and add float animation on top
     if (window.toolBasePositions) {
-      hammerGroup.position.x = window.toolBasePositions.hammer.x + camRotY * -1.8;
-      hammerGroup.position.y = window.toolBasePositions.hammer.y + Math.sin(time * 0.0006) * 0.10;
-      hammerGroup.position.z = window.toolBasePositions.hammer.z + camRotX * -0.6;
+      drillGroup.position.x = window.toolBasePositions.drill.x + camRotY * -1.8;
+      drillGroup.position.y = window.toolBasePositions.drill.y + Math.sin(time * 0.0006) * 0.10;
+      drillGroup.position.z = window.toolBasePositions.drill.z + camRotX * -0.6;
 
-      wrenchGroup.position.x = window.toolBasePositions.wrench.x + camRotY * -1.6;
-      wrenchGroup.position.y = window.toolBasePositions.wrench.y + Math.sin(time * 0.0006 + 1.2) * 0.10;
-      wrenchGroup.position.z = window.toolBasePositions.wrench.z + camRotX * -0.5;
+      grinderGroup.position.x = window.toolBasePositions.grinder.x + camRotY * -1.6;
+      grinderGroup.position.y = window.toolBasePositions.grinder.y + Math.sin(time * 0.0006 + 1.2) * 0.10;
+      grinderGroup.position.z = window.toolBasePositions.grinder.z + camRotX * -0.5;
 
       // Saw blade apex positioning with corrected float frequency and parallax
       sawGroup.position.x = window.toolBasePositions.saw.x + camRotY * -1.4;
@@ -1864,14 +1906,14 @@ scene.add(floorGlow);
       sawGroup.position.z = window.toolBasePositions.saw.z + camRotX * -0.4 + Math.sin(time * 0.0005) * 0.06;
     }
 
-    if (!spinState.hammer.spinning && dragTool !== 'hammer') {
-      hammerGroup.rotation.y = hammerIdleY + 0.60 + camRotY * 0.35;
-      hammerGroup.rotation.z = 0.30 + mouseX * -0.08;
+    if (!spinState.drill.spinning && dragTool !== 'drill') {
+      drillGroup.rotation.y = drillIdleY + 0.60 + camRotY * 0.35;
+      drillGroup.rotation.z = 0.30 + mouseX * -0.08;
     }
 
-    if (!spinState.wrench.spinning && dragTool !== 'wrench') {
-      wrenchGroup.rotation.y = wrenchIdleY + 0.55 + camRotY * 0.28;
-      wrenchGroup.rotation.z = 0.18 + mouseX * 0.06;
+    if (!spinState.grinder.spinning && dragTool !== 'grinder') {
+      grinderGroup.rotation.y = grinderIdleY + 0.55 + camRotY * 0.28;
+      grinderGroup.rotation.z = 0.18 + mouseX * 0.06;
     }
 
     // Saw blade continuous spin (around its own Z axis after the X rotation)
