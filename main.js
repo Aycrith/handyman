@@ -1,0 +1,946 @@
+/**
+ * main.js — Handyman Landing Page
+ *
+ * Animation stack:
+ *  - Lenis (smooth scroll)
+ *  - GSAP + ScrollTrigger (all animations)
+ *
+ * Load order: GSAP → ScrollTrigger → Lenis → this file
+ */
+
+/* ─────────────────────────────────────────────────────────
+   UTILITIES
+───────────────────────────────────────────────────────── */
+
+const $ = (selector, ctx = document) => ctx.querySelector(selector);
+const $$ = (selector, ctx = document) => [...ctx.querySelectorAll(selector)];
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Set footer year */
+const yearEl = $('#currentYear');
+if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+
+/* ─────────────────────────────────────────────────────────
+   LENIS — SMOOTH SCROLL
+───────────────────────────────────────────────────────── */
+
+let lenis;
+
+function initLenis() {
+  if (typeof Lenis === 'undefined') return;
+
+  lenis = new Lenis({
+    duration: 1.15,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    orientation: 'vertical',
+    gestureOrientation: 'vertical',
+    smoothWheel: !prefersReducedMotion,
+    touchMultiplier: 1.8,
+  });
+
+  // Connect Lenis to GSAP ticker for frame-perfect sync
+  if (typeof gsap !== 'undefined') {
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
+}
+
+initLenis();
+
+
+/* ─────────────────────────────────────────────────────────
+   GSAP — CORE SETUP
+───────────────────────────────────────────────────────── */
+
+if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+  console.warn('[handyman] GSAP or ScrollTrigger not loaded.');
+}
+
+gsap.registerPlugin(ScrollTrigger);
+
+// Tell ScrollTrigger to use Lenis scroll position
+if (lenis) {
+  ScrollTrigger.scrollerProxy(document.body, {
+    scrollTop(value) {
+      if (arguments.length) {
+        lenis.scrollTo(value, { immediate: true });
+      } else {
+        return lenis.animatedScroll;
+      }
+    },
+    getBoundingClientRect() {
+      return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+    },
+    pinType: document.body.style.transform ? 'transform' : 'fixed',
+  });
+
+  // Drive --scene-warmth CSS var from Lenis smooth scroll progress
+  // Using quickSetter for RAF-batched DOM writes (Active Theory pattern)
+  const setWarmth = gsap.quickSetter(document.documentElement, '--scene-warmth', '');
+  lenis.on('scroll', ({ progress }) => {
+    setWarmth(progress.toFixed(3));
+    ScrollTrigger.update();
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   SCROLL PROGRESS BAR
+───────────────────────────────────────────────────────── */
+
+const progressBar = $('#scrollProgress');
+
+if (progressBar) {
+  gsap.to(progressBar, {
+    scaleX: 1,
+    ease: 'none',
+    scrollTrigger: {
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 0.1,
+    },
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   NAVIGATION — SCROLL STATE
+───────────────────────────────────────────────────────── */
+
+const nav = $('#nav');
+
+if (nav) {
+  ScrollTrigger.create({
+    start: 'top -70',
+    onUpdate(self) {
+      nav.classList.toggle('nav--scrolled', self.progress > 0);
+    },
+  });
+
+  // Smooth anchor navigation via Lenis
+  $$('a[href^="#"]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target && lenis) {
+        e.preventDefault();
+        lenis.scrollTo(target, { duration: 1.2, offset: -80 });
+      }
+    });
+  });
+}
+
+
+/* Hero parallax background removed — replaced by Three.js 3D camera scroll. */
+
+
+/* ─────────────────────────────────────────────────────────
+   HERO ENTRANCE ANIMATION
+   Staggered reveal — same pattern as Rorelp/Framer Motion
+   stagger delays but done in GSAP timeline
+───────────────────────────────────────────────────────── */
+
+function initHeroEntrance() {
+  if (prefersReducedMotion) {
+    // Instantly show all hero elements
+    gsap.set([
+      '.hero__eyebrow', '.eyebrow-seg', '.eyebrow-dot',
+      '.hero__title', '.hero__sub',
+      '.hero__ctas', '.hero__trust', '#scrollCue',
+    ], { opacity: 1, y: 0 });
+    return;
+  }
+
+  const heroTl = gsap.timeline({
+    delay: 0.15,
+    defaults: { ease: 'power3.out' },
+  });
+
+  // Reveal eyebrow container first, then stagger each segment
+  heroTl
+    .set('.hero__eyebrow', { opacity: 1 })
+    .from('.eyebrow-seg, .eyebrow-dot', { opacity: 0, y: 10, stagger: 0.14, duration: 0.55, ease: 'power2.out' })
+    .from('.hero__title',   { opacity: 0, y: typeof SplitType === 'undefined' ? 45 : 0, duration: 1.0, clearProps: 'clip-path' }, '-=0.35')
+    .from('.hero__sub',     { opacity: 0, y: 22, duration: 0.75 }, '-=0.55')
+    .from('.hero__ctas',    { opacity: 0, y: 18, duration: 0.65 }, '-=0.45')
+    .from('.hero__trust',   { opacity: 0, y: 10, duration: 0.55 }, '-=0.35')
+    .from('#scrollCue',     { opacity: 0, y: 8,  duration: 0.55 }, '-=0.15');
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   SCROLL CUE FADE OUT
+   Fades out as user starts scrolling
+───────────────────────────────────────────────────────── */
+
+const scrollCue = $('#scrollCue');
+
+if (scrollCue && !prefersReducedMotion) {
+  gsap.to(scrollCue, {
+    opacity: 0,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.hero',
+      start: 'top top',
+      end: '18% top',
+      scrub: true,
+    },
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   SECTION REVEALS
+   Generic .reveal elements fade+slide in on scroll
+───────────────────────────────────────────────────────── */
+
+function initSectionReveals() {
+  if (prefersReducedMotion) {
+    gsap.set('.reveal', { opacity: 1, y: 0 });
+    return;
+  }
+
+  $$('.reveal').forEach((el) => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 42 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.85,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 87%',
+          toggleActions: 'play none none none',
+          once: true,
+          invalidateOnRefresh: true,
+        },
+      }
+    );
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   SERVICE CARDS — STAGGERED ENTRY
+   Each card staggers 80ms apart
+───────────────────────────────────────────────────────── */
+
+function initServiceCards() {
+  const cards = $$('.service-card');
+  if (!cards.length) return;
+
+  if (prefersReducedMotion) {
+    gsap.set(cards, { opacity: 1, y: 0 });
+    return;
+  }
+
+  // Stagger them in batches of columns
+  cards.forEach((card, i) => {
+    gsap.fromTo(card,
+      { opacity: 0, y: 52 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.75,
+        delay: (i % 3) * 0.08,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.services__grid',
+          start: 'top 82%',
+          toggleActions: 'play none none none',
+          once: true,
+          invalidateOnRefresh: true,
+        },
+      }
+    );
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   TESTIMONIALS — STAGGERED ENTRY
+───────────────────────────────────────────────────────── */
+
+function initTestimonials() {
+  const blocks = $$('.testimonial');
+  if (!blocks.length || prefersReducedMotion) return;
+
+  blocks.forEach((block, i) => {
+    gsap.fromTo(block,
+      { opacity: 0, y: 38 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.75,
+        delay: i * 0.12,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.testimonials__grid',
+          start: 'top 87%',
+          toggleActions: 'play none none none',
+          once: true,
+          invalidateOnRefresh: true,
+        },
+      }
+    );
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   COUNT-UP STATS ANIMATION
+   Animates numeric counter from 0 to target value
+───────────────────────────────────────────────────────── */
+
+function initCountUp() {
+  $$('.stat__num').forEach((el) => {
+    const target = parseInt(el.dataset.target, 10);
+    if (isNaN(target)) return;
+
+    if (prefersReducedMotion) {
+      el.textContent = target;
+      return;
+    }
+
+    const counter = { val: 0 };
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 82%',
+      once: true,
+      onEnter() {
+        gsap.to(counter, {
+          val: target,
+          duration: 1.8,
+          ease: 'power2.out',
+          onUpdate() {
+            el.textContent = Math.round(counter.val);
+          },
+          onComplete() {
+            el.textContent = target;
+          },
+        });
+      },
+    });
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   PILLAR CARDS — STAGGERED ENTRY
+───────────────────────────────────────────────────────── */
+
+function initPillars() {
+  const pillars = $$('.pillar');
+  if (!pillars.length || prefersReducedMotion) return;
+
+  pillars.forEach((p, i) => {
+    gsap.fromTo(p,
+      { opacity: 0, y: 36 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.75,
+        delay: i * 0.14,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.pillars__grid',
+          start: 'top 84%',
+          toggleActions: 'play none none none',
+          once: true,
+          invalidateOnRefresh: true,
+        },
+      }
+    );
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   CTA BAND — SUBTLE SCALE-IN
+───────────────────────────────────────────────────────── */
+
+function initCtaBand() {
+  const band = $('.cta-band__inner');
+  if (!band || prefersReducedMotion) return;
+
+  gsap.fromTo(band,
+    { opacity: 0, y: 30 },
+    {
+      opacity: 1, y: 0,
+      duration: 0.9,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.cta-band',
+        start: 'top 80%',
+        toggleActions: 'play none none none',
+        once: true,
+        invalidateOnRefresh: true,
+      },
+    }
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   SECTION TITLE LINES — DRAW-IN UNDERLINE
+   A decorative underline animates in below section titles
+───────────────────────────────────────────────────────── */
+
+function initSectionTitleLines() {
+  if (prefersReducedMotion) return;
+
+  $$('.section__title').forEach((title) => {
+    const parent = title.closest('.section__header');
+    if (!parent) return;
+
+    gsap.fromTo(title,
+      { opacity: 0, y: 30 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.85,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: parent,
+          start: 'top 86%',
+          toggleActions: 'play none none none',
+          once: true,
+          invalidateOnRefresh: true,
+        },
+      }
+    );
+
+    const eyebrow = parent.querySelector('.section__eyebrow');
+    if (eyebrow) {
+      gsap.fromTo(eyebrow,
+        { opacity: 0, y: 14 },
+        {
+          opacity: 1, y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: parent,
+            start: 'top 88%',
+            toggleActions: 'play none none none',
+            once: true,
+            invalidateOnRefresh: true,
+          },
+        }
+      );
+    }
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   AMBIENT AMBER GLOW ON SCROLL
+   The hero amber glow subtly shifts intensity as you scroll
+───────────────────────────────────────────────────────── */
+
+function initAmbientGlow() {
+  if (prefersReducedMotion) return;
+
+  const hero = $('.hero');
+  if (!hero) return;
+
+  // Subtle parallax on the hero's amber glow origin
+  // Done by animating a background-position-like effect via CSS var
+  // (pure visual enhancement — falls back gracefully)
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   RESIZE HANDLER — REFRESH SCROLLTRIGGER
+───────────────────────────────────────────────────────── */
+
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    ScrollTrigger.refresh();
+  }, 200);
+});
+
+
+/* ─────────────────────────────────────────────────────────
+   INIT — WAIT FOR DOM + FONTS
+───────────────────────────────────────────────────────── */
+
+/* ─────────────────────────────────────────────────────────
+   PROCESS STEPS — STAGGERED LEFT-TO-RIGHT ENTRY
+───────────────────────────────────────────────────────── */
+
+function initProcessSteps() {
+  const steps = $$('.process-step');
+  if (!steps.length || prefersReducedMotion) return;
+
+  steps.forEach((step, i) => {
+    gsap.fromTo(step,
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.75,
+        delay: i * 0.15,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.process__steps',
+          start: 'top 82%',
+          toggleActions: 'play none none none',
+          once: true,
+          invalidateOnRefresh: true,
+        },
+      }
+    );
+  });
+
+  // Animate connectors
+  $$('.process-step__connector').forEach((conn, i) => {
+    gsap.fromTo(conn,
+      { opacity: 0, scaleX: 0 },
+      {
+        opacity: 1, scaleX: 1,
+        transformOrigin: 'left center',
+        duration: 0.5,
+        delay: 0.2 + i * 0.15,
+        ease: 'power1.out',
+        scrollTrigger: {
+          trigger: '.process__steps',
+          start: 'top 82%',
+          toggleActions: 'play none none none',
+          once: true,
+          invalidateOnRefresh: true,
+        },
+      }
+    );
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   GALLERY CARDS — STAGGERED GRID ENTRY
+───────────────────────────────────────────────────────── */
+
+function initGallery() {
+  const cards = $$('.gallery-card');
+  if (!cards.length || prefersReducedMotion) return;
+
+  cards.forEach((card, i) => {
+    gsap.fromTo(card,
+      { opacity: 0, y: 36, scale: 0.97 },
+      {
+        opacity: 1, y: 0, scale: 1,
+        duration: 0.7,
+        delay: (i % 3) * 0.1,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.gallery__grid',
+          start: 'top 82%',
+          toggleActions: 'play none none none',
+          once: true,
+          invalidateOnRefresh: true,
+        },
+      }
+    );
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   TRUST BADGES — CSS marquee (no JS animation needed)
+   The .marquee-inner animation is handled entirely via CSS.
+───────────────────────────────────────────────────────── */
+
+function initTrustBadges() {
+  // No-op: marquee is CSS-driven (@keyframes marquee in styles.css)
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   RHETORICAL COPY SECTION — SCROLL-TRIGGERED REVEAL
+   Short declarative lines stagger in on scroll entry.
+   Inspired by Mantis Works' scroll-paced copy rhythm.
+───────────────────────────────────────────────────────── */
+
+function initRhetoricalSection() {
+  const lines = $$('.rhetoric-line');
+  if (!lines.length) return;
+
+  if (prefersReducedMotion) {
+    gsap.set(lines, { opacity: 1, y: 0 });
+    return;
+  }
+
+  gsap.from(lines, {
+    opacity: 0,
+    y: 40,
+    stagger: 0.22,
+    duration: 0.95,
+    ease: 'power3.out',
+    scrollTrigger: {
+      trigger: '.rhetoric-section',
+      start: 'top 75%',
+      toggleActions: 'play none none reverse',
+      invalidateOnRefresh: true,
+    },
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   CONTACT FORM — SLIDE UP REVEAL
+───────────────────────────────────────────────────────── */
+
+function initContactForm() {
+  const form = $('.contact-form');
+  if (!form || prefersReducedMotion) return;
+
+  gsap.fromTo(form,
+    { opacity: 0, x: 30 },
+    {
+      opacity: 1, x: 0,
+      duration: 0.9,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.contact-layout',
+        start: 'top 80%',
+        toggleActions: 'play none none none',
+        once: true,
+        invalidateOnRefresh: true,
+      },
+    }
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   PRELOADER — #1
+   Amber progress bar that dismisses after fonts + assets ready
+───────────────────────────────────────────────────────── */
+
+function initPreloader() {
+  const preloader = document.getElementById('preloader');
+  const bar = document.getElementById('preloaderBar');
+  const label = document.getElementById('preloaderLabel');
+  if (!preloader) return;
+
+  // Exposed to three-scene.js for GLB load progress updates
+  window.__preloaderProgress = (pct) => {
+    if (bar) bar.style.width = pct + '%';
+    if (label) label.textContent = pct < 100 ? 'Loading assets...' : 'Ready';
+  };
+
+  // Give Three.js a head start; dismiss after fonts + a brief settle
+  document.fonts.ready.then(() => {
+    window.__preloaderProgress?.(100);
+    setTimeout(() => {
+      if (typeof gsap !== 'undefined') {
+        gsap.to(preloader, {
+          opacity: 0,
+          duration: 0.7,
+          ease: 'power2.inOut',
+          onComplete: () => preloader.classList.add('hidden'),
+        });
+      } else {
+        preloader.classList.add('hidden');
+      }
+    }, 400);
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   CUSTOM CURSOR — #2
+   Amber dot (instant) + lagging ring (GSAP quickTo)
+───────────────────────────────────────────────────────── */
+
+function initCursor() {
+  const cursor = document.getElementById('cursor');
+  if (!cursor || window.matchMedia('(hover: none)').matches) return;
+
+  const dot  = cursor.querySelector('.cursor__dot');
+  const ring = cursor.querySelector('.cursor__ring');
+  if (!dot || !ring) return;
+
+  // quickTo batches writes in the GSAP RAF loop — no new tween per mousemove
+  const moveDotX  = gsap.quickTo(dot,  'x', { duration: 0 });
+  const moveDotY  = gsap.quickTo(dot,  'y', { duration: 0 });
+  const moveRingX = gsap.quickTo(ring, 'x', { duration: 0.45, ease: 'power3.out' });
+  const moveRingY = gsap.quickTo(ring, 'y', { duration: 0.45, ease: 'power3.out' });
+
+  window.addEventListener('mousemove', (e) => {
+    moveDotX(e.clientX);
+    moveDotY(e.clientY);
+    moveRingX(e.clientX);
+    moveRingY(e.clientY);
+  });
+
+  // Hover state on interactive elements
+  const hoverEls = document.querySelectorAll('a, button, .service-card, .gallery-card, .pillar, .testimonial, .about-stat-card');
+  hoverEls.forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('cursor--hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('cursor--hover'));
+  });
+
+  // Click flash
+  window.addEventListener('mousedown', () => cursor.classList.add('cursor--click'));
+  window.addEventListener('mouseup',   () => cursor.classList.remove('cursor--click'));
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   SPLITTYPE TEXT REVEALS — #3
+   Hero chars fly up; section titles reveal word-by-word
+───────────────────────────────────────────────────────── */
+
+function initSplitTextReveals() {
+  if (prefersReducedMotion || typeof SplitType === 'undefined') return;
+
+  // Hero title — characters fly up with perspective rotation
+  const heroTitle = document.querySelector('.hero__title');
+  if (heroTitle) {
+    const split = new SplitType(heroTitle, { types: 'chars,words' });
+    gsap.from(split.chars, {
+      opacity: 0,
+      y: '110%',
+      rotateX: -90,
+      stagger: { amount: 0.65, from: 'start' },
+      duration: 0.85,
+      ease: 'power4.out',
+      delay: 0.6,
+    });
+  }
+
+  // Section titles — words reveal left-to-right on scroll
+  document.querySelectorAll('.section__title, .about-narrative__title, .contact-info__title').forEach(el => {
+    const split = new SplitType(el, { types: 'words' });
+    gsap.from(split.words, {
+      opacity: 0,
+      y: 40,
+      rotateX: -20,
+      stagger: 0.08,
+      duration: 0.75,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 88%',
+        toggleActions: 'play none none none',
+        once: true,
+      },
+    });
+  });
+
+  // Rhetoric lines — chars cascade in
+  document.querySelectorAll('.rhetoric-line').forEach((el, i) => {
+    const split = new SplitType(el, { types: 'chars' });
+    gsap.from(split.chars, {
+      opacity: 0,
+      y: 30,
+      stagger: 0.025,
+      duration: 0.5,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.rhetoric-section',
+        start: 'top 75%',
+        toggleActions: 'play none none reverse',
+      },
+      delay: i * 0.35,
+    });
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   MAGNETIC BUTTONS — #4
+   CTAs follow the cursor with elastic snap-back
+───────────────────────────────────────────────────────── */
+
+function initMagneticButtons() {
+  if (window.matchMedia('(hover: none)').matches) return;
+
+  document.querySelectorAll('.btn--primary, .btn--lg, .nav__cta').forEach(btn => {
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width  / 2;
+      const cy = rect.top  + rect.height / 2;
+      const dx = (e.clientX - cx) * 0.35;
+      const dy = (e.clientY - cy) * 0.35;
+      gsap.to(btn, { x: dx, y: dy, duration: 0.3, ease: 'power2.out' });
+    });
+    btn.addEventListener('mouseleave', () => {
+      gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
+    });
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   GALLERY CARD TILT — #5
+   3D perspective tilt tracking mouse within each card
+───────────────────────────────────────────────────────── */
+
+function initGalleryTilt() {
+  if (window.matchMedia('(hover: none)').matches) return;
+
+  document.querySelectorAll('.gallery-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const cx   = rect.left + rect.width  / 2;
+      const cy   = rect.top  + rect.height / 2;
+      const rotY =  ((e.clientX - cx) / (rect.width  / 2)) * 8;
+      const rotX = -((e.clientY - cy) / (rect.height / 2)) * 5;
+      gsap.to(card, {
+        rotateX: rotX,
+        rotateY: rotY,
+        scale: 1.03,
+        duration: 0.4,
+        ease: 'power2.out',
+        transformPerspective: 800,
+      });
+    });
+    card.addEventListener('mouseleave', () => {
+      gsap.to(card, {
+        rotateX: 0,
+        rotateY: 0,
+        scale: 1,
+        duration: 0.6,
+        ease: 'elastic.out(1, 0.6)',
+      });
+    });
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   SERVICES HORIZONTAL SCROLL — #6
+   Pinned section: vertical scroll translates to horizontal
+   Desktop only (≥1024px)
+───────────────────────────────────────────────────────── */
+
+function initServicesHScroll() {
+  if (window.innerWidth < 1024 || prefersReducedMotion) return;
+
+  const track = document.querySelector('.services__scroll-track');
+  const grid  = document.querySelector('.services__grid');
+  if (!track || !grid) return;
+
+  // Measure after layout is computed
+  const getScrollDistance = () => grid.scrollWidth - window.innerWidth + 120;
+
+  gsap.to(track, {
+    x: () => -getScrollDistance(),
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.services__pin-wrap',   // pin entire section wrapper so spacer lands after <section>
+      start: 'top top',
+      end: () => '+=' + getScrollDistance(),
+      pin: true,
+      scrub: 1,
+      invalidateOnRefresh: true,
+    },
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   ACTIVE NAV HIGHLIGHTING — #7
+   Highlights current section link as user scrolls
+───────────────────────────────────────────────────────── */
+
+function initNavHighlight() {
+  const navLinks = document.querySelectorAll('.nav__link');
+  if (!navLinks.length) return;
+
+  const sections = ['services', 'process', 'gallery', 'about', 'testimonials', 'contact'];
+
+  function setActive(id) {
+    navLinks.forEach(a => {
+      a.classList.toggle('nav__link--active', a.getAttribute('href') === '#' + id);
+    });
+  }
+
+  function clearActive(id) {
+    navLinks.forEach(a => {
+      if (a.getAttribute('href') === '#' + id) a.classList.remove('nav__link--active');
+    });
+  }
+
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 50%',
+      end: 'bottom 50%',
+      onEnter:     () => setActive(id),
+      onEnterBack: () => setActive(id),
+      onLeave:     () => clearActive(id),
+      onLeaveBack: () => clearActive(id),
+    });
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   SECTION BACKGROUND PARALLAX — #9
+   Subtle background shift at different rate than content
+───────────────────────────────────────────────────────── */
+
+function initParallaxSections() {
+  if (prefersReducedMotion) return;
+
+  ['.services', '.gallery', '.testimonials'].forEach(sel => {
+    const el = document.querySelector(sel);
+    if (!el) return;
+    gsap.to(el, {
+      backgroundPositionY: '30%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: true,
+      },
+    });
+  });
+}
+
+
+function initAll() {
+  initCursor();
+  initMagneticButtons();
+  initNavHighlight();
+  initHeroEntrance();
+  initSectionReveals();
+  initServiceCards();
+  initTestimonials();
+  initCountUp();
+  initPillars();
+  initCtaBand();
+  initSectionTitleLines();
+  initAmbientGlow();
+  initProcessSteps();
+  initGallery();
+  initGalleryTilt();
+  initTrustBadges();
+  initContactForm();
+  initRhetoricalSection();
+  initParallaxSections();
+  initServicesHScroll();
+}
+
+// Preloader must run immediately (before fonts) to register the progress callback
+// so three-scene.js can call window.__preloaderProgress during GLB loading
+initPreloader();
+
+// Use document.fonts.ready for font-aware layout (prevents jump)
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => {
+    initAll();
+    // SplitType reveals after fonts so metrics are accurate
+    initSplitTextReveals();
+    ScrollTrigger.refresh();
+  });
+} else {
+  document.addEventListener('DOMContentLoaded', () => {
+    initAll();
+    initSplitTextReveals();
+  });
+}

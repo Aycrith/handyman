@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- PLACEHOLDER: Replace with real business name, city, and phone -->
+  <title>[Business Name] — General Construction & Handyman | [City], [State]</title>
+  <meta name="description" content="[Business Name] — General construction and handyman services in [City, State]. Carpentry, drywall, painting, flooring, and more. Free estimates. Call (000) 000-0000.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="[Business Name] — [City] Handyman & Construction">
+  <meta property="og:description" content="Skilled hands-on work, honest pricing. Serving [City] and surrounding areas. Free estimates — call today.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/images/og-image.jpg">
+  <!-- PLACEHOLDER: <link rel="canonical" href="https://yourdomain.com"> -->
+
+  <!-- Favicon placeholder -->
+  <!-- PLACEHOLDER: <link rel="icon" type="image/png" href="assets/images/favicon.png"> -->
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,900;1,9..144,900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- SplitType — character/word level text splitting for reveals -->
+  <script src="https://unpkg.com/split-type@0.3.4/umd/index.min.js"></script>
+
+  <!-- Hidden SVG noise filter (referenced by CSS) -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute">
+    <defs>
+      <filter id="noise-filter" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noiseOut"/>
+        <feColorMatrix type="saturate" values="0" in="noiseOut" result="grayNoise"/>
+        <feBlend in="SourceGraphic" in2="grayNoise" mode="overlay" result="blended"/>
+        <feComposite in="blended" in2="SourceGraphic" operator="in"/>
+      </filter>
+    </defs>
+  </svg>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       GLOBAL OVERLAYS
+  ═══════════════════════════════════════════ -->
+
+  <!-- Page preloader — fills while Three.js GLB assets load -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader__inner">
+      <div class="preloader__logo">
+        <span class="preloader__mark">✦</span>
+        <span class="preloader__name">ProCraft</span>
+      </div>
+      <div class="preloader__bar-track">
+        <div class="preloader__bar" id="preloaderBar"></div>
+      </div>
+      <p class="preloader__label" id="preloaderLabel">Loading...</p>
+    </div>
+  </div>
+
+  <!-- Custom cursor — amber dot + lagging ring -->
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <div class="cursor__dot"></div>
+    <div class="cursor__ring"></div>
+  </div>
+
+  <!-- Film grain / noise texture overlay -->
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+  <!-- Gradient overlay between Three.js canvas and content for readability -->
+  <div class="scene-overlay" aria-hidden="true"></div>
+
+  <!-- Scroll-reactive warmth overlay — amber intensity increases with scroll depth -->
+  <div class="scene-warmth-overlay" aria-hidden="true"></div>
+
+  <!-- Scroll progress bar (thin amber line at top) -->
+  <div class="scroll-progress" id="scrollProgress" role="progressbar" aria-hidden="true"></div>
+
+
+  <!-- ═══════════════════════════════════════════
+       NAVIGATION
+  ═══════════════════════════════════════════ -->
+  <nav class="nav" id="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner container">
+      <!-- PLACEHOLDER: Replace with logo image or business name -->
+      <a href="#hero" class="nav__logo" aria-label="ProCraft Construction & Handyman — Home">
+        <span class="nav__logo-mark">✦</span>
+        <span class="nav__logo-text">ProCraft</span>
+      </a>
+
+      <div class="nav__links">
+        <a href="#services" class="nav__link">Services</a>
+        <a href="#about" class="nav__link">About</a>
+        <a href="#testimonials" class="nav__link">Reviews</a>
+        <a href="#contact" class="nav__link">Contact</a>
+      </div>
+
+      <!-- PLACEHOLDER: Replace with real phone number -->
+      <a class="nav__cta btn btn--primary btn--sm" href="tel:+12175550182">
+        <svg class="btn__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>
+        </svg>
+        Call Now
+      </a>
+    </div>
+  </nav>
+
+
+  <!-- ═══════════════════════════════════════════
+       HERO SECTION
+  ═══════════════════════════════════════════ -->
+  <section class="hero" id="hero" aria-label="Hero">
+
+    <!-- Parallax background layer -->
+    <div class="hero__bg" id="heroBg" aria-hidden="true">
+      <!-- Atmospheric grid + radial glow are in CSS -->
+      <!-- PLACEHOLDER: Optionally add background-image: url(assets/images/hero-bg.jpg) via inline style when image is ready -->
+    </div>
+
+    <!-- Foreground content -->
+    <div class="hero__content container">
+
+      <p class="hero__eyebrow" aria-label="ProCraft location and credentials">
+        <span class="eyebrow-seg">GREATER SPRINGFIELD AREA</span>
+        <span class="eyebrow-dot" aria-hidden="true"> · </span>
+        <span class="eyebrow-seg">(217) 555-0182</span>
+        <span class="eyebrow-dot" aria-hidden="true"> · </span>
+        <span class="eyebrow-seg">&#9733; 4.9 RATED</span>
+      </p>
+
+      <!-- PLACEHOLDER: Replace with real headline -->
+      <h1 class="hero__title">
+        Built Right.<br>
+        <em>Done Right.</em>
+      </h1>
+
+      <!-- PLACEHOLDER: Replace with real description -->
+      <p class="hero__sub">
+        General construction &amp; handyman services — from small fixes to full projects.
+        One call, real craftsmanship, honest pricing.
+      </p>
+
+      <div class="hero__ctas">
+        <!-- PLACEHOLDER: Replace href and text with real phone number -->
+        <a class="btn btn--primary btn--lg" href="tel:+12175550182">
+          <svg class="btn__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>
+          </svg>
+          (217) 555-0182
+        </a>
+        <a class="btn btn--ghost btn--lg" href="#services">
+          Our Services
+          <svg class="btn__icon btn__icon--right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- PLACEHOLDER: Replace with real trust badges -->
+      <div class="hero__trust" role="list" aria-label="Service highlights">
+        <span class="trust-item" role="listitem">
+          <svg class="trust-item__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Free Estimates
+        </span>
+        <span class="trust-item" role="listitem">
+          <svg class="trust-item__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Springfield, IL
+        </span>
+        <span class="trust-item" role="listitem">
+          <svg class="trust-item__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          No Job Too Small
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Scroll cue -->
+    <div class="scroll-cue" id="scrollCue" aria-hidden="true">
+      <span class="scroll-cue__label">Scroll</span>
+      <div class="scroll-cue__mouse">
+        <div class="scroll-cue__dot"></div>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       SERVICES SECTION
+  ═══════════════════════════════════════════ -->
+  <section class="section services" id="services" aria-label="Services">
+    <div class="services__pin-wrap" id="servicesPin">
+
+      <div class="container">
+        <header class="section__header reveal">
+          <p class="section__eyebrow">What We Do</p>
+          <h2 class="section__title">Services</h2>
+          <!-- PLACEHOLDER: Optionally replace subtitle -->
+          <p class="section__sub">From quick repairs to complete renovations — skilled work for every job.</p>
+        </header>
+      </div>
+
+      <div class="services__scroll-track">
+      <div class="services__grid" role="list">
+
+        <!-- Service Card 1 -->
+        <article class="service-card" role="listitem">
+          <div class="service-card__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <!-- PLACEHOLDER: Replace service name and description -->
+          <h3 class="service-card__title">Carpentry</h3>
+          <p class="service-card__desc">Custom woodwork, trim, framing, shelving, and cabinet installation done with precision.</p>
+        </article>
+
+        <!-- Service Card 2 -->
+        <article class="service-card" role="listitem">
+          <div class="service-card__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>
+            </svg>
+          </div>
+          <h3 class="service-card__title">Drywall</h3>
+          <p class="service-card__desc">Hanging, taping, mudding, and finishing — seamless walls ready for paint.</p>
+        </article>
+
+        <!-- Service Card 3 -->
+        <article class="service-card" role="listitem">
+          <div class="service-card__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22V12m0 0C12 7 7 4 4 7c0 0 1 5 8 5zm0 0c0-5 5-8 8-5 0 0-1 5-8 5"/><path d="M4 7c0 0-2 8 8 15"/>
+            </svg>
+          </div>
+          <h3 class="service-card__title">Painting</h3>
+          <p class="service-card__desc">Interior and exterior painting with clean lines, proper prep, and lasting finish.</p>
+        </article>
+
+        <!-- Service Card 4 -->
+        <article class="service-card" role="listitem">
+          <div class="service-card__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="1"/><line x1="2" y1="7" x2="22" y2="7"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="17" x2="22" y2="17"/>
+            </svg>
+          </div>
+          <h3 class="service-card__title">Flooring</h3>
+          <p class="service-card__desc">Hardwood, LVP, tile installation and subfloor repair — foundation you can feel.</p>
+        </article>
+
+        <!-- Service Card 5 -->
+        <article class="service-card" role="listitem">
+          <div class="service-card__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7z"/><circle cx="12" cy="9" r="2.5"/>
+            </svg>
+          </div>
+          <h3 class="service-card__title">Plumbing Repairs</h3>
+          <p class="service-card__desc">Fixture installation, leak fixes, faucet and toilet replacement — no plumbing license needed for most handyman work.</p>
+        </article>
+
+        <!-- Service Card 6 -->
+        <article class="service-card" role="listitem">
+          <div class="service-card__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+            </svg>
+          </div>
+          <h3 class="service-card__title">General Repairs</h3>
+          <p class="service-card__desc">Doors, windows, fences, decks, power washing — whatever needs fixing, we handle it.</p>
+        </article>
+
+      </div><!-- /services__grid -->
+      </div><!-- /services__scroll-track -->
+
+    </div><!-- /services__pin-wrap -->
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       RHETORIC SECTION — Confident craft statement
+  ═══════════════════════════════════════════ -->
+  <section class="rhetoric-section" aria-label="Our commitment">
+    <div class="rhetoric-inner">
+      <p class="rhetoric-line">We show up.</p>
+      <p class="rhetoric-line">We do it right.</p>
+      <p class="rhetoric-line">We leave your space better than we found it.</p>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       HOW IT WORKS
+  ═══════════════════════════════════════════ -->
+  <section class="section process" id="process" aria-label="How it works">
+    <div class="container">
+
+      <header class="section__header reveal">
+        <p class="section__eyebrow">Simple Process</p>
+        <h2 class="section__title">How It Works</h2>
+        <p class="section__sub">Getting your project done is easy. Three steps — that's it.</p>
+      </header>
+
+      <div class="process__steps">
+
+        <div class="process-step process-step--1">
+          <div class="process-step__number" aria-hidden="true">01</div>
+          <div class="process-step__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 01.38 1.18 2 2 0 012.36 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+            </svg>
+          </div>
+          <h3 class="process-step__title">Call or Text</h3>
+          <p class="process-step__desc">Reach out by phone or text to describe your project. Quick response — usually within a few hours.</p>
+        </div>
+
+        <div class="process-step__connector" aria-hidden="true"></div>
+
+        <div class="process-step process-step--2">
+          <div class="process-step__number" aria-hidden="true">02</div>
+          <div class="process-step__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
+          <h3 class="process-step__title">Free Estimate</h3>
+          <p class="process-step__desc">We come to you, assess the job, and give you a clear written estimate — no pressure, no hidden fees.</p>
+        </div>
+
+        <div class="process-step__connector" aria-hidden="true"></div>
+
+        <div class="process-step process-step--3">
+          <div class="process-step__number" aria-hidden="true">03</div>
+          <div class="process-step__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <h3 class="process-step__title">Work Done Right</h3>
+          <p class="process-step__desc">We show up on time, do the work, and leave your space clean. You only pay when you're satisfied.</p>
+        </div>
+
+      </div><!-- /process__steps -->
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       PROJECT GALLERY
+  ═══════════════════════════════════════════ -->
+  <section class="section gallery" id="gallery" aria-label="Project gallery">
+    <div class="container">
+
+      <header class="section__header reveal">
+        <p class="section__eyebrow">Our Work</p>
+        <h2 class="section__title">Recent Projects</h2>
+        <p class="section__sub">A sample of completed work across Springfield and surrounding areas.</p>
+      </header>
+
+      <div class="gallery__grid" role="list">
+
+        <div class="gallery-card gallery-card--deck" role="listitem" aria-label="Deck construction project">
+          <div class="gallery-card__overlay">
+            <span class="gallery-card__label">Deck Build</span>
+            <span class="gallery-card__location">Springfield, IL</span>
+          </div>
+        </div>
+
+        <div class="gallery-card gallery-card--interior" role="listitem" aria-label="Interior painting project">
+          <div class="gallery-card__overlay">
+            <span class="gallery-card__label">Interior Paint</span>
+            <span class="gallery-card__location">Chatham, IL</span>
+          </div>
+        </div>
+
+        <div class="gallery-card gallery-card--flooring" role="listitem" aria-label="Hardwood flooring installation">
+          <div class="gallery-card__overlay">
+            <span class="gallery-card__label">Hardwood Flooring</span>
+            <span class="gallery-card__location">Auburn, IL</span>
+          </div>
+        </div>
+
+        <div class="gallery-card gallery-card--drywall" role="listitem" aria-label="Drywall finishing project">
+          <div class="gallery-card__overlay">
+            <span class="gallery-card__label">Drywall & Finish</span>
+            <span class="gallery-card__location">Sherman, IL</span>
+          </div>
+        </div>
+
+        <div class="gallery-card gallery-card--trim" role="listitem" aria-label="Custom trim carpentry">
+          <div class="gallery-card__overlay">
+            <span class="gallery-card__label">Custom Trim Work</span>
+            <span class="gallery-card__location">Rochester, IL</span>
+          </div>
+        </div>
+
+        <div class="gallery-card gallery-card--fence" role="listitem" aria-label="Fence installation">
+          <div class="gallery-card__overlay">
+            <span class="gallery-card__label">Fence Installation</span>
+            <span class="gallery-card__location">Riverton, IL</span>
+          </div>
+        </div>
+
+      </div><!-- /gallery__grid -->
+
+      <p class="gallery__note reveal">Photos coming soon — real project photos will replace these placeholders.</p>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       STATS / WHY CHOOSE US
+  ═══════════════════════════════════════════ -->
+  <section class="section stats-section" id="about" aria-label="About us">
+    <div class="container">
+
+      <!-- About Narrative -->
+      <div class="about-narrative reveal">
+        <div class="about-narrative__text">
+          <p class="section__eyebrow">About ProCraft</p>
+          <h2 class="about-narrative__title">20 Years of Craft.<br><em>One Standard: Done Right.</em></h2>
+          <p class="about-narrative__body">ProCraft Construction &amp; Handyman was founded on a simple belief: people deserve a contractor they can actually trust. One who shows up, tells the truth about the job, charges a fair price, and takes pride in the work long after the tools are packed up.</p>
+          <p class="about-narrative__body">Owner Mike Caldwell has been working trades in central Illinois since 2004. Whether it's a single broken door hinge or a full basement remodel, every job gets the same level of care — because your home deserves it.</p>
+          <div class="about-narrative__badges">
+            <span class="about-badge">Licensed &amp; Insured</span>
+            <span class="about-badge">Family Owned</span>
+            <span class="about-badge">Serving Central IL Since 2004</span>
+          </div>
+        </div>
+        <div class="about-narrative__visual" aria-hidden="true">
+          <div class="about-stat-card reveal">
+            <div class="about-stat-card__number">20<span>+</span></div>
+            <div class="about-stat-card__label">Years of Craft</div>
+          </div>
+          <div class="about-stat-card about-stat-card--offset reveal">
+            <div class="about-stat-card__number">500<span>+</span></div>
+            <div class="about-stat-card__label">Homes Served</div>
+          </div>
+          <div class="about-stat-card about-stat-card--offset2 reveal">
+            <div class="about-stat-card__number">5<span>★</span></div>
+            <div class="about-stat-card__label">Google Rating</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="stats__grid reveal">
+        <!-- PLACEHOLDER: Replace numbers and labels with real data -->
+        <div class="stat">
+          <div class="stat__number">
+            <span class="stat__num" data-target="10">0</span><span class="stat__suffix">+</span>
+          </div>
+          <span class="stat__label">Years of Experience</span>
+        </div>
+        <div class="stat">
+          <div class="stat__number">
+            <span class="stat__num" data-target="200">0</span><span class="stat__suffix">+</span>
+          </div>
+          <span class="stat__label">Projects Completed</span>
+        </div>
+        <div class="stat">
+          <div class="stat__number">
+            <span class="stat__num" data-target="100">0</span><span class="stat__suffix">%</span>
+          </div>
+          <span class="stat__label">Satisfaction Rate</span>
+        </div>
+      </div>
+
+      <!-- Pillars -->
+      <div class="pillars__grid">
+
+        <div class="pillar reveal">
+          <div class="pillar__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+          </div>
+          <h3 class="pillar__title">Honest Pricing</h3>
+          <p class="pillar__desc">No surprise fees. You get a clear estimate upfront — and that's what you pay.</p>
+        </div>
+
+        <div class="pillar reveal">
+          <div class="pillar__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3 class="pillar__title">Shows Up On Time</h3>
+          <p class="pillar__desc">Your time matters. We schedule around you and actually show up when we say we will.</p>
+        </div>
+
+        <div class="pillar reveal">
+          <div class="pillar__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <h3 class="pillar__title">Quality Work</h3>
+          <p class="pillar__desc">Done once, done right. Every job gets the same care whether it's a shelf or a full remodel.</p>
+        </div>
+
+      </div><!-- /pillars__grid -->
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       TESTIMONIALS
+  ═══════════════════════════════════════════ -->
+  <section class="section testimonials" id="testimonials" aria-label="Customer reviews">
+    <div class="container">
+
+      <header class="section__header reveal">
+        <p class="section__eyebrow">Reviews</p>
+        <h2 class="section__title">What Clients Say</h2>
+      </header>
+
+      <div class="testimonials__grid" role="list">
+
+        <!-- PLACEHOLDER: Replace all testimonials with real customer reviews -->
+        <blockquote class="testimonial reveal" role="listitem">
+          <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+          <p class="testimonial__text">"Showed up the same day, fixed what three other guys couldn't figure out, and charged exactly what he quoted. Couldn't be happier."</p>
+          <footer class="testimonial__author">
+            <div class="testimonial__author-row">
+              <div class="testimonial__avatar" aria-hidden="true">JM</div>
+              <div>
+                <strong>J. Martinez</strong>
+                <span class="testimonial__job">Homeowner · Springfield, IL</span>
+              </div>
+            </div>
+            <span class="testimonial__source">via Google</span>
+          </footer>
+        </blockquote>
+
+        <blockquote class="testimonial reveal" role="listitem">
+          <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+          <p class="testimonial__text">"He built out our entire deck and did the interior trim work. The quality is incredible — I've gotten more compliments on my house since then than ever."</p>
+          <footer class="testimonial__author">
+            <div class="testimonial__author-row">
+              <div class="testimonial__avatar" aria-hidden="true">RT</div>
+              <div>
+                <strong>R. Thompson</strong>
+                <span class="testimonial__job">Homeowner · Chatham, IL</span>
+              </div>
+            </div>
+            <span class="testimonial__source">via Google</span>
+          </footer>
+        </blockquote>
+
+        <blockquote class="testimonial reveal" role="listitem">
+          <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+          <p class="testimonial__text">"Finally found someone I can trust. He's done work on three of my rental properties — always professional, always clean, always done right."</p>
+          <footer class="testimonial__author">
+            <div class="testimonial__author-row">
+              <div class="testimonial__avatar" aria-hidden="true">DP</div>
+              <div>
+                <strong>D. Park</strong>
+                <span class="testimonial__job">Property Owner · Auburn, IL</span>
+              </div>
+            </div>
+            <span class="testimonial__source">via Google</span>
+          </footer>
+        </blockquote>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       TRUST BADGES — CSS marquee ticker
+  ═══════════════════════════════════════════ -->
+  <section class="trust-section" aria-label="Trust and credentials">
+    <div class="marquee-track" aria-label="Credentials and trust signals">
+      <!-- Items duplicated for seamless infinite loop -->
+      <div class="marquee-inner" aria-hidden="true">
+
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Licensed &amp; Insured
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          5-Star Google Reviews
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Same-Day Response
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          Honest, Flat Pricing
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-5"/></svg>
+          Satisfaction Guaranteed
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Serving Central IL Since 2004
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+        <!-- Duplicate set for seamless loop -->
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Licensed &amp; Insured
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          5-Star Google Reviews
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Same-Day Response
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          Honest, Flat Pricing
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-5"/></svg>
+          Satisfaction Guaranteed
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+        <span class="marquee-badge">
+          <svg class="marquee-badge__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Serving Central IL Since 2004
+        </span>
+        <span class="marquee-sep" aria-hidden="true">✦</span>
+
+      </div>
+    </div>
+
+    <!-- Accessible static fallback (screen readers) -->
+    <ul class="marquee-a11y-list" aria-label="Trust signals">
+      <li>Licensed &amp; Insured</li>
+      <li>5-Star Google Reviews</li>
+      <li>Same-Day Response</li>
+      <li>Honest, Flat Pricing</li>
+      <li>Satisfaction Guaranteed</li>
+      <li>Serving Central IL Since 2004</li>
+    </ul>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       CTA BAND — SERVICE AREA + CALL TO ACTION
+  ═══════════════════════════════════════════ -->
+  <section class="section cta-band" aria-label="Service area">
+    <div class="cta-band__bg" aria-hidden="true"></div>
+    <div class="container cta-band__inner reveal">
+
+      <p class="cta-band__eyebrow">Service Area</p>
+      <h2 class="cta-band__title">Serving Springfield &amp; Surrounding Areas</h2>
+      <p class="cta-band__sub">Ready to get started? Call for a free estimate — no pressure, no obligation.</p>
+
+      <div class="cta-band__areas" aria-label="Service areas">
+        <span class="area-pill">Springfield</span>
+        <span class="area-pill">Chatham</span>
+        <span class="area-pill">Auburn</span>
+        <span class="area-pill">Sherman</span>
+        <span class="area-pill">Rochester</span>
+        <span class="area-pill">Riverton</span>
+        <span class="area-pill">Williamsville</span>
+        <span class="area-pill">Pawnee</span>
+        <span class="area-pill">Virden</span>
+      </div>
+
+      <a class="btn btn--primary btn--xl" href="tel:+12175550182">
+        <svg class="btn__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>
+        </svg>
+        (217) 555-0182 — Free Estimate
+      </a>
+
+      <p class="cta-band__note">We typically respond within a few hours.</p>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       CONTACT FORM
+  ═══════════════════════════════════════════ -->
+  <section class="section contact-section" id="contact" aria-label="Contact form">
+    <div class="container">
+
+      <div class="contact-layout">
+
+        <div class="contact-info reveal">
+          <p class="section__eyebrow">Get In Touch</p>
+          <h2 class="contact-info__title">Request a<br><em>Free Estimate</em></h2>
+          <p class="contact-info__body">Tell us about your project and we'll get back to you quickly. No commitment required — just an honest conversation about what you need.</p>
+
+          <div class="contact-details">
+            <a href="tel:+12175550182" class="contact-detail">
+              <span class="contact-detail__icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>
+                </svg>
+              </span>
+              <span>(217) 555-0182</span>
+            </a>
+            <div class="contact-detail">
+              <span class="contact-detail__icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+              </span>
+              <span>Springfield, IL &amp; Surrounding Areas</span>
+            </div>
+            <div class="contact-detail">
+              <span class="contact-detail__icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </span>
+              <span>Mon–Fri 7am–6pm · Sat by appointment</span>
+            </div>
+          </div>
+        </div>
+
+        <form class="contact-form reveal" aria-label="Contact form" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="contactName">Your Name</label>
+              <input class="form-input" type="text" id="contactName" name="name" placeholder="John Smith" autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contactPhone">Phone Number</label>
+              <input class="form-input" type="tel" id="contactPhone" name="phone" placeholder="(217) 555-0000" autocomplete="tel">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="contactEmail">Email Address</label>
+            <input class="form-input" type="email" id="contactEmail" name="email" placeholder="john@email.com" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="contactService">Type of Service</label>
+            <select class="form-input form-select" id="contactService" name="service">
+              <option value="" disabled selected>Select a service...</option>
+              <option value="carpentry">Carpentry</option>
+              <option value="drywall">Drywall</option>
+              <option value="painting">Painting</option>
+              <option value="flooring">Flooring</option>
+              <option value="plumbing">Plumbing Repairs</option>
+              <option value="general">General Repairs</option>
+              <option value="other">Other / Not Sure</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="contactMessage">Project Description</label>
+            <textarea class="form-input form-textarea" id="contactMessage" name="message" placeholder="Describe your project — size, location, timeline, anything helpful..." rows="4" data-lenis-prevent></textarea>
+          </div>
+          <button class="btn btn--primary btn--lg form-submit" type="submit">
+            <svg class="btn__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+            Send Message
+          </button>
+          <p class="form-note">We'll get back to you within a few hours during business hours.</p>
+        </form>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+
+      <div class="footer__grid">
+
+        <!-- Brand col -->
+        <div class="footer__col footer__col--brand">
+          <div class="footer__brand">
+            <span class="footer__logo-mark" aria-hidden="true">✦</span>
+            <span class="footer__name">ProCraft</span>
+          </div>
+          <p class="footer__tagline">General Construction &amp; Handyman<br>Springfield, IL</p>
+          <a class="footer__phone" href="tel:+12175550182">(217) 555-0182</a>
+          <div class="footer__social" aria-label="Social media links">
+            <!-- Facebook -->
+            <a href="#" class="footer__social-link" aria-label="Facebook" rel="noopener">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+            </a>
+            <!-- Instagram -->
+            <a href="#" class="footer__social-link" aria-label="Instagram" rel="noopener">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <!-- Nextdoor -->
+            <a href="#" class="footer__social-link" aria-label="Nextdoor" rel="noopener">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Services col -->
+        <div class="footer__col">
+          <h3 class="footer__col-title">Services</h3>
+          <ul class="footer__list">
+            <li><a href="#services" class="footer__link">Carpentry</a></li>
+            <li><a href="#services" class="footer__link">Drywall</a></li>
+            <li><a href="#services" class="footer__link">Painting</a></li>
+            <li><a href="#services" class="footer__link">Flooring</a></li>
+            <li><a href="#services" class="footer__link">Plumbing Repairs</a></li>
+            <li><a href="#services" class="footer__link">General Repairs</a></li>
+          </ul>
+        </div>
+
+        <!-- Service Areas col -->
+        <div class="footer__col">
+          <h3 class="footer__col-title">Service Areas</h3>
+          <ul class="footer__list">
+            <li><span class="footer__text">Springfield, IL</span></li>
+            <li><span class="footer__text">Chatham, IL</span></li>
+            <li><span class="footer__text">Auburn, IL</span></li>
+            <li><span class="footer__text">Sherman, IL</span></li>
+            <li><span class="footer__text">Rochester, IL</span></li>
+            <li><span class="footer__text">Riverton, IL</span></li>
+          </ul>
+        </div>
+
+        <!-- Company col -->
+        <div class="footer__col">
+          <h3 class="footer__col-title">Company</h3>
+          <ul class="footer__list">
+            <li><a href="#about" class="footer__link">About Us</a></li>
+            <li><a href="#process" class="footer__link">How It Works</a></li>
+            <li><a href="#gallery" class="footer__link">Our Work</a></li>
+            <li><a href="#testimonials" class="footer__link">Reviews</a></li>
+            <li><a href="#contact" class="footer__link">Contact</a></li>
+          </ul>
+        </div>
+
+      </div><!-- /footer__grid -->
+
+      <div class="footer__bottom">
+        <p class="footer__copy">
+          © <span id="currentYear"></span> ProCraft Construction &amp; Handyman. All rights reserved.
+        </p>
+        <p class="footer__copy footer__copy--right">
+          Serving Springfield, IL &amp; Surrounding Areas
+        </p>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- ═══════════════════════════════════════════
+       STRUCTURED DATA — JSON-LD
+  ═══════════════════════════════════════════ -->
+  <!-- PLACEHOLDER: Replace ALL bracketed values with real business data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "[Business Name]",
+    "description": "General construction and handyman services in [City, State]. Carpentry, drywall, painting, flooring, plumbing repairs, and general repairs.",
+    "telephone": "(000) 000-0000",
+    "url": "https://yourdomain.com",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "[City]",
+      "addressRegion": "[State]",
+      "addressCountry": "US"
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": "[City]"
+    },
+    "priceRange": "$$",
+    "openingHours": "Mo-Fr 07:00-18:00",
+    "paymentAccepted": "Cash, Check, Venmo, Zelle",
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Handyman Services",
+      "itemListElement": [
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Carpentry" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Drywall" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Painting" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Flooring" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Plumbing Repairs" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "General Repairs" } }
+      ]
+    }
+  }
+  </script>
+
+  <!-- ═══════════════════════════════════════════
+       SCRIPTS
+  ═══════════════════════════════════════════ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <!-- EffectComposer post-processing chain (must match r134 version) -->
+  <script src="https://unpkg.com/three@0.134.0/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://unpkg.com/three@0.134.0/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://unpkg.com/three@0.134.0/examples/js/postprocessing/ShaderPass.js"></script>
+  <script src="https://unpkg.com/three@0.134.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <script src="https://unpkg.com/three@0.134.0/examples/js/shaders/CopyShader.js"></script>
+  <script src="https://unpkg.com/three@0.134.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+  <script src="https://unpkg.com/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="three-scene.js"></script>
+  <script src="main.js"></script>
+
+</body>
+</html>
