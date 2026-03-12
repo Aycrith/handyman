@@ -4,15 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- PLACEHOLDER: Replace with real business name, city, and phone -->
-  <title>[Business Name] — General Construction & Handyman | [City], [State]</title>
-  <meta name="description" content="[Business Name] — General construction and handyman services in [City, State]. Carpentry, drywall, painting, flooring, and more. Free estimates. Call (000) 000-0000.">
+  <title>ProCraft — General Construction &amp; Handyman | Springfield, IL</title>
+  <meta name="description" content="ProCraft provides general construction and handyman services in Springfield, Illinois. Carpentry, drywall, painting, flooring, repairs, and free estimates.">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="[Business Name] — [City] Handyman & Construction">
-  <meta property="og:description" content="Skilled hands-on work, honest pricing. Serving [City] and surrounding areas. Free estimates — call today.">
+  <meta property="og:title" content="ProCraft — Springfield Handyman &amp; Construction">
+  <meta property="og:description" content="Skilled hands-on work, honest pricing, and free estimates across Springfield and surrounding Illinois communities.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="assets/images/og-image.jpg">
   <!-- PLACEHOLDER: <link rel="canonical" href="https://yourdomain.com"> -->
 
   <!-- Favicon placeholder -->
@@ -193,7 +191,7 @@
        SERVICES SECTION
   ═══════════════════════════════════════════ -->
   <section class="section services" id="services" aria-label="Services">
-    <div class="services__pin-wrap" id="servicesPin">
+    <div class="services__pin-wrap services__scroll-pin" id="servicesPin">
 
       <div class="container">
         <header class="section__header reveal">
@@ -204,7 +202,8 @@
         </header>
       </div>
 
-      <div class="services__scroll-track">
+      <div class="container services__cards-wrap">
+        <div class="services__scroll-track">
       <div class="services__grid" role="list">
 
         <!-- Service Card 1 -->
@@ -275,7 +274,8 @@
         </article>
 
       </div><!-- /services__grid -->
-      </div><!-- /services__scroll-track -->
+        </div><!-- /services__scroll-track -->
+      </div><!-- /services__cards-wrap -->
 
     </div><!-- /services__pin-wrap -->
   </section>
@@ -286,9 +286,15 @@
   ═══════════════════════════════════════════ -->
   <section class="rhetoric-section" aria-label="Our commitment">
     <div class="rhetoric-inner">
+      <p class="rhetoric-kicker">Why Springfield keeps calling ProCraft</p>
       <p class="rhetoric-line">We show up.</p>
       <p class="rhetoric-line">We do it right.</p>
       <p class="rhetoric-line">We leave your space better than we found it.</p>
+      <div class="rhetoric-proof" role="list" aria-label="ProCraft service promises">
+        <span class="rhetoric-proof__item" role="listitem">Clear written estimates</span>
+        <span class="rhetoric-proof__item" role="listitem">Respectful, clean job sites</span>
+        <span class="rhetoric-proof__item" role="listitem">Real communication from start to finish</span>
+      </div>
     </div>
   </section>
 
@@ -407,8 +413,6 @@
         </div>
 
       </div><!-- /gallery__grid -->
-
-      <p class="gallery__note reveal">Photos coming soon — real project photos will replace these placeholders.</p>
 
     </div>
   </section>
@@ -753,7 +757,7 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label" for="contactName">Your Name</label>
-              <input class="form-input" type="text" id="contactName" name="name" placeholder="John Smith" autocomplete="name">
+              <input class="form-input" type="text" id="contactName" name="name" placeholder="John Smith" autocomplete="name" required>
             </div>
             <div class="form-group">
               <label class="form-label" for="contactPhone">Phone Number</label>
@@ -766,7 +770,7 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="contactService">Type of Service</label>
-            <select class="form-input form-select" id="contactService" name="service">
+            <select class="form-input form-select" id="contactService" name="service" required>
               <option value="" disabled selected>Select a service...</option>
               <option value="carpentry">Carpentry</option>
               <option value="drywall">Drywall</option>
@@ -779,7 +783,7 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="contactMessage">Project Description</label>
-            <textarea class="form-input form-textarea" id="contactMessage" name="message" placeholder="Describe your project — size, location, timeline, anything helpful..." rows="4" data-lenis-prevent></textarea>
+            <textarea class="form-input form-textarea" id="contactMessage" name="message" placeholder="Describe your project — size, location, timeline, anything helpful..." rows="4" data-lenis-prevent required></textarea>
           </div>
           <button class="btn btn--primary btn--lg form-submit" type="submit">
             <svg class="btn__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -788,6 +792,11 @@
             Send Message
           </button>
           <p class="form-note">We'll get back to you within a few hours during business hours.</p>
+          <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+          <div class="form-followup" id="formFollowup" hidden>
+            <a class="btn btn--ghost btn--md" id="formSmsLink" href="sms:+12175550182">Text Request</a>
+            <a class="btn btn--primary btn--md" id="formCallLink" href="tel:+12175550182">Call Instead</a>
+          </div>
         </form>
 
       </div>
@@ -889,20 +898,21 @@
   {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "name": "[Business Name]",
-    "description": "General construction and handyman services in [City, State]. Carpentry, drywall, painting, flooring, plumbing repairs, and general repairs.",
-    "telephone": "(000) 000-0000",
-    "url": "https://yourdomain.com",
+    "name": "ProCraft Construction & Handyman",
+    "description": "General construction and handyman services in Springfield, Illinois. Carpentry, drywall, painting, flooring, plumbing repairs, and general repairs.",
+    "telephone": "+1-217-555-0182",
     "address": {
       "@type": "PostalAddress",
-      "addressLocality": "[City]",
-      "addressRegion": "[State]",
+      "addressLocality": "Springfield",
+      "addressRegion": "IL",
       "addressCountry": "US"
     },
-    "areaServed": {
-      "@type": "City",
-      "name": "[City]"
-    },
+    "areaServed": [
+      { "@type": "City", "name": "Springfield" },
+      { "@type": "City", "name": "Chatham" },
+      { "@type": "City", "name": "Sherman" },
+      { "@type": "City", "name": "Rochester" }
+    ],
     "priceRange": "$$",
     "openingHours": "Mo-Fr 07:00-18:00",
     "paymentAccepted": "Cash, Check, Venmo, Zelle",
@@ -935,6 +945,7 @@
   <script src="https://unpkg.com/three@0.134.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
   <script src="https://unpkg.com/three@0.134.0/examples/js/shaders/CopyShader.js"></script>
   <script src="https://unpkg.com/three@0.134.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+  <script src="https://unpkg.com/three@0.134.0/examples/js/libs/meshopt_decoder.js"></script>
   <script src="https://unpkg.com/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
   <script src="three-scene.js"></script>
   <script src="main.js"></script>

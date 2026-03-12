@@ -160,12 +160,35 @@ function initHeroEntrance() {
   // Reveal eyebrow container first, then stagger each segment
   heroTl
     .set('.hero__eyebrow', { opacity: 1 })
-    .from('.eyebrow-seg, .eyebrow-dot', { opacity: 0, y: 10, stagger: 0.14, duration: 0.55, ease: 'power2.out' })
-    .from('.hero__title',   { opacity: 0, y: typeof SplitType === 'undefined' ? 45 : 0, duration: 1.0, clearProps: 'clip-path' }, '-=0.35')
-    .from('.hero__sub',     { opacity: 0, y: 22, duration: 0.75 }, '-=0.55')
-    .from('.hero__ctas',    { opacity: 0, y: 18, duration: 0.65 }, '-=0.45')
-    .from('.hero__trust',   { opacity: 0, y: 10, duration: 0.55 }, '-=0.35')
-    .from('#scrollCue',     { opacity: 0, y: 8,  duration: 0.55 }, '-=0.15');
+    .fromTo('.eyebrow-seg, .eyebrow-dot',
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, stagger: 0.14, duration: 0.55, ease: 'power2.out' }
+    )
+    .fromTo('.hero__title',
+      { opacity: 0, y: typeof SplitType === 'undefined' ? 45 : 0 },
+      { opacity: 1, y: 0, duration: 1.0, clearProps: 'clip-path', immediateRender: false },
+      '-=0.35'
+    )
+    .fromTo('.hero__sub',
+      { opacity: 0, y: 22 },
+      { opacity: 1, y: 0, duration: 0.75, immediateRender: false },
+      '-=0.55'
+    )
+    .fromTo('.hero__ctas',
+      { opacity: 0, y: 18 },
+      { opacity: 1, y: 0, duration: 0.65, immediateRender: false },
+      '-=0.45'
+    )
+    .fromTo('.hero__trust',
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.55, immediateRender: false },
+      '-=0.35'
+    )
+    .fromTo('#scrollCue',
+      { opacity: 0, y: 8 },
+      { opacity: 1, y: 0, duration: 0.55, immediateRender: false },
+      '-=0.15'
+    );
 }
 
 
@@ -392,21 +415,23 @@ function initSectionTitleLines() {
     const parent = title.closest('.section__header');
     if (!parent) return;
 
-    gsap.fromTo(title,
-      { opacity: 0, y: 30 },
-      {
-        opacity: 1, y: 0,
-        duration: 0.85,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: parent,
-          start: 'top 86%',
-          toggleActions: 'play none none none',
-          once: true,
-          invalidateOnRefresh: true,
-        },
-      }
-    );
+    if (typeof SplitType === 'undefined') {
+      gsap.fromTo(title,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1, y: 0,
+          duration: 0.85,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: parent,
+            start: 'top 86%',
+            toggleActions: 'play none none none',
+            once: true,
+            invalidateOnRefresh: true,
+          },
+        }
+      );
+    }
 
     const eyebrow = parent.querySelector('.section__eyebrow');
     if (eyebrow) {
@@ -560,27 +585,62 @@ function initTrustBadges() {
 ───────────────────────────────────────────────────────── */
 
 function initRhetoricalSection() {
+  const section = $('.rhetoric-section');
   const lines = $$('.rhetoric-line');
-  if (!lines.length) return;
+  if (!section || !lines.length) return;
 
-  if (prefersReducedMotion) {
-    gsap.set(lines, { opacity: 1, y: 0 });
+  if (prefersReducedMotion || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
     return;
   }
 
-  gsap.from(lines, {
-    opacity: 0,
-    y: 40,
-    stagger: 0.22,
-    duration: 0.95,
-    ease: 'power3.out',
-    scrollTrigger: {
-      trigger: '.rhetoric-section',
-      start: 'top 75%',
-      toggleActions: 'play none none reverse',
-      invalidateOnRefresh: true,
+  const accents = $$('.rhetoric-kicker, .rhetoric-proof__item', section);
+
+  gsap.fromTo(accents,
+    {
+      y: 12,
+      opacity: 0.84,
     },
-  });
+    {
+      y: 0,
+      opacity: 1,
+      stagger: 0.08,
+      duration: 0.55,
+      ease: 'power2.out',
+      immediateRender: false,
+      scrollTrigger: {
+        trigger: section,
+        start: 'top 82%',
+        toggleActions: 'play none none none',
+        once: true,
+        invalidateOnRefresh: true,
+      },
+    }
+  );
+
+  gsap.fromTo(lines,
+    {
+      y: 24,
+      opacity: 0.86,
+      filter: 'blur(8px)',
+    },
+    {
+      y: 0,
+      opacity: 1,
+      filter: 'blur(0px)',
+      stagger: 0.16,
+      duration: 0.9,
+      ease: 'power3.out',
+      immediateRender: false,
+      clearProps: 'filter',
+      scrollTrigger: {
+        trigger: section,
+        start: 'top 80%',
+        toggleActions: 'play none none none',
+        once: true,
+        invalidateOnRefresh: true,
+      },
+    }
+  );
 }
 
 
@@ -627,8 +687,20 @@ function initPreloader() {
     if (label) label.textContent = pct < 100 ? 'Loading assets...' : 'Ready';
   };
 
-  // Give Three.js a head start; dismiss after fonts + a brief settle
-  document.fonts.ready.then(() => {
+  const fontsReady = document.fonts && document.fonts.ready
+    ? document.fonts.ready
+    : Promise.resolve();
+
+  const sceneReady = window.__sceneAssetsReady instanceof Promise
+    ? window.__sceneAssetsReady
+    : new Promise((resolve) => {
+        window.addEventListener('three-scene:ready', resolve, { once: true });
+      });
+
+  Promise.race([
+    Promise.all([fontsReady, sceneReady]),
+    new Promise((resolve) => setTimeout(resolve, 7000)),
+  ]).then(() => {
     window.__preloaderProgress?.(100);
     setTimeout(() => {
       if (typeof gsap !== 'undefined') {
@@ -641,7 +713,7 @@ function initPreloader() {
       } else {
         preloader.classList.add('hidden');
       }
-    }, 400);
+    }, 250);
   });
 }
 
@@ -727,23 +799,7 @@ function initSplitTextReveals() {
     });
   });
 
-  // Rhetoric lines — chars cascade in
-  document.querySelectorAll('.rhetoric-line').forEach((el, i) => {
-    const split = new SplitType(el, { types: 'chars' });
-    gsap.from(split.chars, {
-      opacity: 0,
-      y: 30,
-      stagger: 0.025,
-      duration: 0.5,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: '.rhetoric-section',
-        start: 'top 75%',
-        toggleActions: 'play none none reverse',
-      },
-      delay: i * 0.35,
-    });
-  });
+  // Rhetoric section animation is handled separately so its copy stays visible by default.
 }
 
 
@@ -815,26 +871,54 @@ function initGalleryTilt() {
 ───────────────────────────────────────────────────────── */
 
 function initServicesHScroll() {
-  if (window.innerWidth < 1024 || prefersReducedMotion) return;
+  if (prefersReducedMotion || typeof gsap === 'undefined') return;
 
+  const section = document.getElementById('services');
+  const pinWrap = document.getElementById('servicesPin');
   const track = document.querySelector('.services__scroll-track');
   const grid  = document.querySelector('.services__grid');
-  if (!track || !grid) return;
+  const viewport = track?.parentElement;
+  if (!section || !pinWrap || !track || !grid || !viewport) return;
 
-  // Measure after layout is computed
-  const getScrollDistance = () => grid.scrollWidth - window.innerWidth + 120;
+  const media = gsap.matchMedia();
 
-  gsap.to(track, {
-    x: () => -getScrollDistance(),
-    ease: 'none',
-    scrollTrigger: {
-      trigger: '.services__pin-wrap',   // pin entire section wrapper so spacer lands after <section>
-      start: 'top top',
-      end: () => '+=' + getScrollDistance(),
-      pin: true,
-      scrub: 1,
-      invalidateOnRefresh: true,
-    },
+  const disableHorizontalMode = () => {
+    section.classList.remove('services--horizontal');
+    gsap.set(track, { clearProps: 'transform' });
+  };
+
+  media.add('(min-width: 1024px)', () => {
+    section.classList.add('services--horizontal');
+
+    const getOverflow = () => Math.max(0, grid.scrollWidth - viewport.clientWidth);
+    const getScrollDistance = () => getOverflow() + 120;
+    const maxScrollBudget = Math.min(window.innerHeight, 960);
+    const minOverflowToPin = 520;
+
+    if (getOverflow() < minOverflowToPin || getOverflow() > maxScrollBudget) {
+      disableHorizontalMode();
+      return disableHorizontalMode;
+    }
+
+    const tween = gsap.to(track, {
+      x: () => -getOverflow(),
+      ease: 'none',
+      scrollTrigger: {
+        trigger: pinWrap,
+        start: 'top top',
+        end: () => '+=' + getScrollDistance(),
+        pin: true,
+        scrub: 1,
+        invalidateOnRefresh: true,
+        anticipatePin: 1,
+      },
+    });
+
+    return () => {
+      tween.scrollTrigger?.kill();
+      tween.kill();
+      disableHorizontalMode();
+    };
   });
 }
 
@@ -845,36 +929,70 @@ function initServicesHScroll() {
 ───────────────────────────────────────────────────────── */
 
 function initNavHighlight() {
-  const navLinks = document.querySelectorAll('.nav__link');
+  const navLinks = [...document.querySelectorAll('.nav__link')];
   if (!navLinks.length) return;
 
-  const sections = ['services', 'process', 'gallery', 'about', 'testimonials', 'contact'];
+  const sections = ['services', 'process', 'gallery', 'about', 'testimonials', 'contact']
+    .map((id) => document.getElementById(id))
+    .filter(Boolean);
+  if (!sections.length) return;
+
+  let activeId = null;
+  let rafId = null;
 
   function setActive(id) {
+    if (id === activeId) return;
+    activeId = id;
     navLinks.forEach(a => {
-      a.classList.toggle('nav__link--active', a.getAttribute('href') === '#' + id);
+      a.classList.toggle('nav__link--active', !!id && a.getAttribute('href') === '#' + id);
     });
   }
 
-  function clearActive(id) {
-    navLinks.forEach(a => {
-      if (a.getAttribute('href') === '#' + id) a.classList.remove('nav__link--active');
+  function getClosestVisibleSection() {
+    const viewportCenter = window.innerHeight * 0.5;
+    let bestId = null;
+    let bestDistance = Number.POSITIVE_INFINITY;
+
+    sections.forEach((section) => {
+      const rect = section.getBoundingClientRect();
+      if (rect.bottom <= 0 || rect.top >= window.innerHeight) return;
+
+      const sectionCenter = rect.top + rect.height / 2;
+      const containsCenter = rect.top <= viewportCenter && rect.bottom >= viewportCenter;
+      const distance = containsCenter ? 0 : Math.abs(sectionCenter - viewportCenter);
+
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestId = section.id;
+      }
+    });
+
+    return bestId;
+  }
+
+  function queueActiveUpdate() {
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      rafId = null;
+      setActive(getClosestVisibleSection());
     });
   }
 
-  sections.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    ScrollTrigger.create({
-      trigger: el,
-      start: 'top 50%',
-      end: 'bottom 50%',
-      onEnter:     () => setActive(id),
-      onEnterBack: () => setActive(id),
-      onLeave:     () => clearActive(id),
-      onLeaveBack: () => clearActive(id),
-    });
+  ScrollTrigger.create({
+    start: 'top top',
+    end: 'bottom bottom',
+    onUpdate: queueActiveUpdate,
+    onRefresh: queueActiveUpdate,
   });
+
+  if (lenis) {
+    lenis.on('scroll', queueActiveUpdate);
+  } else {
+    window.addEventListener('scroll', queueActiveUpdate, { passive: true });
+  }
+
+  window.addEventListener('resize', queueActiveUpdate);
+  queueActiveUpdate();
 }
 
 
@@ -903,6 +1021,83 @@ function initParallaxSections() {
 }
 
 
+/* ─────────────────────────────────────────────────────────
+   CONTACT FORM — VALIDATION + NO-RELOAD FOLLOW-UP
+───────────────────────────────────────────────────────── */
+
+function initContactFormSubmission() {
+  const form = document.querySelector('.contact-form');
+  const status = document.getElementById('formStatus');
+  const followup = document.getElementById('formFollowup');
+  const smsLink = document.getElementById('formSmsLink');
+  if (!form || !status || !followup || !smsLink) return;
+
+  const fieldIds = ['contactName', 'contactPhone', 'contactEmail', 'contactService', 'contactMessage'];
+  const fields = fieldIds
+    .map((id) => document.getElementById(id))
+    .filter(Boolean);
+
+  const clearErrors = () => fields.forEach((field) => field.removeAttribute('aria-invalid'));
+
+  const setStatus = (message, type) => {
+    status.textContent = message;
+    status.classList.remove('form-status--error', 'form-status--success');
+    if (type) status.classList.add(`form-status--${type}`);
+  };
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    clearErrors();
+    followup.hidden = true;
+
+    const nameField = document.getElementById('contactName');
+    const phoneField = document.getElementById('contactPhone');
+    const emailField = document.getElementById('contactEmail');
+    const serviceField = document.getElementById('contactService');
+    const messageField = document.getElementById('contactMessage');
+    if (!nameField || !phoneField || !emailField || !serviceField || !messageField) return;
+
+    const name = nameField.value.trim();
+    const phone = phoneField.value.trim();
+    const email = emailField.value.trim();
+    const service = serviceField.value.trim();
+    const message = messageField.value.trim();
+
+    const invalidFields = [];
+    const phoneDigits = phone.replace(/\D/g, '');
+    const emailLooksValid = !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (!name) invalidFields.push(nameField);
+    if (!service) invalidFields.push(serviceField);
+    if (message.length < 15) invalidFields.push(messageField);
+    if (!phoneDigits && !email) invalidFields.push(phoneField, emailField);
+    if (phone && phoneDigits.length > 0 && phoneDigits.length < 10) invalidFields.push(phoneField);
+    if (!emailLooksValid) invalidFields.push(emailField);
+
+    if (invalidFields.length) {
+      [...new Set(invalidFields)].forEach((field) => field.setAttribute('aria-invalid', 'true'));
+      setStatus('Please add your name, service, project details, and either a valid phone number or email.', 'error');
+      invalidFields[0]?.focus();
+      return;
+    }
+
+    const serviceLabel = serviceField.options[serviceField.selectedIndex]?.textContent || service;
+    const requestBody = [
+      `Hi ProCraft, this is ${name}.`,
+      `I'm looking for help with: ${serviceLabel}.`,
+      `Project details: ${message}`,
+      phone ? `Phone: ${phone}` : null,
+      email ? `Email: ${email}` : null,
+    ].filter(Boolean).join(' ');
+
+    smsLink.href = `sms:+12175550182?body=${encodeURIComponent(requestBody)}`;
+    setStatus('Estimate request ready — use the text or call shortcut below so nothing gets lost in the shuffle.', 'success');
+    followup.hidden = false;
+    form.reset();
+  });
+}
+
+
 function initAll() {
   initCursor();
   initMagneticButtons();
@@ -921,6 +1116,7 @@ function initAll() {
   initGalleryTilt();
   initTrustBadges();
   initContactForm();
+  initContactFormSubmission();
   initRhetoricalSection();
   initParallaxSections();
   initServicesHScroll();
