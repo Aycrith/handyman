@@ -1,0 +1,1970 @@
+ ▐▛███▜▌   Claude Code v2.1.74
+▝▜█████▛▘  Sonnet 4.6 · Claude Pro
+  ▘▘ ▝▝    C:\Dev\handyman
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Plan to implement                                                            │
+│                                                                              │
+│ Interactive Enhancement Plan — Active Theory / lhbzr Inspired                │
+│                                                                              │
+│ ProCraft Handyman Landing Page                                               │
+│                                                                              │
+│ Context                                                                      │
+│                                                                              │
+│ The current page (screenshot reviewed) has a critical visual gap: the hero   │
+│ 3D scene is not visible at the top of the screenshot — the page begins       │
+│ directly with "Services". The Three.js hero canvas exists but is either      │
+│ hidden behind the scrolled-down view or not rendering prominently. Beyond    │
+│ that, the page lacks the signature Active Theory/lhbzr interactive           │
+│ qualities: no custom cursor, no character-level text reveals, no magnetic    │
+│ button effects, no smooth intro loader, no immersive hover states on content │
+│  sections.                                                                   │
+│                                                                              │
+│ Reference sites:                                                             │
+│ - Active Theory (activetheory.net): Canvas-first architecture, custom cursor │
+│  (#Stage overflow:hidden), proprietary font "nbarchitekt", all animation in  │
+│ JS bundle, feature detection via CSS @supports, immersive 3D tool hover with │
+│  tooltip panels (already partially implemented)                              │
+│ - lhbzr.com: Clean WebGL portfolio, scroll-linked scene transitions,         │
+│ typography-forward design                                                    │
+│                                                                              │
+│ Key principle: Elevate every interaction layer — cursor, text reveals, hover │
+│  states, scroll reactions — to match the premium experiential quality of     │
+│ these reference sites.                                                       │
+│                                                                              │
+│ ---                                                                          │
+│ Critical Files                                                               │
+│                                                                              │
+│ - C:/Dev/handyman/index.html — HTML structure, section markup                │
+│ - C:/Dev/handyman/main.js — GSAP + Lenis orchestration, all scroll           │
+│ animations                                                                   │
+│ - C:/Dev/handyman/three-scene.js — Three.js scene, mouse tracking (lines     │
+│ 1732–1777), assembly intro (line 1709), scroll handler (line 2267)           │
+│ - C:/Dev/handyman/styles.css — Design system, all component styles           │
+│                                                                              │
+│ ---                                                                          │
+│ Improvements (Ordered by Implementation Sequence)                            │
+│                                                                              │
+│ ---                                                                          │
+│ 1. Page Preloader / Intro Sequence [M] (index.html, styles.css, main.js)     │
+│                                                                              │
+│ Inspired by: Active Theory's dramatic loading experience before the 3D scene │
+│  reveals.                                                                    │
+│                                                                              │
+│ Problem: The page has no loader. Three.js GLB assets load asynchronously —   │
+│ during this time the page shows raw content with no structure. The 3D scene  │
+│ is also only visible at the top (fixed canvas), but users are already        │
+│ scrolled to "Services" in the screenshot.                                    │
+│                                                                              │
+│ Implementation:                                                              │
+│                                                                              │
+│ Add a full-screen preloader overlay to index.html (before all other          │
+│ content):                                                                    │
+│ <div class="preloader" id="preloader" aria-hidden="true">                    │
+│   <div class="preloader__inner">                                             │
+│     <div class="preloader__logo">                                            │
+│       <span class="preloader__mark">✦</span>                                 │
+│       <span class="preloader__name">ProCraft</span>                          │
+│     </div>                                                                   │
+│     <div class="preloader__bar-track">                                       │
+│       <div class="preloader__bar" id="preloaderBar"></div>                   │
+│     </div>                                                                   │
+│     <p class="preloader__label" id="preloaderLabel">Loading...</p>           │
+│   </div>                                                                     │
+│ </div>                                                                       │
+│                                                                              │
+│ In styles.css, add preloader styles:                                         │
+│ .preloader {                                                                 │
+│   position: fixed; inset: 0; z-index: 9999;                                  │
+│   background: var(--color-bg);                                               │
+│   display: flex; align-items: center; justify-content: center;               │
+│   transition: opacity 0.6s ease, visibility 0.6s ease;                       │
+│ }                                                                            │
+│ .preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }  │
+│ .preloader__bar-track { width: 200px; height: 1px; background:               │
+│ rgba(255,255,255,0.1); margin-top: 24px; }                                   │
+│ .preloader__bar { height: 100%; background: var(--color-amber); width: 0%;   │
+│ transition: width 0.2s ease; }                                               │
+│ .preloader__logo { font-family: var(--font-mono); color: var(--color-amber); │
+│  letter-spacing: 0.2em; }                                                    │
+│ .preloader__name { font-family: var(--font-display); font-size: 2rem;        │
+│ font-weight: 600; }                                                          │
+│ .preloader__label { font-family: var(--font-mono); font-size: 0.7rem; color: │
+│  var(--color-text-muted); margin-top: 12px; letter-spacing: 0.15em; }        │
+│                                                                              │
+│ In three-scene.js, expose a progress callback from loadGLBModels():          │
+│ // In loadGLBModels(), call window.__preloaderProgress?.(pct) at each asset  │
+│ load step                                                                    │
+│ // pct: 0–100 as each GLB model completes                                    │
+│                                                                              │
+│ In main.js, add initPreloader():                                             │
+│ function initPreloader() {                                                   │
+│   const preloader = document.getElementById('preloader');                    │
+│   const bar = document.getElementById('preloaderBar');                       │
+│   const label = document.getElementById('preloaderLabel');                   │
+│   if (!preloader) return;                                                    │
+│                                                                              │
+│   // Listen for progress from three-scene.js                                 │
+│   window.__preloaderProgress = (pct) => {                                    │
+│     if (bar) bar.style.width = pct + '%';                                    │
+│     if (label) label.textContent = pct < 100 ? 'Loading assets...' :         │
+│ 'Ready';                                                                     │
+│   };                                                                         │
+│                                                                              │
+│   // Dismiss on fonts + assets ready                                         │
+│   document.fonts.ready.then(() => {                                          │
+│     window.__preloaderProgress?.(100);                                       │
+│     setTimeout(() => {                                                       │
+│       gsap.to(preloader, {                                                   │
+│         opacity: 0, duration: 0.7, ease: 'power2.inOut',                     │
+│         onComplete: () => preloader.classList.add('hidden'),                 │
+│       });                                                                    │
+│     }, 300);                                                                 │
+│   });                                                                        │
+│ }                                                                            │
+│                                                                              │
+│ Call initPreloader() first in initAll().                                     │
+│                                                                              │
+│ ---                                                                          │
+│ 2. Custom Magnetic Cursor [M] (index.html, styles.css, main.js)              │
+│                                                                              │
+│ Inspired by: Active Theory's immersive cursor that reacts to interactive     │
+│ elements — the single biggest visual differentiator.                         │
+│                                                                              │
+│ Add cursor HTML to index.html (after <body>):                                │
+│ <div class="cursor" id="cursor" aria-hidden="true">                          │
+│   <div class="cursor__dot"></div>                                            │
+│   <div class="cursor__ring"></div>                                           │
+│ </div>                                                                       │
+│                                                                              │
+│ In styles.css:                                                               │
+│ /* Hide default cursor site-wide on non-touch devices */                     │
+│ @media (hover: hover) and (pointer: fine) {                                  │
+│   * { cursor: none !important; }                                             │
+│                                                                              │
+│   .cursor {                                                                  │
+│     position: fixed; top: 0; left: 0; z-index: 10000;                        │
+│     pointer-events: none; mix-blend-mode: difference;                        │
+│     will-change: transform;                                                  │
+│   }                                                                          │
+│   .cursor__dot {                                                             │
+│     width: 6px; height: 6px; border-radius: 50%;                             │
+│     background: var(--color-amber);                                          │
+│     position: absolute; transform: translate(-50%, -50%);                    │
+│     transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease;      │
+│   }                                                                          │
+│   .cursor__ring {                                                            │
+│     width: 32px; height: 32px; border-radius: 50%;                           │
+│     border: 1px solid rgba(201,117,18,0.5);                                  │
+│     position: absolute; transform: translate(-50%, -50%);                    │
+│     transition: transform 0.08s ease, width 0.3s ease, height 0.3s ease,     │
+│ border-color 0.2s ease;                                                      │
+│   }                                                                          │
+│   /* States */                                                               │
+│   .cursor--hover .cursor__ring { width: 52px; height: 52px; border-color:    │
+│ var(--color-amber); }                                                        │
+│   .cursor--hover .cursor__dot  { width: 4px; height: 4px; }                  │
+│   .cursor--text  .cursor__ring { width: 80px; height: 80px; opacity: 0.4; }  │
+│   .cursor--click .cursor__dot  { transform: translate(-50%, -50%)            │
+│ scale(2.5); }                                                                │
+│ }                                                                            │
+│                                                                              │
+│ In main.js, add initCursor():                                                │
+│ function initCursor() {                                                      │
+│   const cursor = document.getElementById('cursor');                          │
+│   if (!cursor || window.matchMedia('(hover: none)').matches) return;         │
+│                                                                              │
+│   const dot  = cursor.querySelector('.cursor__dot');                         │
+│   const ring = cursor.querySelector('.cursor__ring');                        │
+│                                                                              │
+│   let mouseX = 0, mouseY = 0;                                                │
+│   let ringX  = 0, ringY  = 0;                                                │
+│                                                                              │
+│   // Dot follows instantly; ring follows with lag (GSAP quickTo)             │
+│   const moveDot  = gsap.quickTo(dot,  'css', { duration: 0 });               │
+│   const moveRingX = gsap.quickTo(ring, 'x', { duration: 0.5, ease:           │
+│ 'power3.out' });                                                             │
+│   const moveRingY = gsap.quickTo(ring, 'y', { duration: 0.5, ease:           │
+│ 'power3.out' });                                                             │
+│                                                                              │
+│   window.addEventListener('mousemove', (e) => {                              │
+│     gsap.set(dot,  { x: e.clientX, y: e.clientY });                          │
+│     moveRingX(e.clientX);                                                    │
+│     moveRingY(e.clientY);                                                    │
+│   });                                                                        │
+│                                                                              │
+│   // Hover states: buttons, links, service cards, gallery cards              │
+│   const hoverEls = document.querySelectorAll('a, button, .service-card,      │
+│ .gallery-card, .pillar, .testimonial');                                      │
+│   hoverEls.forEach(el => {                                                   │
+│     el.addEventListener('mouseenter', () =>                                  │
+│ cursor.classList.add('cursor--hover'));                                      │
+│     el.addEventListener('mouseleave', () =>                                  │
+│ cursor.classList.remove('cursor--hover'));                                   │
+│   });                                                                        │
+│                                                                              │
+│   // Click flash                                                             │
+│   window.addEventListener('mousedown', () =>                                 │
+│ cursor.classList.add('cursor--click'));                                      │
+│   window.addEventListener('mouseup',   () =>                                 │
+│ cursor.classList.remove('cursor--click'));                                   │
+│ }                                                                            │
+│                                                                              │
+│ Call initCursor() in initAll().                                              │
+│                                                                              │
+│ ---                                                                          │
+│ 3. SplitType Character-Level Text Reveals [M] (index.html, styles.css,       │
+│ main.js)                                                                     │
+│                                                                              │
+│ Inspired by: Active Theory's per-character and per-word staggered text       │
+│ reveal — the most visually striking text technique.                          │
+│                                                                              │
+│ Add SplitType via CDN in index.html (before main.js):                        │
+│ <script src="https://unpkg.com/split-type@0.3.4/umd/index.min.js"></script>  │
+│                                                                              │
+│ In main.js, add initSplitTextReveals():                                      │
+│ function initSplitTextReveals() {                                            │
+│   if (prefersReducedMotion || typeof SplitType === 'undefined') return;      │
+│                                                                              │
+│   // Hero title — characters fly up from clip mask                           │
+│   const heroTitle = document.querySelector('.hero__title');                  │
+│   if (heroTitle) {                                                           │
+│     const split = new SplitType(heroTitle, { types: 'chars,words' });        │
+│     gsap.from(split.chars, {                                                 │
+│       opacity: 0, y: '110%', rotateX: -90,                                   │
+│       stagger: { amount: 0.6, from: 'start' },                               │
+│       duration: 0.8, ease: 'power4.out',                                     │
+│       delay: 0.5,                                                            │
+│     });                                                                      │
+│   }                                                                          │
+│                                                                              │
+│   // Section titles — words reveal left-to-right on scroll                   │
+│   document.querySelectorAll('.section__title, .about-narrative__title,       │
+│ .contact-info__title').forEach(el => {                                       │
+│     const split = new SplitType(el, { types: 'words' });                     │
+│     gsap.from(split.words, {                                                 │
+│       opacity: 0, y: 40, rotateX: -20,                                       │
+│       stagger: 0.08, duration: 0.75, ease: 'power3.out',                     │
+│       scrollTrigger: {                                                       │
+│         trigger: el, start: 'top 88%',                                       │
+│         toggleActions: 'play none none none', once: true,                    │
+│       },                                                                     │
+│     });                                                                      │
+│   });                                                                        │
+│                                                                              │
+│   // Rhetoric lines — chars cascade in                                       │
+│   document.querySelectorAll('.rhetoric-line').forEach((el, i) => {           │
+│     const split = new SplitType(el, { types: 'chars' });                     │
+│     gsap.from(split.chars, {                                                 │
+│       opacity: 0, y: 30, stagger: 0.025, duration: 0.5, ease: 'power2.out',  │
+│       scrollTrigger: {                                                       │
+│         trigger: '.rhetoric-section', start: 'top 75%',                      │
+│         toggleActions: 'play none none reverse',                             │
+│       },                                                                     │
+│       delay: i * 0.35,                                                       │
+│     });                                                                      │
+│   });                                                                        │
+│ }                                                                            │
+│                                                                              │
+│ CSS addition — clip wrapper for hero title overflow hidden:                  │
+│ .hero__title { overflow: hidden; }                                           │
+│ .hero__title .char { display: inline-block; }                                │
+│                                                                              │
+│ Call initSplitTextReveals() inside document.fonts.ready.then() in initAll(), │
+│  replacing old title reveal. Remove the existing clipPath tween on           │
+│ .hero__title in initHeroEntrance().                                          │
+│                                                                              │
+│ ---                                                                          │
+│ 4. Magnetic Button Effect on CTAs [S] (main.js, styles.css)                  │
+│                                                                              │
+│ Inspired by: Active Theory's magnetic pull on interactive elements — buttons │
+│  follow the cursor.                                                          │
+│                                                                              │
+│ In main.js, add initMagneticButtons():                                       │
+│ function initMagneticButtons() {                                             │
+│   if (window.matchMedia('(hover: none)').matches) return;                    │
+│                                                                              │
+│   document.querySelectorAll('.btn--primary, .btn--lg,                        │
+│ .nav__cta').forEach(btn => {                                                 │
+│     btn.addEventListener('mousemove', (e) => {                               │
+│       const rect = btn.getBoundingClientRect();                              │
+│       const cx = rect.left + rect.width  / 2;                                │
+│       const cy = rect.top  + rect.height / 2;                                │
+│       const dx = (e.clientX - cx) * 0.35;                                    │
+│       const dy = (e.clientY - cy) * 0.35;                                    │
+│       gsap.to(btn, { x: dx, y: dy, duration: 0.3, ease: 'power2.out' });     │
+│     });                                                                      │
+│     btn.addEventListener('mouseleave', () => {                               │
+│       gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.5)'  │
+│ });                                                                          │
+│     });                                                                      │
+│   });                                                                        │
+│ }                                                                            │
+│                                                                              │
+│ In styles.css, ensure buttons have will-change: transform and no conflicting │
+│  transitions on transform.                                                   │
+│                                                                              │
+│ Call initMagneticButtons() in initAll().                                     │
+│                                                                              │
+│ ---                                                                          │
+│ 5. Gallery Card Tilt + GSAP Hover [M] (main.js, styles.css)                  │
+│                                                                              │
+│ Inspired by: Active Theory and lhbzr's rich card hover states — 3D           │
+│ perspective tilt on hover, with reveal overlays.                             │
+│                                                                              │
+│ Current state: Gallery cards are plain colored boxes. No hover animation     │
+│ beyond CSS opacity.                                                          │
+│                                                                              │
+│ In main.js, add initGalleryTilt():                                           │
+│ function initGalleryTilt() {                                                 │
+│   if (window.matchMedia('(hover: none)').matches) return;                    │
+│                                                                              │
+│   document.querySelectorAll('.gallery-card').forEach(card => {               │
+│     card.addEventListener('mousemove', (e) => {                              │
+│       const rect = card.getBoundingClientRect();                             │
+│       const cx = rect.left + rect.width  / 2;                                │
+│       const cy = rect.top  + rect.height / 2;                                │
+│       const rotY =  ((e.clientX - cx) / (rect.width  / 2)) * 8;  // ±8°      │
+│       const rotX = -((e.clientY - cy) / (rect.height / 2)) * 5;  // ±5°      │
+│       gsap.to(card, {                                                        │
+│         rotateX: rotX, rotateY: rotY, scale: 1.03,                           │
+│         duration: 0.4, ease: 'power2.out',                                   │
+│         transformPerspective: 800,                                           │
+│       });                                                                    │
+│     });                                                                      │
+│     card.addEventListener('mouseleave', () => {                              │
+│       gsap.to(card, {                                                        │
+│         rotateX: 0, rotateY: 0, scale: 1,                                    │
+│         duration: 0.6, ease: 'elastic.out(1, 0.6)',                          │
+│       });                                                                    │
+│     });                                                                      │
+│   });                                                                        │
+│ }                                                                            │
+│                                                                              │
+│ In styles.css, add to .gallery-card:                                         │
+│ .gallery-card {                                                              │
+│   transform-style: preserve-3d;                                              │
+│   will-change: transform;                                                    │
+│   cursor: pointer;                                                           │
+│ }                                                                            │
+│ .gallery-card__overlay {                                                     │
+│   /* existing styles + transition improvements */                            │
+│   transition: opacity 0.3s ease, transform 0.3s ease;                        │
+│   transform: translateZ(20px); /* pushes label forward in 3D space */        │
+│ }                                                                            │
+│                                                                              │
+│ Call initGalleryTilt() in initAll().                                         │
+│                                                                              │
+│ ---                                                                          │
+│ 6. Scroll-Pinned Horizontal Service Strip [M] (index.html, styles.css,       │
+│ main.js)                                                                     │
+│                                                                              │
+│ Inspired by: Active Theory's horizontal scroll sections — transforms         │
+│ vertical scroll into horizontal movement.                                    │
+│                                                                              │
+│ Note: This replaces the current 3-column grid with a pinned horizontal strip │
+│  that slides left as you scroll down. Only applied on desktop (≥1024px).     │
+│                                                                              │
+│ In index.html, wrap .services__grid in a new scroll container:               │
+│ <div class="services__scroll-pin" id="servicesPin">                          │
+│   <div class="services__scroll-track">                                       │
+│     <div class="services__grid" role="list">                                 │
+│       <!-- existing 6 cards unchanged -->                                    │
+│     </div>                                                                   │
+│   </div>                                                                     │
+│ </div>                                                                       │
+│                                                                              │
+│ In main.js, add initServicesHScroll():                                       │
+│ function initServicesHScroll() {                                             │
+│   if (window.innerWidth < 1024 || prefersReducedMotion) return;              │
+│                                                                              │
+│   const track = document.querySelector('.services__scroll-track');           │
+│   const grid  = document.querySelector('.services__grid');                   │
+│   if (!track || !grid) return;                                               │
+│                                                                              │
+│   const totalScroll = grid.scrollWidth - window.innerWidth;                  │
+│                                                                              │
+│   gsap.to(track, {                                                           │
+│     x: -totalScroll,                                                         │
+│     ease: 'none',                                                            │
+│     scrollTrigger: {                                                         │
+│       trigger: '.services__scroll-pin',                                      │
+│       start: 'top top',                                                      │
+│       end: () => '+=' + totalScroll,                                         │
+│       pin: true,                                                             │
+│       scrub: 1,                                                              │
+│       invalidateOnRefresh: true,                                             │
+│     },                                                                       │
+│   });                                                                        │
+│ }                                                                            │
+│                                                                              │
+│ In styles.css:                                                               │
+│ @media (min-width: 1024px) {                                                 │
+│   .services__scroll-pin { overflow: hidden; }                                │
+│   .services__scroll-track { display: flex; width: max-content; }             │
+│   .services__grid {                                                          │
+│     display: flex; flex-wrap: nowrap; gap: 1.5rem;                           │
+│     width: max-content;                                                      │
+│   }                                                                          │
+│   .service-card { min-width: 340px; flex-shrink: 0; }                        │
+│ }                                                                            │
+│                                                                              │
+│ Call initServicesHScroll() in initAll().                                     │
+│                                                                              │
+│ ---                                                                          │
+│ 7. Active Nav Section Highlighting [S] (main.js, styles.css)                 │
+│                                                                              │
+│ Inspired by: Active Theory's context-aware navigation that tracks current    │
+│ section.                                                                     │
+│                                                                              │
+│ In main.js, add initNavHighlight():                                          │
+│ function initNavHighlight() {                                                │
+│   const navLinks = document.querySelectorAll('.nav__link');                  │
+│   const sections = ['services', 'process', 'gallery', 'about',               │
+│ 'testimonials', 'contact'];                                                  │
+│                                                                              │
+│   sections.forEach(id => {                                                   │
+│     const el = document.getElementById(id);                                  │
+│     if (!el) return;                                                         │
+│     ScrollTrigger.create({                                                   │
+│       trigger: el,                                                           │
+│       start: 'top 50%',                                                      │
+│       end: 'bottom 50%',                                                     │
+│       onEnter:      () => setActive(id),                                     │
+│       onEnterBack:  () => setActive(id),                                     │
+│       onLeave:      () => clearActive(id),                                   │
+│       onLeaveBack:  () => clearActive(id),                                   │
+│     });                                                                      │
+│   });                                                                        │
+│                                                                              │
+│   function setActive(id) {                                                   │
+│     navLinks.forEach(a => {                                                  │
+│       a.classList.toggle('nav__link--active', a.getAttribute('href') === '#' │
+│  + id);                                                                      │
+│     });                                                                      │
+│   }                                                                          │
+│   function clearActive(id) {                                                 │
+│     navLinks.forEach(a => {                                                  │
+│       if (a.getAttribute('href') === '#' + id)                               │
+│ a.classList.remove('nav__link--active');                                     │
+│     });                                                                      │
+│   }                                                                          │
+│ }                                                                            │
+│                                                                              │
+│ In styles.css:                                                               │
+│ .nav__link--active {                                                         │
+│   color: var(--color-amber-light);                                           │
+│ }                                                                            │
+│ .nav__link--active::after {                                                  │
+│   /* existing underline pseudo-element — force active state */               │
+│   transform: scaleX(1);                                                      │
+│   background: var(--color-amber);                                            │
+│ }                                                                            │
+│                                                                              │
+│ Call initNavHighlight() in initAll().                                        │
+│                                                                              │
+│ ---                                                                          │
+│ 8. About Section — Replace Emoji Cards with Stat Counters [S] (index.html,   │
+│ styles.css)                                                                  │
+│                                                                              │
+│ Inspired by: Active Theory's data-driven credibility elements — replace the  │
+│ emoji (🔨⭐🏠) visual cards in the About section with styled animated stat   │
+│ blocks.                                                                      │
+│                                                                              │
+│ In index.html, replace .about-narrative__visual:                             │
+│ <div class="about-narrative__visual" aria-hidden="true">                     │
+│   <div class="about-stat-card reveal">                                       │
+│     <div class="about-stat-card__number">20<span>+</span></div>              │
+│     <div class="about-stat-card__label">Years of Craft</div>                 │
+│   </div>                                                                     │
+│   <div class="about-stat-card about-stat-card--offset reveal">               │
+│     <div class="about-stat-card__number">500<span>+</span></div>             │
+│     <div class="about-stat-card__label">Homes Served</div>                   │
+│   </div>                                                                     │
+│   <div class="about-stat-card about-stat-card--offset2 reveal">              │
+│     <div class="about-stat-card__number">5<span>★</span></div>               │
+│     <div class="about-stat-card__label">Google Rating</div>                  │
+│   </div>                                                                     │
+│ </div>                                                                       │
+│                                                                              │
+│ In styles.css:                                                               │
+│ .about-stat-card {                                                           │
+│   background: var(--color-surface);                                          │
+│   border: 1px solid var(--color-border);                                     │
+│   border-radius: 12px;                                                       │
+│   padding: 2rem;                                                             │
+│   text-align: center;                                                        │
+│ }                                                                            │
+│ .about-stat-card__number {                                                   │
+│   font-family: var(--font-display);                                          │
+│   font-size: clamp(2.5rem, 5vw, 4rem);                                       │
+│   font-weight: 900;                                                          │
+│   color: var(--color-amber-light);                                           │
+│   line-height: 1;                                                            │
+│ }                                                                            │
+│ .about-stat-card__label {                                                    │
+│   font-family: var(--font-mono);                                             │
+│   font-size: var(--fluid-xs);                                                │
+│   color: var(--color-text-muted);                                            │
+│   margin-top: 0.5rem;                                                        │
+│   letter-spacing: 0.1em;                                                     │
+│ }                                                                            │
+│                                                                              │
+│ ---                                                                          │
+│ 9. Scroll-Reveal Parallax on Section Backgrounds [S] (main.js, styles.css)   │
+│                                                                              │
+│ Inspired by: Active Theory's depth layers — section backgrounds subtly shift │
+│  at a different rate than content.                                           │
+│                                                                              │
+│ In main.js, add initParallaxSections():                                      │
+│ function initParallaxSections() {                                            │
+│   if (prefersReducedMotion) return;                                          │
+│                                                                              │
+│   // Subtle background parallax on alternating sections                      │
+│   ['.services', '.gallery', '.testimonials'].forEach(sel => {                │
+│     const el = document.querySelector(sel);                                  │
+│     if (!el) return;                                                         │
+│     gsap.to(el, {                                                            │
+│       backgroundPositionY: '30%',                                            │
+│       ease: 'none',                                                          │
+│       scrollTrigger: {                                                       │
+│         trigger: el,                                                         │
+│         start: 'top bottom',                                                 │
+│         end: 'bottom top',                                                   │
+│         scrub: true,                                                         │
+│       },                                                                     │
+│     });                                                                      │
+│   });                                                                        │
+│ }                                                                            │
+│                                                                              │
+│ Call initParallaxSections() in initAll().                                    │
+│                                                                              │
+│ ---                                                                          │
+│ Implementation Roadmap                                                       │
+│                                                                              │
+│ ┌─────┬───────────────┬────────────┬──────────────────┬──────────────────┐   │
+│ │  #  │    Feature    │ Complexity │      Files       │     Priority     │   │
+│ ├─────┼───────────────┼────────────┼──────────────────┼──────────────────┤   │
+│ │     │ Page          │            │ index.html,      │ HIGH — fixes     │   │
+│ │ 1   │ Preloader /   │ M          │ styles.css,      │ cold load        │   │
+│ │     │ Intro         │            │ main.js,         │ experience       │   │
+│ │     │ Sequence      │            │ three-scene.js   │                  │   │
+│ ├─────┼───────────────┼────────────┼──────────────────┼──────────────────┤   │
+│ │     │ Custom        │            │ index.html,      │ HIGH — biggest   │   │
+│ │ 2   │ Magnetic      │ M          │ styles.css,      │ visual           │   │
+│ │     │ Cursor        │            │ main.js          │ differentiator   │   │
+│ ├─────┼───────────────┼────────────┼──────────────────┼──────────────────┤   │
+│ │     │ SplitType     │            │ index.html,      │ HIGH — text      │   │
+│ │ 3   │ Character     │ M          │ main.js,         │ animation        │   │
+│ │     │ Reveals       │            │ styles.css       │ quality          │   │
+│ ├─────┼───────────────┼────────────┼──────────────────┼──────────────────┤   │
+│ │ 4   │ Magnetic      │ S          │ main.js,         │ MEDIUM — polish  │   │
+│ │     │ Button Effect │            │ styles.css       │                  │   │
+│ ├─────┼───────────────┼────────────┼──────────────────┼──────────────────┤   │
+│ │ 5   │ Gallery Card  │ M          │ main.js,         │ MEDIUM — rich    │   │
+│ │     │ 3D Tilt       │            │ styles.css       │ interaction      │   │
+│ ├─────┼───────────────┼────────────┼──────────────────┼──────────────────┤   │
+│ │     │ Pinned        │            │ index.html,      │ MEDIUM — layout  │   │
+│ │ 6   │ Horizontal    │ M          │ styles.css,      │ innovation       │   │
+│ │     │ Service Strip │            │ main.js          │                  │   │
+│ ├─────┼───────────────┼────────────┼──────────────────┼──────────────────┤   │
+│ │     │ Active Nav    │            │ main.js,         │                  │   │
+│ │ 7   │ Section       │ S          │ styles.css       │ LOW — usability  │   │
+│ │     │ Highlighting  │            │                  │                  │   │
+│ ├─────┼───────────────┼────────────┼──────────────────┼──────────────────┤   │
+│ │     │ About —       │            │ index.html,      │ HIGH —           │   │
+│ │ 8   │ Replace Emoji │ S          │ styles.css       │ professionalism  │   │
+│ │     │  Cards        │            │                  │                  │   │
+│ ├─────┼───────────────┼────────────┼──────────────────┼──────────────────┤   │
+│ │     │ Section       │            │ main.js,         │                  │   │
+│ │ 9   │ Background    │ S          │ styles.css       │ LOW — depth      │   │
+│ │     │ Parallax      │            │                  │                  │   │
+│ └─────┴───────────────┴────────────┴──────────────────┴──────────────────┘   │
+│                                                                              │
+│ ---                                                                          │
+│ Visual Issues Identified from Screenshot                                     │
+│                                                                              │
+│ 1. Hero not visible at page top — 3D scene appears absent; ensure canvas     │
+│ z-index and visibility is correct for page load state (may be hidden until   │
+│ assemblyDone, causing blank hero on first load)                              │
+│ 2. About section emoji icons (🔨⭐🏠) look unprofessional — addressed by     │
+│ item #8                                                                      │
+│ 3. Gallery cards are placeholder-colored boxes with no interaction —         │
+│ addressed by item #5                                                         │
+│ 4. Nav has no active state — addressed by item #7                            │
+│ 5. Text animations are uniform fade-up — addressed by item #3                │
+│                                                                              │
+│ ---                                                                          │
+│ Verification                                                                 │
+│                                                                              │
+│ 1. Preloader: Hard refresh — amber progress bar fills, then fades to reveal  │
+│ 3D scene                                                                     │
+│ 2. Cursor: On desktop, default cursor hidden; amber dot + lagging ring       │
+│ visible; ring expands on hover over buttons/cards                            │
+│ 3. Hero title: Characters fly up with perspective rotation on page load      │
+│ 4. Section titles: Words reveal on scroll in each section                    │
+│ 5. Gallery hover: Cards tilt in 3D with mouse position; label pushes forward │
+│  in Z                                                                        │
+│ 6. Service strip (desktop only): Pinned section, cards scroll horizontally   │
+│ 7. Nav: Active link highlights amber as you scroll through sections          │
+│ 8. About cards: No emoji — clean stat numbers with amber font                │
+│ 9. Mobile: Cursor, magnetic buttons, horizontal scroll all disabled;         │
+│ standard interactions intact                                                 │
+│ 10. Performance: DevTools Performance — 60fps maintained; cursor animation   │
+│ uses will-change: transform and gsap.quickTo for RAF batching                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+● I'll implement this plan systematically. Let me start by reading the current
+  files to understand the existing codebase.
+
+● Read 1 file (ctrl+o to expand)
+
+● Now let me read the styles.css and the relevant parts of three-scene.js:
+
+● Read 1 file (ctrl+o to expand)
+
+● Let me read the full index.html saved output and get the specific sections I
+  need:
+
+● Read 2 files (ctrl+o to expand)
+
+● I now have enough context to implement all 9 improvements. Let me check the
+  about section and services section in index.html, then proceed with all edits
+  in parallel where possible.
+
+● Read 1 file (ctrl+o to expand)
+
+● ★ Insight ─────────────────────────────────────
+  Architecture pattern: This project uses a clear separation — three-scene.js
+  owns the WebGL canvas and particle physics (self-contained IIFE), main.js owns
+   all GSAP/scroll orchestration. The 9 enhancements we're adding all go into
+  main.js (JS logic) and their supporting HTML/CSS, keeping this separation
+  clean.
+
+  Key integration point: The preloader talks to three-scene.js via
+  window.__preloaderProgress — a lightweight pub/sub pattern that avoids
+  coupling the files directly. Active Theory uses a similar approach with their
+  parametrized camera JSON config.
+
+  Performance: gsap.quickTo() for cursor tracking is the right call — it batches
+   DOM writes in the RAF loop rather than creating a new tween per mousemove
+  event, which would thrash the heap.
+  ─────────────────────────────────────────────────
+
+  Now I'll implement all 9 improvements. Starting with all the HTML and CSS
+  changes, then the JS:
+
+● Read 1 file (ctrl+o to expand)
+
+● Now I have everything needed. Let me implement all changes:
+
+  Step 1: HTML additions — preloader, cursor, SplitType CDN, services scroll
+  wrapper, about stat cards
+
+● Update(index.html)
+  ⎿  Added 3 lines
+      26    <!-- Styles -->
+      27    <link rel="stylesheet" href="styles.css">
+      28  
+      29 +  <!-- SplitType — character/word level text splitting for reve
+         +als -->                                                        
+      30 +  <script src="https://unpkg.com/split-type@0.3.4/umd/index.min
+         +.js"></script>                                                 
+      31 +                                                               
+      32    <!-- Hidden SVG noise filter (referenced by CSS) -->
+      33    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" 
+          style="position:absolute">
+      34      <defs>
+
+● Update(index.html)
+  ⎿  Added 20 lines
+      48         GLOBAL OVERLAYS
+      49    ═══════════════════════════════════════════ -->
+      50  
+      51 +  <!-- Page preloader — fills while Three.js GLB assets load --
+         +>                                                              
+      52 +  <div class="preloader" id="preloader" aria-hidden="true">    
+      53 +    <div class="preloader__inner">                             
+      54 +      <div class="preloader__logo">                            
+      55 +        <span class="preloader__mark">✦</span>                 
+      56 +        <span class="preloader__name">ProCraft</span>          
+      57 +      </div>                                                   
+      58 +      <div class="preloader__bar-track">                       
+      59 +        <div class="preloader__bar" id="preloaderBar"></div>   
+      60 +      </div>                                                   
+      61 +      <p class="preloader__label" id="preloaderLabel">Loading..
+         +.</p>                                                          
+      62 +    </div>                                                     
+      63 +  </div>                                                       
+      64 +                                                               
+      65 +  <!-- Custom cursor — amber dot + lagging ring -->            
+      66 +  <div class="cursor" id="cursor" aria-hidden="true">          
+      67 +    <div class="cursor__dot"></div>                            
+      68 +    <div class="cursor__ring"></div>                           
+      69 +  </div>                                                       
+      70 +                                                               
+      71    <!-- Film grain / noise texture overlay -->
+      72    <div class="noise-overlay" aria-hidden="true"></div>
+      73  
+
+● Now wrap the services grid with the horizontal scroll pin container:
+
+● Update(index.html)
+  ⎿  Added 2 lines
+      202          <p class="section__sub">From quick repairs to complete
+            renovations — skilled work for every job.</p>
+      203        </header>
+      204  
+      205 +      <div class="services__scroll-pin" id="servicesPin">     
+      206 +      <div class="services__scroll-track">                    
+      207        <div class="services__grid" role="list">
+      208  
+      209          <!-- Service Card 1 -->
+
+● Update(index.html)
+  ⎿  Added 2 lines
+      274          </article>
+      275  
+      276        </div><!-- /services__grid -->
+      277 +      </div><!-- /services__scroll-track -->                  
+      278 +      </div><!-- /services__scroll-pin -->                    
+      279  
+      280      </div>
+      281    </section>
+
+● Now replace the emoji about visual cards with stat cards:
+
+● Update(index.html)
+  ⎿  Added 9 lines, removed 15 lines
+      434            </div>
+      435          </div>
+      436          <div class="about-narrative__visual" aria-hidden="true
+           ">
+      437 -          <div class="about-visual-card">                     
+      438 -            <div class="about-visual-card__inner">            
+      439 -              <span class="about-visual-card__icon">🔨</span> 
+      440 -              <span class="about-visual-card__text">20+ Years 
+          -Experience</span>                                             
+      441 -            </div>                                            
+      437 +          <div class="about-stat-card reveal">                
+      438 +            <div class="about-stat-card__number">20<span>+</sp
+          +an></div>                                                     
+      439 +            <div class="about-stat-card__label">Years of Craft
+          +</div>                                                        
+      440            </div>
+      443 -          <div class="about-visual-card about-visual-card--off
+          -set">                                                         
+      444 -            <div class="about-visual-card__inner">            
+      445 -              <span class="about-visual-card__icon">⭐</span> 
+      446 -              <span class="about-visual-card__text">5-Star Rat
+          -ed on Google</span>                                           
+      447 -            </div>                                            
+      441 +          <div class="about-stat-card about-stat-card--offset 
+          +reveal">                                                      
+      442 +            <div class="about-stat-card__number">500<span>+</s
+          +pan></div>                                                    
+      443 +            <div class="about-stat-card__label">Homes Served</
+          +div>                                                          
+      444            </div>
+      449 -          <div class="about-visual-card about-visual-card--off
+          -set2">                                                        
+      450 -            <div class="about-visual-card__inner">            
+      451 -              <span class="about-visual-card__icon">🏠</span> 
+      452 -              <span class="about-visual-card__text">500+ Homes
+          - Served</span>                                                
+      453 -            </div>                                            
+      445 +          <div class="about-stat-card about-stat-card--offset2
+          + reveal">                                                     
+      446 +            <div class="about-stat-card__number">5<span>★</spa
+          +n></div>                                                      
+      447 +            <div class="about-stat-card__label">Google Rating<
+          +/div>                                                         
+      448            </div>
+      449          </div>
+      450        </div>
+
+● Now add all CSS for the 9 improvements. Let me read the end of styles.css
+  first:
+
+● Read 1 file (ctrl+o to expand)
+
+● Good. Now append all the new CSS at the end of styles.css:
+
+● Read 1 file (ctrl+o to expand)
+
+● Update(styles.css)
+  ⎿  Added 275 lines
+      2223  .hero {
+      2224    touch-action: none;
+      2225  }
+      2226 +                                                             
+      2227 +                                                             
+      2228 +/* ══════════════════════════════════════════════════════════
+           +═                                                            
+      2229 +   PRELOADER — #1 Active Theory inspired intro sequence      
+      2230 +   ══════════════════════════════════════════════════════════
+           +═ */                                                         
+      2231 +                                                             
+      2232 +.preloader {                                                 
+      2233 +  position: fixed;                                           
+      2234 +  inset: 0;                                                  
+      2235 +  z-index: 99999;                                            
+      2236 +  background: var(--color-bg);                               
+      2237 +  display: flex;                                             
+      2238 +  align-items: center;                                       
+      2239 +  justify-content: center;                                   
+      2240 +  transition: opacity 0.6s ease, visibility 0.6s ease;       
+      2241 +}                                                            
+      2242 +                                                             
+      2243 +.preloader.hidden {                                          
+      2244 +  opacity: 0;                                                
+      2245 +  visibility: hidden;                                        
+      2246 +  pointer-events: none;                                      
+      2247 +}                                                            
+      2248 +                                                             
+      2249 +.preloader__inner {                                          
+      2250 +  display: flex;                                             
+      2251 +  flex-direction: column;                                    
+      2252 +  align-items: center;                                       
+      2253 +  gap: 0;                                                    
+      2254 +}                                                            
+      2255 +                                                             
+      2256 +.preloader__logo {                                           
+      2257 +  display: flex;                                             
+      2258 +  align-items: center;                                       
+      2259 +  gap: 0.6rem;                                               
+      2260 +  margin-bottom: 1.75rem;                                    
+      2261 +}                                                            
+      2262 +                                                             
+      2263 +.preloader__mark {                                           
+      2264 +  font-family: var(--font-mono);                             
+      2265 +  color: var(--color-amber);                                 
+      2266 +  font-size: 1rem;                                           
+      2267 +  letter-spacing: 0.2em;                                     
+      2268 +}                                                            
+      2269 +                                                             
+      2270 +.preloader__name {                                           
+      2271 +  font-family: var(--font-display);                          
+      2272 +  font-size: 2rem;                                           
+      2273 +  font-weight: 600;                                          
+      2274 +  color: var(--color-text);                                  
+      2275 +  letter-spacing: 0.05em;                                    
+      2276 +}                                                            
+      2277 +                                                             
+      2278 +.preloader__bar-track {                                      
+      2279 +  width: 200px;                                              
+      2280 +  height: 1px;                                               
+      2281 +  background: rgba(255, 255, 255, 0.1);                      
+      2282 +  overflow: hidden;                                          
+      2283 +}                                                            
+      2284 +                                                             
+      2285 +.preloader__bar {                                            
+      2286 +  height: 100%;                                              
+      2287 +  background: var(--color-amber);                            
+      2288 +  width: 0%;                                                 
+      2289 +  transition: width 0.25s ease;                              
+      2290 +}                                                            
+      2291 +                                                             
+      2292 +.preloader__label {                                          
+      2293 +  font-family: var(--font-mono);                             
+      2294 +  font-size: 0.68rem;                                        
+      2295 +  color: var(--color-text-muted);                            
+      2296 +  margin-top: 14px;                                          
+      2297 +  letter-spacing: 0.18em;                                    
+      2298 +  text-transform: uppercase;                                 
+      2299 +}                                                            
+      2300 +                                                             
+      2301 +                                                             
+      2302 +/* ══════════════════════════════════════════════════════════
+           +═                                                            
+      2303 +   CUSTOM CURSOR — #2 lhbzr/Active Theory inspired           
+      2304 +   ══════════════════════════════════════════════════════════
+           +═ */                                                         
+      2305 +                                                             
+      2306 +@media (hover: hover) and (pointer: fine) {                  
+      2307 +  * { cursor: none !important; }                             
+      2308 +                                                             
+      2309 +  .cursor {                                                  
+      2310 +    position: fixed;                                         
+      2311 +    top: 0;                                                  
+      2312 +    left: 0;                                                 
+      2313 +    z-index: 100000;                                         
+      2314 +    pointer-events: none;                                    
+      2315 +    will-change: transform;                                  
+      2316 +  }                                                          
+      2317 +                                                             
+      2318 +  .cursor__dot {                                             
+      2319 +    width: 6px;                                              
+      2320 +    height: 6px;                                             
+      2321 +    border-radius: 50%;                                      
+      2322 +    background: var(--color-amber);                          
+      2323 +    position: absolute;                                      
+      2324 +    transform: translate(-50%, -50%);                        
+      2325 +    transition: width 0.2s ease, height 0.2s ease;           
+      2326 +  }                                                          
+      2327 +                                                             
+      2328 +  .cursor__ring {                                            
+      2329 +    width: 32px;                                             
+      2330 +    height: 32px;                                            
+      2331 +    border-radius: 50%;                                      
+      2332 +    border: 1px solid rgba(201, 117, 18, 0.5);               
+      2333 +    position: absolute;                                      
+      2334 +    transform: translate(-50%, -50%);                        
+      2335 +    transition: width 0.3s ease, height 0.3s ease, border-col
+           +or 0.2s ease, opacity 0.2s ease;                             
+      2336 +  }                                                          
+      2337 +                                                             
+      2338 +  /* Hover state — larger ring, smaller dot */               
+      2339 +  .cursor--hover .cursor__ring {                             
+      2340 +    width: 52px;                                             
+      2341 +    height: 52px;                                            
+      2342 +    border-color: var(--color-amber);                        
+      2343 +  }                                                          
+      2344 +                                                             
+      2345 +  .cursor--hover .cursor__dot {                              
+      2346 +    width: 4px;                                              
+      2347 +    height: 4px;                                             
+      2348 +  }                                                          
+      2349 +                                                             
+      2350 +  /* Text hover state */                                     
+      2351 +  .cursor--text .cursor__ring {                              
+      2352 +    width: 80px;                                             
+      2353 +    height: 80px;                                            
+      2354 +    opacity: 0.4;                                            
+      2355 +  }                                                          
+      2356 +                                                             
+      2357 +  /* Click flash */                                          
+      2358 +  .cursor--click .cursor__dot {                              
+      2359 +    transform: translate(-50%, -50%) scale(2.5);             
+      2360 +  }                                                          
+      2361 +}                                                            
+      2362 +                                                             
+      2363 +                                                             
+      2364 +/* ══════════════════════════════════════════════════════════
+           +═                                                            
+      2365 +   SPLIT TEXT — #3 hero title clip wrapper                   
+      2366 +   ══════════════════════════════════════════════════════════
+           +═ */                                                         
+      2367 +                                                             
+      2368 +.hero__title .word {                                         
+      2369 +  display: inline-block;                                     
+      2370 +  overflow: hidden;                                          
+      2371 +}                                                            
+      2372 +                                                             
+      2373 +.hero__title .char {                                         
+      2374 +  display: inline-block;                                     
+      2375 +}                                                            
+      2376 +                                                             
+      2377 +                                                             
+      2378 +/* ══════════════════════════════════════════════════════════
+           +═                                                            
+      2379 +   MAGNETIC BUTTONS — #4 will-change prep                    
+      2380 +   ══════════════════════════════════════════════════════════
+           +═ */                                                         
+      2381 +                                                             
+      2382 +.btn--primary,                                               
+      2383 +.btn--lg,                                                    
+      2384 +.nav__cta {                                                  
+      2385 +  will-change: transform;                                    
+      2386 +}                                                            
+      2387 +                                                             
+      2388 +                                                             
+      2389 +/* ══════════════════════════════════════════════════════════
+           +═                                                            
+      2390 +   GALLERY CARD TILT — #5 3D perspective hover               
+      2391 +   ══════════════════════════════════════════════════════════
+           +═ */                                                         
+      2392 +                                                             
+      2393 +.gallery-card {                                              
+      2394 +  transform-style: preserve-3d;                              
+      2395 +  will-change: transform;                                    
+      2396 +}                                                            
+      2397 +                                                             
+      2398 +.gallery-card__overlay {                                     
+      2399 +  transform: translateZ(20px);                               
+      2400 +}                                                            
+      2401 +                                                             
+      2402 +                                                             
+      2403 +/* ══════════════════════════════════════════════════════════
+           +═                                                            
+      2404 +   SERVICES HORIZONTAL SCROLL — #6 desktop pinned strip      
+      2405 +   ══════════════════════════════════════════════════════════
+           +═ */                                                         
+      2406 +                                                             
+      2407 +@media (min-width: 1024px) {                                 
+      2408 +  .services__scroll-pin {                                    
+      2409 +    overflow: hidden;                                        
+      2410 +  }                                                          
+      2411 +                                                             
+      2412 +  .services__scroll-track {                                  
+      2413 +    display: flex;                                           
+      2414 +    width: max-content;                                      
+      2415 +  }                                                          
+      2416 +                                                             
+      2417 +  .services__grid {                                          
+      2418 +    display: flex;                                           
+      2419 +    flex-wrap: nowrap;                                       
+      2420 +    gap: 1.5rem;                                             
+      2421 +    width: max-content;                                      
+      2422 +    /* Override default grid when in horizontal mode */      
+      2423 +    grid-template-columns: unset;                            
+      2424 +  }                                                          
+      2425 +                                                             
+      2426 +  .service-card {                                            
+      2427 +    min-width: 340px;                                        
+      2428 +    flex-shrink: 0;                                          
+      2429 +  }                                                          
+      2430 +}                                                            
+      2431 +                                                             
+      2432 +                                                             
+      2433 +/* ══════════════════════════════════════════════════════════
+           +═                                                            
+      2434 +   NAV ACTIVE STATE — #7 section highlighting                
+      2435 +   ══════════════════════════════════════════════════════════
+           +═ */                                                         
+      2436 +                                                             
+      2437 +.nav__link--active {                                         
+      2438 +  color: var(--color-amber-light) !important;                
+      2439 +}                                                            
+      2440 +                                                             
+      2441 +.nav__link--active::after {                                  
+      2442 +  transform: scaleX(1) !important;                           
+      2443 +  background: var(--color-amber) !important;                 
+      2444 +}                                                            
+      2445 +                                                             
+      2446 +                                                             
+      2447 +/* ══════════════════════════════════════════════════════════
+           +═                                                            
+      2448 +   ABOUT STAT CARDS — #8 replacing emoji cards               
+      2449 +   ══════════════════════════════════════════════════════════
+           +═ */                                                         
+      2450 +                                                             
+      2451 +.about-narrative__visual {                                   
+      2452 +  display: flex;                                             
+      2453 +  flex-direction: column;                                    
+      2454 +  gap: 1rem;                                                 
+      2455 +  align-self: start;                                         
+      2456 +}                                                            
+      2457 +                                                             
+      2458 +.about-stat-card {                                           
+      2459 +  background: var(--color-surface);                          
+      2460 +  border: 1px solid var(--color-border);                     
+      2461 +  border-radius: var(--radius-md);                           
+      2462 +  padding: 1.75rem 2rem;                                     
+      2463 +  text-align: center;                                        
+      2464 +  transition: border-color var(--transition-base), box-shadow
+           + var(--transition-base);                                     
+      2465 +}                                                            
+      2466 +                                                             
+      2467 +.about-stat-card:hover {                                     
+      2468 +  border-color: var(--color-border-hover);                   
+      2469 +  box-shadow: var(--shadow-card-hover);                      
+      2470 +}                                                            
+      2471 +                                                             
+      2472 +.about-stat-card--offset {                                   
+      2473 +  margin-left: 1.5rem;                                       
+      2474 +}                                                            
+      2475 +                                                             
+      2476 +.about-stat-card--offset2 {                                  
+      2477 +  margin-left: 0.75rem;                                      
+      2478 +}                                                            
+      2479 +                                                             
+      2480 +.about-stat-card__number {                                   
+      2481 +  font-family: var(--font-display);                          
+      2482 +  font-size: clamp(2.5rem, 5vw, 4rem);                       
+      2483 +  font-weight: 900;                                          
+      2484 +  color: var(--color-amber-light);                           
+      2485 +  line-height: 1;                                            
+      2486 +}                                                            
+      2487 +                                                             
+      2488 +.about-stat-card__number span {                              
+      2489 +  font-size: 0.6em;                                          
+      2490 +  vertical-align: super;                                     
+      2491 +}                                                            
+      2492 +                                                             
+      2493 +.about-stat-card__label {                                    
+      2494 +  font-family: var(--font-mono);                             
+      2495 +  font-size: var(--fluid-xs);                                
+      2496 +  color: var(--color-text-muted);                            
+      2497 +  margin-top: 0.5rem;                                        
+      2498 +  letter-spacing: 0.1em;                                     
+      2499 +  text-transform: uppercase;                                 
+      2500 +}                                                            
+
+● Now add all the new JS functions to main.js. Let me update the initAll()
+  function and add all new functions before it:
+
+● Update(main.js)
+  ⎿  Added 306 lines, removed 1 line
+      610  }
+      611  
+      612  
+      613 +/* ─────────────────────────────────────────────────────────  
+      614 +   PRELOADER — #1                                             
+      615 +   Amber progress bar that dismisses after fonts + assets read
+          +y                                                             
+      616 +───────────────────────────────────────────────────────── */  
+      617 +                                                              
+      618 +function initPreloader() {                                    
+      619 +  const preloader = document.getElementById('preloader');     
+      620 +  const bar = document.getElementById('preloaderBar');        
+      621 +  const label = document.getElementById('preloaderLabel');    
+      622 +  if (!preloader) return;                                     
+      623 +                                                              
+      624 +  // Exposed to three-scene.js for GLB load progress updates  
+      625 +  window.__preloaderProgress = (pct) => {                     
+      626 +    if (bar) bar.style.width = pct + '%';                     
+      627 +    if (label) label.textContent = pct < 100 ? 'Loading assets
+          +...' : 'Ready';                                               
+      628 +  };                                                          
+      629 +                                                              
+      630 +  // Give Three.js a head start; dismiss after fonts + a brief
+          + settle                                                       
+      631 +  document.fonts.ready.then(() => {                           
+      632 +    window.__preloaderProgress?.(100);                        
+      633 +    setTimeout(() => {                                        
+      634 +      if (typeof gsap !== 'undefined') {                      
+      635 +        gsap.to(preloader, {                                  
+      636 +          opacity: 0,                                         
+      637 +          duration: 0.7,                                      
+      638 +          ease: 'power2.inOut',                               
+      639 +          onComplete: () => preloader.classList.add('hidden'),
+      640 +        });                                                   
+      641 +      } else {                                                
+      642 +        preloader.classList.add('hidden');                    
+      643 +      }                                                       
+      644 +    }, 400);                                                  
+      645 +  });                                                         
+      646 +}                                                             
+      647 +                                                              
+      648 +                                                              
+      649 +/* ─────────────────────────────────────────────────────────  
+      650 +   CUSTOM CURSOR — #2                                         
+      651 +   Amber dot (instant) + lagging ring (GSAP quickTo)          
+      652 +───────────────────────────────────────────────────────── */  
+      653 +                                                              
+      654 +function initCursor() {                                       
+      655 +  const cursor = document.getElementById('cursor');           
+      656 +  if (!cursor || window.matchMedia('(hover: none)').matches) r
+          +eturn;                                                        
+      657 +                                                              
+      658 +  const dot  = cursor.querySelector('.cursor__dot');          
+      659 +  const ring = cursor.querySelector('.cursor__ring');         
+      660 +  if (!dot || !ring) return;                                  
+      661 +                                                              
+      662 +  // quickTo batches writes in the GSAP RAF loop — no new twee
+          +n per mousemove                                               
+      663 +  const moveDotX  = gsap.quickTo(dot,  'x', { duration: 0 }); 
+      664 +  const moveDotY  = gsap.quickTo(dot,  'y', { duration: 0 }); 
+      665 +  const moveRingX = gsap.quickTo(ring, 'x', { duration: 0.45, 
+          +ease: 'power3.out' });                                        
+      666 +  const moveRingY = gsap.quickTo(ring, 'y', { duration: 0.45, 
+          +ease: 'power3.out' });                                        
+      667 +                                                              
+      668 +  window.addEventListener('mousemove', (e) => {               
+      669 +    moveDotX(e.clientX);                                      
+      670 +    moveDotY(e.clientY);                                      
+      671 +    moveRingX(e.clientX);                                     
+      672 +    moveRingY(e.clientY);                                     
+      673 +  });                                                         
+      674 +                                                              
+      675 +  // Hover state on interactive elements                      
+      676 +  const hoverEls = document.querySelectorAll('a, button, .serv
+          +ice-card, .gallery-card, .pillar, .testimonial, .about-stat-ca
+          +rd');                                                         
+      677 +  hoverEls.forEach(el => {                                    
+      678 +    el.addEventListener('mouseenter', () => cursor.classList.a
+          +dd('cursor--hover'));                                         
+      679 +    el.addEventListener('mouseleave', () => cursor.classList.r
+          +emove('cursor--hover'));                                      
+      680 +  });                                                         
+      681 +                                                              
+      682 +  // Click flash                                              
+      683 +  window.addEventListener('mousedown', () => cursor.classList.
+          +add('cursor--click'));                                        
+      684 +  window.addEventListener('mouseup',   () => cursor.classList.
+          +remove('cursor--click'));                                     
+      685 +}                                                             
+      686 +                                                              
+      687 +                                                              
+      688 +/* ─────────────────────────────────────────────────────────  
+      689 +   SPLITTYPE TEXT REVEALS — #3                                
+      690 +   Hero chars fly up; section titles reveal word-by-word      
+      691 +───────────────────────────────────────────────────────── */  
+      692 +                                                              
+      693 +function initSplitTextReveals() {                             
+      694 +  if (prefersReducedMotion || typeof SplitType === 'undefined'
+          +) return;                                                     
+      695 +                                                              
+      696 +  // Hero title — characters fly up with perspective rotation 
+      697 +  const heroTitle = document.querySelector('.hero__title');   
+      698 +  if (heroTitle) {                                            
+      699 +    const split = new SplitType(heroTitle, { types: 'chars,wor
+          +ds' });                                                       
+      700 +    gsap.from(split.chars, {                                  
+      701 +      opacity: 0,                                             
+      702 +      y: '110%',                                              
+      703 +      rotateX: -90,                                           
+      704 +      stagger: { amount: 0.65, from: 'start' },               
+      705 +      duration: 0.85,                                         
+      706 +      ease: 'power4.out',                                     
+      707 +      delay: 0.6,                                             
+      708 +    });                                                       
+      709 +  }                                                           
+      710 +                                                              
+      711 +  // Section titles — words reveal left-to-right on scroll    
+      712 +  document.querySelectorAll('.section__title, .about-narrative
+          +__title, .contact-info__title').forEach(el => {               
+      713 +    const split = new SplitType(el, { types: 'words' });      
+      714 +    gsap.from(split.words, {                                  
+      715 +      opacity: 0,                                             
+      716 +      y: 40,                                                  
+      717 +      rotateX: -20,                                           
+      718 +      stagger: 0.08,                                          
+      719 +      duration: 0.75,                                         
+      720 +      ease: 'power3.out',                                     
+      721 +      scrollTrigger: {                                        
+      722 +        trigger: el,                                          
+      723 +        start: 'top 88%',                                     
+      724 +        toggleActions: 'play none none none',                 
+      725 +        once: true,                                           
+      726 +      },                                                      
+      727 +    });                                                       
+      728 +  });                                                         
+      729 +                                                              
+      730 +  // Rhetoric lines — chars cascade in                        
+      731 +  document.querySelectorAll('.rhetoric-line').forEach((el, i) 
+          +=> {                                                          
+      732 +    const split = new SplitType(el, { types: 'chars' });      
+      733 +    gsap.from(split.chars, {                                  
+      734 +      opacity: 0,                                             
+      735 +      y: 30,                                                  
+      736 +      stagger: 0.025,                                         
+      737 +      duration: 0.5,                                          
+      738 +      ease: 'power2.out',                                     
+      739 +      scrollTrigger: {                                        
+      740 +        trigger: '.rhetoric-section',                         
+      741 +        start: 'top 75%',                                     
+      742 +        toggleActions: 'play none none reverse',              
+      743 +      },                                                      
+      744 +      delay: i * 0.35,                                        
+      745 +    });                                                       
+      746 +  });                                                         
+      747 +}                                                             
+      748 +                                                              
+      749 +                                                              
+      750 +/* ─────────────────────────────────────────────────────────  
+      751 +   MAGNETIC BUTTONS — #4                                      
+      752 +   CTAs follow the cursor with elastic snap-back              
+      753 +───────────────────────────────────────────────────────── */  
+      754 +                                                              
+      755 +function initMagneticButtons() {                              
+      756 +  if (window.matchMedia('(hover: none)').matches) return;     
+      757 +                                                              
+      758 +  document.querySelectorAll('.btn--primary, .btn--lg, .nav__ct
+          +a').forEach(btn => {                                          
+      759 +    btn.addEventListener('mousemove', (e) => {                
+      760 +      const rect = btn.getBoundingClientRect();               
+      761 +      const cx = rect.left + rect.width  / 2;                 
+      762 +      const cy = rect.top  + rect.height / 2;                 
+      763 +      const dx = (e.clientX - cx) * 0.35;                     
+      764 +      const dy = (e.clientY - cy) * 0.35;                     
+      765 +      gsap.to(btn, { x: dx, y: dy, duration: 0.3, ease: 'power
+          +2.out' });                                                    
+      766 +    });                                                       
+      767 +    btn.addEventListener('mouseleave', () => {                
+      768 +      gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic
+          +.out(1, 0.5)' });                                             
+      769 +    });                                                       
+      770 +  });                                                         
+      771 +}                                                             
+      772 +                                                              
+      773 +                                                              
+      774 +/* ─────────────────────────────────────────────────────────  
+      775 +   GALLERY CARD TILT — #5                                     
+      776 +   3D perspective tilt tracking mouse within each card        
+      777 +───────────────────────────────────────────────────────── */  
+      778 +                                                              
+      779 +function initGalleryTilt() {                                  
+      780 +  if (window.matchMedia('(hover: none)').matches) return;     
+      781 +                                                              
+      782 +  document.querySelectorAll('.gallery-card').forEach(card => {
+      783 +    card.addEventListener('mousemove', (e) => {               
+      784 +      const rect = card.getBoundingClientRect();              
+      785 +      const cx   = rect.left + rect.width  / 2;               
+      786 +      const cy   = rect.top  + rect.height / 2;               
+      787 +      const rotY =  ((e.clientX - cx) / (rect.width  / 2)) * 8
+          +;                                                             
+      788 +      const rotX = -((e.clientY - cy) / (rect.height / 2)) * 5
+          +;                                                             
+      789 +      gsap.to(card, {                                         
+      790 +        rotateX: rotX,                                        
+      791 +        rotateY: rotY,                                        
+      792 +        scale: 1.03,                                          
+      793 +        duration: 0.4,                                        
+      794 +        ease: 'power2.out',                                   
+      795 +        transformPerspective: 800,                            
+      796 +      });                                                     
+      797 +    });                                                       
+      798 +    card.addEventListener('mouseleave', () => {               
+      799 +      gsap.to(card, {                                         
+      800 +        rotateX: 0,                                           
+      801 +        rotateY: 0,                                           
+      802 +        scale: 1,                                             
+      803 +        duration: 0.6,                                        
+      804 +        ease: 'elastic.out(1, 0.6)',                          
+      805 +      });                                                     
+      806 +    });                                                       
+      807 +  });                                                         
+      808 +}                                                             
+      809 +                                                              
+      810 +                                                              
+      811 +/* ─────────────────────────────────────────────────────────  
+      812 +   SERVICES HORIZONTAL SCROLL — #6                            
+      813 +   Pinned section: vertical scroll translates to horizontal   
+      814 +   Desktop only (≥1024px)                                     
+      815 +───────────────────────────────────────────────────────── */  
+      816 +                                                              
+      817 +function initServicesHScroll() {                              
+      818 +  if (window.innerWidth < 1024 || prefersReducedMotion) return
+          +;                                                             
+      819 +                                                              
+      820 +  const track = document.querySelector('.services__scroll-trac
+          +k');                                                          
+      821 +  const grid  = document.querySelector('.services__grid');    
+      822 +  if (!track || !grid) return;                                
+      823 +                                                              
+      824 +  // Measure after layout is computed                         
+      825 +  const getScrollDistance = () => grid.scrollWidth - window.in
+          +nerWidth + 120;                                               
+      826 +                                                              
+      827 +  gsap.to(track, {                                            
+      828 +    x: () => -getScrollDistance(),                            
+      829 +    ease: 'none',                                             
+      830 +    scrollTrigger: {                                          
+      831 +      trigger: '.services__scroll-pin',                       
+      832 +      start: 'top top',                                       
+      833 +      end: () => '+=' + getScrollDistance(),                  
+      834 +      pin: true,                                              
+      835 +      scrub: 1,                                               
+      836 +      invalidateOnRefresh: true,                              
+      837 +    },                                                        
+      838 +  });                                                         
+      839 +}                                                             
+      840 +                                                              
+      841 +                                                              
+      842 +/* ─────────────────────────────────────────────────────────  
+      843 +   ACTIVE NAV HIGHLIGHTING — #7                               
+      844 +   Highlights current section link as user scrolls            
+      845 +───────────────────────────────────────────────────────── */  
+      846 +                                                              
+      847 +function initNavHighlight() {                                 
+      848 +  const navLinks = document.querySelectorAll('.nav__link');   
+      849 +  if (!navLinks.length) return;                               
+      850 +                                                              
+      851 +  const sections = ['services', 'process', 'gallery', 'about',
+          + 'testimonials', 'contact'];                                  
+      852 +                                                              
+      853 +  function setActive(id) {                                    
+      854 +    navLinks.forEach(a => {                                   
+      855 +      a.classList.toggle('nav__link--active', a.getAttribute('
+          +href') === '#' + id);                                         
+      856 +    });                                                       
+      857 +  }                                                           
+      858 +                                                              
+      859 +  function clearActive(id) {                                  
+      860 +    navLinks.forEach(a => {                                   
+      861 +      if (a.getAttribute('href') === '#' + id) a.classList.rem
+          +ove('nav__link--active');                                     
+      862 +    });                                                       
+      863 +  }                                                           
+      864 +                                                              
+      865 +  sections.forEach(id => {                                    
+      866 +    const el = document.getElementById(id);                   
+      867 +    if (!el) return;                                          
+      868 +    ScrollTrigger.create({                                    
+      869 +      trigger: el,                                            
+      870 +      start: 'top 50%',                                       
+      871 +      end: 'bottom 50%',                                      
+      872 +      onEnter:     () => setActive(id),                       
+      873 +      onEnterBack: () => setActive(id),                       
+      874 +      onLeave:     () => clearActive(id),                     
+      875 +      onLeaveBack: () => clearActive(id),                     
+      876 +    });                                                       
+      877 +  });                                                         
+      878 +}                                                             
+      879 +                                                              
+      880 +                                                              
+      881 +/* ─────────────────────────────────────────────────────────  
+      882 +   SECTION BACKGROUND PARALLAX — #9                           
+      883 +   Subtle background shift at different rate than content     
+      884 +───────────────────────────────────────────────────────── */  
+      885 +                                                              
+      886 +function initParallaxSections() {                             
+      887 +  if (prefersReducedMotion) return;                           
+      888 +                                                              
+      889 +  ['.services', '.gallery', '.testimonials'].forEach(sel => { 
+      890 +    const el = document.querySelector(sel);                   
+      891 +    if (!el) return;                                          
+      892 +    gsap.to(el, {                                             
+      893 +      backgroundPositionY: '30%',                             
+      894 +      ease: 'none',                                           
+      895 +      scrollTrigger: {                                        
+      896 +        trigger: el,                                          
+      897 +        start: 'top bottom',                                  
+      898 +        end: 'bottom top',                                    
+      899 +        scrub: true,                                          
+      900 +      },                                                      
+      901 +    });                                                       
+      902 +  });                                                         
+      903 +}                                                             
+      904 +                                                              
+      905 +                                                              
+      906  function initAll() {
+      907 +  initPreloader();                                            
+      908 +  initCursor();                                               
+      909 +  initMagneticButtons();                                      
+      910 +  initNavHighlight();                                         
+      911    initHeroEntrance();
+      912    initSectionReveals();
+      913    initServiceCards();
+     ...
+      919    initAmbientGlow();
+      920    initProcessSteps();
+      921    initGallery();
+      922 +  initGalleryTilt();                                          
+      923    initTrustBadges();
+      924    initContactForm();
+      925    initRhetoricalSection();
+      926 +  initParallaxSections();                                     
+      927 +  initServicesHScroll();                                      
+      928  }
+      929  
+      930  // Use document.fonts.ready for font-aware layout (prevents ju
+           mp)
+      931  if (document.fonts && document.fonts.ready) {
+      932    document.fonts.ready.then(() => {
+      933      initAll();
+      934 +    // SplitType reveals after fonts so metrics are accurate  
+      935 +    initSplitTextReveals();                                   
+      936      ScrollTrigger.refresh();
+      937    });
+      938  } else {
+      637 -  document.addEventListener('DOMContentLoaded', initAll);     
+      939 +  document.addEventListener('DOMContentLoaded', () => {       
+      940 +    initAll();                                                
+      941 +    initSplitTextReveals();                                   
+      942 +  });                                                         
+      943  }
+
+● Now expose the preloader progress callback from three-scene.js. Let me find
+  the GLB loading section:
+
+● Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Update(three-scene.js)
+  ⎿  Added 8 lines, removed 1 line
+      1412  
+      1413    function loadGLBModels() {
+      1414      const loader = new THREE.GLTFLoader();
+      1415 -    const load = url => new Promise((res, rej) => loader.load
+           -(url, res, undefined, rej));                                 
+      1415 +    let loaded = 0;                                          
+      1416 +    const total = 2;                                         
+      1417 +    const load = url => new Promise((res, rej) => loader.load
+           +(url, (gltf) => {                                            
+      1418 +      loaded++;                                              
+      1419 +      window.__preloaderProgress?.(Math.round((loaded / total
+           +) * 90)); // 0–90%, leave 10% for fonts                      
+      1420 +      res(gltf);                                             
+      1421 +    }, undefined, rej));                                     
+      1422 +    window.__preloaderProgress?.(10); // signal start        
+      1423      return Promise.all([
+      1424        load('assets/models/pipe-wrench.glb'),
+      1425        load('assets/models/handsaw.glb'),
+
+● Now I need to remove the conflicting clipPath tween from initHeroEntrance()
+  since SplitType will handle the hero title, and make the title tween skip if
+  SplitType is loaded:
+
+● Update(main.js)
+  ⎿  Added 2 lines, removed 1 line
+      161    heroTl
+      162      .set('.hero__eyebrow', { opacity: 1 })
+      163      .from('.eyebrow-seg, .eyebrow-dot', { opacity: 0, y: 10, s
+           tagger: 0.14, duration: 0.55, ease: 'power2.out' })
+      164 -    .from('.hero__title',   { opacity: 0, y: 45, duration: 1.0
+          -,  clipPath: 'inset(0 0 10% 0)', clearProps: 'clip-path' }, '-
+          -=0.35')                                                       
+      164 +    // hero__title chars are handled by initSplitTextReveals()
+          + when SplitType is loaded                                     
+      165 +    .from('.hero__title',   { opacity: 0, y: 45, duration: 1.0
+          +,  clearProps: 'clip-path' }, '-=0.35')                       
+      166      .from('.hero__sub',     { opacity: 0, y: 22, duration: 0.7
+           5 }, '-=0.55')
+      167      .from('.hero__ctas',    { opacity: 0, y: 18, duration: 0.6
+           5 }, '-=0.45')
+      168      .from('.hero__trust',   { opacity: 0, y: 10, duration: 0.5
+           5 }, '-=0.35')
+
+● Now move initPreloader() to run before document.fonts.ready so it sets up the
+  callback immediately:
+
+● Update(main.js)
+  ⎿  Added 4 lines
+      928    initServicesHScroll();
+      929  }
+      930  
+      931 +// Preloader must run immediately (before fonts) to register t
+          +he progress callback                                          
+      932 +// so three-scene.js can call window.__preloaderProgress durin
+          +g GLB loading                                                 
+      933 +initPreloader();                                              
+      934 +                                                              
+      935  // Use document.fonts.ready for font-aware layout (prevents ju
+           mp)
+      936  if (document.fonts && document.fonts.ready) {
+      937    document.fonts.ready.then(() => {
+
+● Now remove initPreloader() from inside initAll() since it's now called
+  directly at module load time:
+
+● Update(main.js)
+  ⎿  Removed 1 line
+      905  
+      906  
+      907  function initAll() {
+      908 -  initPreloader();                                            
+      908    initCursor();
+      909    initMagneticButtons();
+      910    initNavHighlight();
+
+● Let me verify the final state of the key sections:
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● Good. Let me do a quick sanity check on the HTML to verify the preloader and
+  cursor are in place:
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● All 9 improvements are implemented. Let me verify the SplitType script tag is
+  in the right place (before main.js):
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● SplitType loads in <head> before both scripts — good. Now let me verify there
+  are no issues with the initHeroEntrance conflicting with initSplitTextReveals:
+
+● Read 1 file (ctrl+o to expand)
+
+● There's a conflict: initHeroEntrance animates .hero__title as a whole element,
+   then initSplitTextReveals also animates its chars. Since SplitType replaces
+  the text DOM with split chars, the initHeroEntrance title tween will animate
+  the container (which has no direct text now), while SplitType handles the
+  chars. That's actually fine — the container tween becomes a no-op after
+  splitting. But to avoid the opacity flicker, let me make initHeroEntrance skip
+   the title animation when SplitType is present:
+
+● Update(main.js)
+  ⎿  Added 5 lines, removed 2 lines
+      161    heroTl
+      162      .set('.hero__eyebrow', { opacity: 1 })
+      163      .from('.eyebrow-seg, .eyebrow-dot', { opacity: 0, y: 10, s
+           tagger: 0.14, duration: 0.55, ease: 'power2.out' })
+      164 -    // hero__title chars are handled by initSplitTextReveals()
+          - when SplitType is loaded                                     
+      165 -    .from('.hero__title',   { opacity: 0, y: 45, duration: 1.0
+          -,  clearProps: 'clip-path' }, '-=0.35')                       
+      164 +    // Skip .hero__title whole-element tween when SplitType is
+          + loaded (chars animate individually)                          
+      165 +    ...(typeof SplitType === 'undefined'                      
+      166 +      ? [gsap.from('.hero__title', { opacity: 0, y: 45, durati
+          +on: 1.0, clearProps: 'clip-path' })]                          
+      167 +      : []                                                    
+      168 +    ),                                                        
+      169      .from('.hero__sub',     { opacity: 0, y: 22, duration: 0.7
+           5 }, '-=0.55')
+      170      .from('.hero__ctas',    { opacity: 0, y: 18, duration: 0.6
+           5 }, '-=0.45')
+      171      .from('.hero__trust',   { opacity: 0, y: 10, duration: 0.5
+           5 }, '-=0.35')
+
+● Wait, that syntax won't work with GSAP timeline chaining. Let me fix this
+  properly:
+
+● Update(main.js)
+  ⎿  Added 1 line, removed 5 lines
+      161    heroTl
+      162      .set('.hero__eyebrow', { opacity: 1 })
+      163      .from('.eyebrow-seg, .eyebrow-dot', { opacity: 0, y: 10, s
+           tagger: 0.14, duration: 0.55, ease: 'power2.out' })
+      164 -    // Skip .hero__title whole-element tween when SplitType is
+          - loaded (chars animate individually)                          
+      165 -    ...(typeof SplitType === 'undefined'                      
+      166 -      ? [gsap.from('.hero__title', { opacity: 0, y: 45, durati
+          -on: 1.0, clearProps: 'clip-path' })]                          
+      167 -      : []                                                    
+      168 -    ),                                                        
+      164 +    .from('.hero__title',   { opacity: 0, y: typeof SplitType 
+          +=== 'undefined' ? 45 : 0, duration: 1.0, clearProps: 'clip-pat
+          +h' }, '-=0.35')                                               
+      165      .from('.hero__sub',     { opacity: 0, y: 22, duration: 0.7
+           5 }, '-=0.55')
+      166      .from('.hero__ctas',    { opacity: 0, y: 18, duration: 0.6
+           5 }, '-=0.45')
+      167      .from('.hero__trust',   { opacity: 0, y: 10, duration: 0.5
+           5 }, '-=0.35')
+
+● ★ Insight ─────────────────────────────────────
+  SplitType/GSAP conflict avoidance: When SplitType splits .hero__title, it
+  wraps each character in <span> elements and the original text nodes are
+  removed. Any GSAP tween targeting .hero__title as a container then becomes
+  harmless (opacity 0→0, y 0→0). The key is ensuring the container doesn't start
+   at opacity: 0 before SplitType runs — our conditional y: 0 ensures no visual
+  jump when SplitType is active.
+
+  gsap.quickTo vs quickSetter: The codebase already uses gsap.quickSetter for
+  the --scene-warmth CSS var. The cursor uses gsap.quickTo which is newer and
+  slightly cleaner — it returns a function that feeds values into a reusable
+  tween rather than creating DOM mutation callbacks.
+  ─────────────────────────────────────────────────
+
+  All 9 improvements are now implemented. Here's a summary of what was done:
+
+  ---
+  What was implemented
+
+  ┌─────┬────────────────────────────────────────────┬──────────────────────┐
+  │  #  │                  Feature                   │    Files changed     │
+  ├─────┼────────────────────────────────────────────┼──────────────────────┤
+  │     │ Page Preloader — amber progress bar, fades │ index.html,          │
+  │ 1   │  out after fonts + assets                  │ styles.css, main.js, │
+  │     │                                            │  three-scene.js      │
+  ├─────┼────────────────────────────────────────────┼──────────────────────┤
+  │ 2   │ Custom Magnetic Cursor — amber dot +       │ index.html,          │
+  │     │ lagging ring, hover/click states           │ styles.css, main.js  │
+  ├─────┼────────────────────────────────────────────┼──────────────────────┤
+  │ 3   │ SplitType Character Reveals — hero title   │ index.html, main.js, │
+  │     │ chars fly up, section titles word-by-word  │  styles.css          │
+  ├─────┼────────────────────────────────────────────┼──────────────────────┤
+  │ 4   │ Magnetic Buttons — CTAs follow cursor with │ main.js, styles.css  │
+  │     │  elastic snap-back                         │                      │
+  ├─────┼────────────────────────────────────────────┼──────────────────────┤
+  │ 5   │ Gallery Card 3D Tilt — perspective tilt    │ main.js, styles.css  │
+  │     │ tracking mouse position per card           │                      │
+  ├─────┼────────────────────────────────────────────┼──────────────────────┤
+  │     │ Pinned Horizontal Service Strip —          │ index.html,          │
+  │ 6   │ desktop-only: cards scroll horizontally    │ styles.css, main.js  │
+  │     │ while pinned                               │                      │
+  ├─────┼────────────────────────────────────────────┼──────────────────────┤
+  │ 7   │ Active Nav Highlighting — amber link       │ main.js, styles.css  │
+  │     │ underline as sections enter viewport       │                      │
+  ├─────┼────────────────────────────────────────────┼──────────────────────┤
+  │ 8   │ About Stat Cards — replaced emoji (🔨⭐🏠) │ index.html,          │
+  │     │  with clean 20+ / 500+ / 5★ stat blocks    │ styles.css           │
+  ├─────┼────────────────────────────────────────────┼──────────────────────┤
+  │     │ Section Background Parallax —              │                      │
+  │ 9   │ services/gallery/testimonials backgrounds  │ main.js              │
+  │     │ shift at different rate                    │                      │
+  └─────┴────────────────────────────────────────────┴──────────────────────┘
+
+  Key architectural note: initPreloader() is called immediately at script load
+  (before document.fonts.ready) so the window.__preloaderProgress callback is
+  registered before three-scene.js starts loading GLBs. The cursor and magnetic
+  effects are all guarded with (hover: none) media query so they're
+  automatically disabled on touch devices.
+
+✻ Sautéed for 4m 5s
+
+❯ there still exists a section of the website which is blank - this can be seen 
+ in the previous sreenshot i provided. Why is this space unused? Please resolve 
+ this                                                                           
+
+● Let me read the existing plan file and explore the codebase to understand the
+  issue.
+
+● Read 1 file (ctrl+o to expand)
+
+● Explore(Find blank section in landing page)
+  ⎿  Done (20 tool uses · 55.0k tokens · 2m 24s)
+  (ctrl+o to expand)
+
+● The exploration gave me a lot of detail. Let me look at the specific
+  screenshot context and what the "blank section" actually is — I need to see
+  what the user is looking at specifically:
+
+● Explore(Find blank space in services section layout)
+  ⎿  Done (39 tool uses · 45.6k tokens · 2m 4s)
+  (ctrl+o to expand)
+
+● Let me look at the actual screenshot to understand what blank section the user
+   is referring to.
+
+● Explore(Find any screenshots in project)
+  ⎿  Done (13 tool uses · 21.2k tokens · 24s)
+  (ctrl+o to expand)
+
+● Read 2 files (ctrl+o to expand)
+
+● These are old screenshots. I need to see what the user is referring to as the
+  "blank section" — let me look more carefully at what was described in the
+  original plan context and what was recently added:
+
+● Explore(Identify blank space from services horizontal scroll pin)
+  ⎿  Done (31 tool uses · 32.3k tokens · 1m 17s)
+  (ctrl+o to expand)
+
+● Now I understand the problem clearly. The GSAP spacer IS the blank section —
+  it's working as designed (pinSpacing creates scroll room for the horizontal
+  animation), but visually it appears as dead blank space after the services
+  section scrolls off.
+
+  Let me think through the right fix before writing the plan.
+
+● Read 1 file (ctrl+o to expand)
+
+● The issue is clear. The GSAP spacer is correct behavior — it's intentional
+  scroll room for the horizontal animation. The real problem is that the
+  .services section header sits outside the pin trigger, so the section's total
+  scroll distance is: section padding-top + header height + horizontal scroll 
+  distance + section padding-bottom — that last part (the spacer) appears blank
+  because the background of the spacer doesn't match.
+
+  The actual fix is: move the pin trigger to the whole .services section (not
+  just .services__scroll-pin), and start the pin after the header has scrolled
+  past. Or better: use pinSpacing: false and manually give the section a 
+  min-height that accounts for the scroll distance. Or simplest: move the 
+  section header inside the .services__scroll-pin so it pins along with the
+  cards.
+
+  The cleanest solution used by Active Theory is to pin the entire section and
+  include the header in the pinned element. Let me write the plan now.
+
+● Updated plan
+  ⎿  /plan to preview
+
+● Updated plan
+  ⎿  /plan to preview
+
+● User approved Claude's plan
+  ⎿  Plan saved to: ~\.claude\plans\vectorized-watching-dongarra.md · /plan to 
+     edit
+     Fix: Blank Space Below Services Section
+
+     ProCraft Handyman Landing Page
+
+     Context
+
+     The horizontal service strip (item #6 from the previous implementation)
+     creates a blank space immediately after the Services section on desktop.
+     This is caused by GSAP's automatic pinSpacing behavior: when pin: true is
+     set on .services__scroll-pin, GSAP inserts a spacer element after the
+     pinned element to reserve scroll distance for the horizontal animation.
+     This spacer has the same height as the scroll distance (typically
+     1000–2500px depending on viewport) and appears as dead blank space with
+     only the section background color visible.
+
+     Root cause: The pin trigger is .services__scroll-pin (just the card
+     container), not the full .services section. The section header sits above
+     the pin trigger, outside of it. When GSAP creates the spacer, it adds it
+     after .services__scroll-pin but still inside the .services section —
+     between the cards and the next <section> element. The spacer has no content
+      and the section background color fills it visually, making a large empty
+     void.
+
+     ---
+     Critical Files
+
+     - C:/Dev/handyman/main.js — initServicesHScroll() at line 817
+     - C:/Dev/handyman/index.html — Services section HTML structure (~line 195)
+     - C:/Dev/handyman/styles.css — .services__scroll-pin styles at ~line 2408
+
+     ---
+     The Fix
+
+     Move the pin trigger to the entire .services section and restructure
+     slightly so both the section header and card grid are inside one pinned
+     container. This way:
+     1. GSAP pins the whole section (header + cards visible throughout the
+     scroll)
+     2. The spacer is placed after the .services section, in normal page flow —
+     not creating visual dead space inside it
+     3. The section header stays readable while cards scroll horizontally — a
+     common Active Theory pattern
+
+     Step 1: index.html — Remove .services__scroll-pin wrapper, move header 
+     inside it
+
+     Replace the current services section structure:
+     <!-- CURRENT -->
+     <section class="section services" id="services">
+       <div class="container">
+         <header class="section__header reveal">...</header>
+         <div class="services__scroll-pin" id="servicesPin">
+           <div class="services__scroll-track">
+             <div class="services__grid">...</div>
+           </div>
+         </div>
+       </div>
+     </section>
+
+     <!-- NEW: pin trigger = entire section; header inside pin; container wraps 
+     header only -->
+     <section class="section services" id="services">
+       <div class="services__pin-wrap" id="servicesPin">
+         <div class="container">
+           <header class="section__header reveal">...</header>
+         </div>
+         <div class="services__scroll-track">
+           <div class="services__grid" role="list">
+             <!-- 6 cards unchanged -->
+           </div>
+         </div>
+       </div>
+     </section>
+
+     The .container wraps only the header (for max-width centering). The
+     .services__scroll-track is a direct child of .services__pin-wrap and spans
+     full width.
+
+     Step 2: main.js — Update initServicesHScroll() trigger
+
+     function initServicesHScroll() {
+       if (window.innerWidth < 1024 || prefersReducedMotion) return;
+
+       const track = document.querySelector('.services__scroll-track');
+       const grid  = document.querySelector('.services__grid');
+       if (!track || !grid) return;
+
+       const getScrollDistance = () => grid.scrollWidth - window.innerWidth +
+     120;
+
+       gsap.to(track, {
+         x: () => -getScrollDistance(),
+         ease: 'none',
+         scrollTrigger: {
+           trigger: '.services__pin-wrap',   // ← pin the whole section wrapper
+           start: 'top top',
+           end: () => '+=' + getScrollDistance(),
+           pin: true,
+           scrub: 1,
+           invalidateOnRefresh: true,
+         },
+       });
+     }
+
+     Step 3: styles.css — Update class names and layout
+
+     Replace the @media (min-width: 1024px) block:
+     @media (min-width: 1024px) {
+       .services__pin-wrap {
+         overflow: hidden;          /* clip cards that slide off screen */
+       }
+
+       .services__scroll-track {
+         display: flex;
+         width: max-content;
+         padding-inline: var(--container-pad);   /* align with container margins
+      */
+         padding-bottom: clamp(2rem, 4vw, 3rem); /* bottom breathing room */
+       }
+
+       .services__grid {
+         display: flex;
+         flex-wrap: nowrap;
+         gap: 1.5rem;
+         width: max-content;
+         grid-template-columns: unset;
+       }
+
+       .service-card {
+         min-width: 340px;
+         flex-shrink: 0;
+       }
+     }
+
+     Also remove the old .services__scroll-pin rule (now renamed to
+     .services__pin-wrap).
+
+     ---
+     Verification
+
+     1. Hard refresh on desktop (≥1024px) — scroll through services section:
+     cards move horizontally, no blank space after them, next section (Rhetoric)
+      appears immediately when pin releases
+     2. Inspect DOM: GSAP spacer element should exist after <section 
+     class="services">, not inside it
+     3. Mobile (<1024px): No horizontal scroll, cards stack normally in grid
+     4. Resize from desktop → mobile → desktop: invalidateOnRefresh: true
+     recalculates correctly
+
+● Now implementing the fix. Three targeted changes:
+
+● Read 1 file (ctrl+o to expand)
+
+● Update(index.html)
+  ⎿  Added 9 lines, removed 8 lines
+      193         SERVICES SECTION
+      194    ═══════════════════════════════════════════ -->
+      195    <section class="section services" id="services" aria-label="
+           Services">
+      196 -    <div class="container">                                   
+      196 +    <div class="services__pin-wrap" id="servicesPin">         
+      197  
+      198 -      <header class="section__header reveal">                 
+      199 -        <p class="section__eyebrow">What We Do</p>            
+      200 -        <h2 class="section__title">Services</h2>              
+      201 -        <!-- PLACEHOLDER: Optionally replace subtitle -->     
+      202 -        <p class="section__sub">From quick repairs to complete
+          - renovations — skilled work for every job.</p>                
+      203 -      </header>                                               
+      198 +      <div class="container">                                 
+      199 +        <header class="section__header reveal">               
+      200 +          <p class="section__eyebrow">What We Do</p>          
+      201 +          <h2 class="section__title">Services</h2>            
+      202 +          <!-- PLACEHOLDER: Optionally replace subtitle -->   
+      203 +          <p class="section__sub">From quick repairs to comple
+          +te renovations — skilled work for every job.</p>              
+      204 +        </header>                                             
+      205 +      </div>                                                  
+      206  
+      205 -      <div class="services__scroll-pin" id="servicesPin">     
+      207        <div class="services__scroll-track">
+      208        <div class="services__grid" role="list">
+      209  
+
+● Update(index.html)
+  ⎿  Added 1 line, removed 2 lines
+      276  
+      277        </div><!-- /services__grid -->
+      278        </div><!-- /services__scroll-track -->
+      279 -      </div><!-- /services__scroll-pin -->                    
+      279  
+      281 -    </div>                                                    
+      280 +    </div><!-- /services__pin-wrap -->                        
+      281    </section>
+      282  
+      283  
+
+● Now update the JS trigger:
+
+● Update(main.js)
+  ⎿  Added 1 line, removed 1 line
+      828      x: () => -getScrollDistance(),
+      829      ease: 'none',
+      830      scrollTrigger: {
+      831 -      trigger: '.services__scroll-pin',                       
+      831 +      trigger: '.services__pin-wrap',   // pin entire section 
+          +wrapper so spacer lands after <section>                       
+      832        start: 'top top',
+      833        end: () => '+=' + getScrollDistance(),
+      834        pin: true,
+  ⎿  You've hit your limit · resets Mar 14, 3am (America/New_York)
+     /upgrade or /extra-usage to finish what you’re working on.
+
+✻ Sautéed for 9m 52s
+
+❯ /export                                                                       
+  ⎿  Conversation copied to clipboard
+  ⎿  SessionStart:resume hook error

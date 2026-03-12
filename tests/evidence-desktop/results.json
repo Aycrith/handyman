@@ -1,0 +1,61 @@
+{
+  "url": "http://localhost:8766/?sceneTier=desktop&sceneForceDesktopFX=1&sceneDisablePerfAutoDowngrade=1",
+  "generatedAt": "2026-03-12T21:13:49.151Z",
+  "results": [
+    {
+      "test": "Desktop overrides apply",
+      "pass": true,
+      "detail": "active=desktop mode=desktop-scatter"
+    },
+    {
+      "test": "Scatter pass active on load",
+      "pass": true,
+      "detail": "mode=desktop-scatter active=true"
+    },
+    {
+      "test": "Idle scatter density present",
+      "pass": true,
+      "detail": "samples=199 intensity=0.266"
+    },
+    {
+      "test": "Idle depth layering",
+      "pass": true,
+      "detail": "45.61×"
+    },
+    {
+      "test": "Hover/drag scatter rises",
+      "pass": true,
+      "detail": "0.200"
+    },
+    {
+      "test": "Hover/drag wake screenshot gate",
+      "pass": true,
+      "detail": "p99Δ=197.00"
+    },
+    {
+      "test": "Release scatter rises",
+      "pass": true,
+      "detail": "0.106"
+    },
+    {
+      "test": "Release atmospheric lift screenshot gate",
+      "pass": true,
+      "detail": "p99Δ=84.00 @280ms"
+    },
+    {
+      "test": "Copy corridor cleanliness",
+      "pass": true,
+      "detail": "density=0.083 shield=0.137 mean=66.1"
+    },
+    {
+      "test": "Desktop performance target",
+      "pass": true,
+      "detail": "software/low-end renderer; observed frame=50ms post=59.77ms"
+    },
+    {
+      "test": "No page errors",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}
