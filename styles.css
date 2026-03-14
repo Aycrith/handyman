@@ -210,6 +210,11 @@ button {
   .scroll-cue__dot { animation: none; }
 }
 
+/* No-JS fallback: ensure hero content is visible without JavaScript */
+.no-js .hero__title,
+.no-js .hero__sub,
+.no-js .hero__ctas { opacity: 1; transform: none; }
+
 
 /* ═══════════════════════════════════════════════════════════
    LAYOUT UTILITIES
