@@ -31,6 +31,14 @@ async function runTest(page, testName, fn) {
   }
 }
 
+async function safeScreenshot(page, filePath) {
+  try {
+    await page.screenshot({ path: filePath, fullPage: false, timeout: 10000 });
+  } catch (err) {
+    console.warn(`  ⚠ screenshot skipped (${err.message.split('\n')[0]})`);
+  }
+}
+
 async function scrollToSection(page, sectionId) {
   await page.evaluate((id) => {
     const el = document.getElementById(id);
@@ -94,10 +102,7 @@ async function main() {
     if (opacity < 0.8) throw new Error(`opacity=${opacity}, expected ≥0.8`);
   });
 
-  await page.screenshot({
-    path: path.join(EVIDENCE_DIR, 'section-services-blueprint.png'),
-    fullPage: false,
-  });
+  await safeScreenshot(page, path.join(EVIDENCE_DIR, 'section-services-blueprint.png'));
 
   // ── Rhetoric Section ──────────────────────────────────────
   await scrollToSection(page, 'services');
@@ -110,10 +115,7 @@ async function main() {
     if (opacity < 0.5) throw new Error(`rhetoric opacity=${opacity}`);
   });
 
-  await page.screenshot({
-    path: path.join(EVIDENCE_DIR, 'section-rhetoric-statement.png'),
-    fullPage: false,
-  });
+  await safeScreenshot(page, path.join(EVIDENCE_DIR, 'section-rhetoric-statement.png'));
 
   // ── Process Section ───────────────────────────────────────
   await scrollToSection(page, 'process');
@@ -132,10 +134,7 @@ async function main() {
     if (!text) throw new Error('Process step number missing');
   });
 
-  await page.screenshot({
-    path: path.join(EVIDENCE_DIR, 'section-process-precision.png'),
-    fullPage: false,
-  });
+  await safeScreenshot(page, path.join(EVIDENCE_DIR, 'section-process-precision.png'));
 
   // ── Gallery Section ───────────────────────────────────────
   await scrollToSection(page, 'gallery');
@@ -161,10 +160,7 @@ async function main() {
     }
   });
 
-  await page.screenshot({
-    path: path.join(EVIDENCE_DIR, 'section-gallery-evidence.png'),
-    fullPage: false,
-  });
+  await safeScreenshot(page, path.join(EVIDENCE_DIR, 'section-gallery-evidence.png'));
 
   // ── About Section ─────────────────────────────────────────
   await scrollToSection(page, 'about');
@@ -212,10 +208,7 @@ async function main() {
     if (!bg) throw new Error('.cta-band not found');
   });
 
-  await page.screenshot({
-    path: path.join(EVIDENCE_DIR, 'section-cta-band-ember.png'),
-    fullPage: false,
-  });
+  await safeScreenshot(page, path.join(EVIDENCE_DIR, 'section-cta-band-ember.png'));
 
   // ── Section Fold Reveals ──────────────────────────────────
   await test('Section reveal inner elements exist (fold targets)', async () => {
