@@ -1516,13 +1516,19 @@ button {
   }
 }
 
-/* Placeholder gradient backgrounds per card type — lifted for readability */
-.gallery-card--deck    { background: linear-gradient(135deg, #2a1e0e 0%, #3d2c12 50%, #4d3818 100%); }
-.gallery-card--interior { background: linear-gradient(135deg, #0e1a28 0%, #162538 50%, #1e3248 100%); }
-.gallery-card--flooring { background: linear-gradient(135deg, #221508 0%, #352210 50%, #452e18 100%); }
-.gallery-card--drywall  { background: linear-gradient(135deg, #1c1c1c 0%, #282828 50%, #363636 100%); }
-.gallery-card--trim     { background: linear-gradient(135deg, #1c1408 0%, #2a200e 50%, #382c16 100%); }
-.gallery-card--fence    { background: linear-gradient(135deg, #0e1c0c 0%, #162a18 50%, #1e3820 100%); }
+/* Gallery card image backgrounds per card type */
+.gallery-card__image {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.gallery-card--deck .gallery-card__image    { background: linear-gradient(135deg, #2a1e0e 0%, #3d2c12 50%, #4d3818 100%); }
+.gallery-card--interior .gallery-card__image { background: linear-gradient(135deg, #0e1a28 0%, #162538 50%, #1e3248 100%); }
+.gallery-card--flooring .gallery-card__image { background: linear-gradient(135deg, #221508 0%, #352210 50%, #452e18 100%); }
+.gallery-card--drywall .gallery-card__image  { background: linear-gradient(135deg, #1c1c1c 0%, #282828 50%, #363636 100%); }
+.gallery-card--trim .gallery-card__image     { background: linear-gradient(135deg, #1c1408 0%, #2a200e 50%, #382c16 100%); }
+.gallery-card--fence .gallery-card__image    { background: linear-gradient(135deg, #0e1c0c 0%, #162a18 50%, #1e3820 100%); }
 
 /* Faint texture pattern on each card */
 .gallery-card::before {
@@ -1571,6 +1577,7 @@ button {
   opacity: 0.85;
   transform: translateY(4px);
   transition: opacity var(--transition-base), transform var(--transition-base);
+  z-index: 3;
 }
 
 .gallery-card__label {
