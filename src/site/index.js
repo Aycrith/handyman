@@ -1275,10 +1275,12 @@ function initServicesHScroll() {
 
     const getOverflow = () => Math.max(0, grid.scrollWidth - viewport.clientWidth);
     const getScrollDistance = () => getOverflow() + 120;
-    const maxScrollBudget = Math.min(window.innerHeight * 0.5, 480);
-    const minOverflowToPin = 520;
+    // Only pin when overflow is meaningful (cards actually scroll) but not so large it creates
+    // an unintentional blank spacer. Budget is recomputed in getScrollDistance for refresh safety.
+    const MIN_OVERFLOW_TO_PIN = 520;
+    const MAX_SCROLL_BUDGET = () => Math.min(window.innerHeight * 0.8, 800);
 
-    if (getOverflow() < minOverflowToPin || getOverflow() > maxScrollBudget) {
+    if (getOverflow() < MIN_OVERFLOW_TO_PIN || getScrollDistance() > MAX_SCROLL_BUDGET()) {
       disableHorizontalMode();
       return disableHorizontalMode;
     }
