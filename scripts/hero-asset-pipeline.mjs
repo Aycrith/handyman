@@ -5,15 +5,15 @@ import { fileURLToPath } from 'node:url';
 
 import { Accessor, Document, NodeIO } from '@gltf-transform/core';
 
-import { HERO_BUILD_ORDER } from '../assets/models/hero/source/index.mjs';
+import { HERO_ASSET_DESCRIPTORS, HERO_BUILD_ORDER } from '../assets/models/hero/source/index.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 const HERO_DIR = path.join(ROOT_DIR, 'assets', 'models', 'hero');
 const MANIFEST_PATH = path.join(HERO_DIR, 'HERO-ASSET-MANIFEST.json');
-const CONTRACT_VERSION = 'hero-asset-contract-v3';
-const ASSET_SET_VERSION = 'hero-pack-v4';
+const CONTRACT_VERSION = 'hero-asset-contract-v4';
+const ASSET_SET_VERSION = 'hero-pack-v5';
 const FINAL_VARIANT = 'final';
 
 const LEGACY_PATHS = Object.freeze({
@@ -22,106 +22,62 @@ const LEGACY_PATHS = Object.freeze({
   saw: path.join(ROOT_DIR, 'assets', 'models', 'handsaw.glb'),
 });
 
-const EXTERNAL_TOOLS = Object.freeze({
+const SOURCE_DESCRIPTOR_PATHS = Object.freeze({
+  hammer: 'assets/models/hero/source/hammer.mjs',
+  wrench: 'assets/models/hero/source/wrench.mjs',
+  saw: 'assets/models/hero/source/handsaw.mjs',
+});
+
+const SHIPPED_TOOL_METADATA = Object.freeze({
   hammer: {
-    id: 'hammer',
-    file: 'hero-claw-hammer.glb',
-    sourceFile: path.join(HERO_DIR, 'external', 'wooden_hammer_01', 'wooden_hammer_01_1k.gltf'),
-    processedFrom: 'assets/models/hero/external/wooden_hammer_01/wooden_hammer_01_1k.gltf',
-    sourceUrl: 'https://polyhaven.com/a/wooden_hammer_01',
-    license: 'CC0',
-    attribution: 'Wooden Hammer 01 by James Ray Cock via Poly Haven',
-    pivotOffset: [0, 0, 0],
-    silhouetteProfile: 'wooden-hammer-orbit-support',
-    materialTokens: ['steel', 'wood', 'accent'],
-    dimensions: {
-      width: 1.12,
-      height: 2.36,
-      depth: 0.34,
-    },
-    pivotOrigin: {
-      mode: 'authored-origin',
-      description: 'Authored origin preserved for balanced orbit support placement.',
-      coordinates: [0, 0, 0],
-    },
-    calibration: {
-      targetSize: 2.2,
-      originMode: 'authored-origin',
-      compositionRole: 'orbit-support',
-      supportLightPrivilege: 0.76,
-    },
+    provenance: 'bespoke-authored',
+    sourceUrl: 'workspace://handyman/assets/models/hero/source/hammer.mjs',
+    license: 'Original work - workspace authored',
+    attribution: 'Handyman bespoke precision-workshop hero pack',
     status: 'support-runtime',
     heroRole: 'support',
   },
   wrench: {
-    id: 'wrench',
-    file: 'hero-pipe-wrench.glb',
-    sourceFile: path.join(HERO_DIR, 'external', 'pipe_wrench', 'pipe_wrench_1k.gltf'),
-    processedFrom: 'assets/models/hero/external/pipe_wrench/pipe_wrench_1k.gltf',
-    sourceUrl: 'https://polyhaven.com/a/pipe_wrench',
-    license: 'CC0',
-    attribution: 'Pipe Wrench by Will Evarts via Poly Haven',
-    pivotOffset: [0.020, 0.108, 0.0],
-    silhouetteProfile: 'pipe-wrench-workshop-hero',
-    materialTokens: ['steel', 'dark_metal', 'accent', 'grip'],
-    dimensions: {
-      width: 0.457,
-      height: 2.2,
-      depth: 0.187,
-    },
-    pivotOrigin: {
-      mode: 'grip-balance-point',
-      description: 'Adjusted from the external source so the origin sits near the grip balance point.',
-      coordinates: [0, 0, 0],
-    },
-    calibration: {
-      targetSize: 2.2,
-      originMode: 'authored-origin',
-      compositionRole: 'hero-dominant',
-      heroLightPrivilege: 1,
-      seamAnchor: [0.02, 0.96, 0.05],
-    },
+    provenance: 'bespoke-authored',
+    sourceUrl: 'workspace://handyman/assets/models/hero/source/wrench.mjs',
+    license: 'Original work - workspace authored',
+    attribution: 'Handyman bespoke precision-workshop hero pack',
     status: 'final-runtime',
     heroRole: 'primary',
   },
   saw: {
-    id: 'saw',
-    file: 'hero-handsaw.glb',
-    sourceFile: path.join(HERO_DIR, 'external', 'handsaw_wood', 'handsaw_wood_1k.gltf'),
-    processedFrom: 'assets/models/hero/external/handsaw_wood/handsaw_wood_1k.gltf',
-    sourceUrl: 'https://polyhaven.com/a/handsaw_wood',
-    license: 'CC0',
-    attribution: 'Handsaw Wood by Konrad Szalankiewicz via Poly Haven',
-    pivotOffset: [0, 0, 0],
-    silhouetteProfile: 'handsaw-wood-orbit-support',
-    materialTokens: ['steel', 'wood', 'accent'],
-    dimensions: {
-      width: 2.18,
-      height: 0.92,
-      depth: 0.12,
-    },
-    pivotOrigin: {
-      mode: 'authored-origin',
-      description: 'Authored origin preserved for tangential orbit alignment.',
-      coordinates: [0, 0, 0],
-    },
-    calibration: {
-      targetSize: 2.18,
-      originMode: 'authored-origin',
-      compositionRole: 'orbit-support',
-      supportLightPrivilege: 0.70,
-    },
+    provenance: 'bespoke-authored',
+    sourceUrl: 'workspace://handyman/assets/models/hero/source/handsaw.mjs',
+    license: 'Original work - workspace authored',
+    attribution: 'Handyman bespoke precision-workshop hero pack',
     status: 'support-runtime',
     heroRole: 'support',
   },
 });
 
+const SHIPPED_TOOLS = Object.freeze(Object.fromEntries(HERO_BUILD_ORDER.map((toolId) => {
+  const descriptor = HERO_ASSET_DESCRIPTORS[toolId];
+  const metadata = SHIPPED_TOOL_METADATA[toolId];
+  return [toolId, {
+    id: descriptor.id,
+    file: descriptor.file,
+    descriptor,
+    processedFrom: SOURCE_DESCRIPTOR_PATHS[toolId],
+    ...metadata,
+    silhouetteProfile: descriptor.silhouetteProfile,
+    materialTokens: descriptor.materialTokens,
+    dimensions: descriptor.dimensions,
+    pivotOrigin: descriptor.pivotOrigin,
+    calibration: descriptor.calibration,
+  }];
+})));
+
 const MATERIAL_SWATCHES = Object.freeze({
-  steel: { baseColor: [0.78, 0.80, 0.82, 1.0], metallic: 1.0, roughness: 0.34 },
-  blackened_steel: { baseColor: [0.19, 0.20, 0.23, 1.0], metallic: 1.0, roughness: 0.52 },
-  rubber: { baseColor: [0.08, 0.08, 0.09, 1.0], metallic: 0.02, roughness: 0.92 },
-  brass: { baseColor: [0.69, 0.54, 0.29, 1.0], metallic: 1.0, roughness: 0.40 },
-  ember_core: { baseColor: [0.20, 0.10, 0.05, 1.0], metallic: 0.04, roughness: 0.32, emissive: [0.95, 0.56, 0.17] },
+  steel: { baseColor: [0.80, 0.82, 0.84, 1.0], metallic: 1.0, roughness: 0.26 },
+  blackened_steel: { baseColor: [0.18, 0.20, 0.24, 1.0], metallic: 1.0, roughness: 0.44 },
+  rubber: { baseColor: [0.07, 0.07, 0.08, 1.0], metallic: 0.02, roughness: 0.88 },
+  brass: { baseColor: [0.74, 0.56, 0.28, 1.0], metallic: 1.0, roughness: 0.34 },
+  ember_core: { baseColor: [0.20, 0.10, 0.05, 1.0], metallic: 0.04, roughness: 0.26, emissive: [1.0, 0.60, 0.18] },
 });
 
 function round(value, digits = 6) {
@@ -368,42 +324,14 @@ async function buildDescriptorGlb(descriptor) {
   return io.writeBinary(doc);
 }
 
-async function buildExternalToolGlb(toolConfig) {
-  const io = new NodeIO();
-  const doc = await io.read(toolConfig.sourceFile);
-  const root = doc.getRoot();
-  root.getAsset().generator = 'handyman-hero-asset-pipeline';
-  const scene = root.getDefaultScene() || root.listScenes()[0];
-  if (!scene) throw new Error(`Missing default scene in external ${toolConfig.id} source.`);
-
-  const nodes = scene.listChildren();
-  if (!nodes.length) throw new Error(`Missing mesh node in external ${toolConfig.id} source.`);
-
-  const primaryNode = nodes[0];
-  primaryNode.setName(`hero_${toolConfig.id}`);
-  primaryNode.setTranslation(toolConfig.pivotOffset.map((value) => round(value)));
-  primaryNode.setRotation([0, 0, 0, 1]);
-  primaryNode.setScale([1, 1, 1]);
-
-  if (primaryNode.getMesh()) {
-    primaryNode.getMesh().setName(`hero_${toolConfig.id}_mesh`);
-  }
-
-  root.listMaterials().forEach((material, index) => {
-    material.setName(index === 0 ? `${toolConfig.id}_material_1` : `${toolConfig.id}_material_${index + 1}`);
-  });
-
-  return io.writeBinary(doc);
-}
-
 function buildStageFromTools(tools) {
-  const allExternal = HERO_BUILD_ORDER.every((toolId) => tools[toolId]?.provenance === 'external-processed');
-  if (allExternal) {
-    return 'assembly-orbit-external-support';
+  const allBespoke = HERO_BUILD_ORDER.every((toolId) => tools[toolId]?.provenance === 'bespoke-authored');
+  if (allBespoke) {
+    return 'assembly-orbit-bespoke-pack';
   }
   const primary = tools.wrench;
-  if (primary?.provenance === 'external-processed') {
-    return 'single-hero-external';
+  if (primary?.provenance === 'bespoke-authored') {
+    return 'single-hero-bespoke';
   }
   return 'fallback';
 }
@@ -413,12 +341,12 @@ async function buildManifest(outputs) {
   for (const toolId of HERO_BUILD_ORDER) {
     const output = outputs[toolId];
     const legacySha256 = LEGACY_PATHS[toolId] ? await fileSha256(LEGACY_PATHS[toolId]) : '';
-    const toolConfig = EXTERNAL_TOOLS[toolId];
+    const toolConfig = SHIPPED_TOOLS[toolId];
     const entry = {
       file: toolConfig.file,
       sha256: output.sha256,
       status: toolConfig.status,
-      provenance: 'external-processed',
+      provenance: toolConfig.provenance,
       sourceUrl: toolConfig.sourceUrl,
       license: toolConfig.license,
       attribution: toolConfig.attribution,
@@ -449,8 +377,8 @@ async function buildManifest(outputs) {
 export async function generateHeroPack({ write = false } = {}) {
   const outputs = {};
   for (const toolId of HERO_BUILD_ORDER) {
-    const toolConfig = EXTERNAL_TOOLS[toolId];
-    const buffer = await buildExternalToolGlb(toolConfig);
+    const toolConfig = SHIPPED_TOOLS[toolId];
+    const buffer = await buildDescriptorGlb(toolConfig.descriptor);
 
     outputs[toolId] = {
       file: toolConfig.file,

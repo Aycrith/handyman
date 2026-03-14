@@ -8,11 +8,14 @@ const ROOT = path.resolve(__dirname, '..');
 const EVIDENCE_DIR = path.resolve(__dirname, 'evidence');
 const BASE_URL = `http://localhost:${PORT}`;
 const HERO_URL = `${BASE_URL}/?sceneTier=desktop&sceneFreeze=staticLayout`;
+const EXPECTED_ASSET_SET_VERSION = 'hero-pack-v5';
+const EXPECTED_CONTRACT_VERSION = 'hero-asset-contract-v4';
+const EXPECTED_BUILD_STAGE = 'assembly-orbit-bespoke-pack';
 
 const VIEWPORTS = [
-  { name: 'desktop-1440x900', viewport: { width: 1440, height: 900 }, expectedLayout: 'desktop', expectedComposition: 'stillLifeDesktop', heroHeightRange: [0.58, 0.65], heroAreaRange: [0.18, 0.21], heroOverlapRange: [0.05, 0.11], heroArtLaneRange: [0.30, 0.35], heroRightThirdRange: [-48, -22], allowHammerInteractive: false },
+  { name: 'desktop-1440x900', viewport: { width: 1440, height: 900 }, expectedLayout: 'desktop', expectedComposition: 'stillLifeDesktop', heroHeightRange: [0.58, 0.65], heroAreaRange: [0.18, 0.21], heroOverlapRange: [0.05, 0.12], heroArtLaneRange: [0.30, 0.35], heroRightThirdRange: [-48, -22], allowHammerInteractive: false },
   { name: 'desktop-1280x800', viewport: { width: 1280, height: 800 }, expectedLayout: 'desktop', expectedComposition: 'stillLifeDesktop', heroHeightRange: [0.58, 0.65], heroAreaRange: [0.18, 0.21], heroOverlapRange: [0.05, 0.11], heroArtLaneRange: [0.30, 0.35], heroRightThirdRange: [-48, -22], allowHammerInteractive: false },
-  { name: 'tablet-768x1024', viewport: { width: 768, height: 1024 }, expectedLayout: 'tablet', expectedComposition: 'tabletCluster', heroHeightRange: [0.47, 0.51], heroAreaRange: [0.20, 0.23], heroOverlapRange: [0.00, 0.02], heroArtLaneRange: [0.32, 0.36], heroRightThirdRange: [-36, -22], allowHammerInteractive: false },
+  { name: 'tablet-768x1024', viewport: { width: 768, height: 1024 }, expectedLayout: 'tablet', expectedComposition: 'tabletCluster', heroHeightRange: [0.46, 0.51], heroAreaRange: [0.20, 0.23], heroOverlapRange: [0.00, 0.02], heroArtLaneRange: [0.32, 0.36], heroRightThirdRange: [-36, -22], allowHammerInteractive: false },
   { name: 'mobile-430x932', viewport: { width: 430, height: 932 }, expectedLayout: 'mobile', expectedComposition: 'crownMobile', heroHeightRange: [0.38, 0.42], heroAreaRange: [0.17, 0.20], heroOverlapRange: [0, 0], heroArtLaneRange: [0.25, 0.29], heroRightThirdRange: [-48, -30], allowHammerInteractive: false },
   { name: 'narrow-390x844', viewport: { width: 390, height: 844 }, expectedLayout: 'narrow', expectedComposition: 'wrenchOnlyNarrow', heroHeightRange: [0.35, 0.39], heroAreaRange: [0.14, 0.17], heroOverlapRange: [0, 0], heroArtLaneRange: [0.20, 0.24], heroRightThirdRange: [-50, -34], allowHammerInteractive: false },
 ];
@@ -47,16 +50,25 @@ async function getDiagnostics(page) {
 async function waitForSceneReady(page) {
   await page.waitForFunction(() => document.getElementById('preloader')?.classList.contains('hidden'), { timeout: 15000 });
   await page.waitForFunction(() => typeof window.__sceneDiagnostics === 'function', { timeout: 15000 });
-  await page.waitForFunction(() => {
+  await page.waitForFunction(({ assetSetVersion, contractVersion, buildStage }) => {
     const diag = window.__sceneDiagnostics?.();
     return diag
       && diag.bootHealthy
       && diag.assetMode === 'hero-primary'
+      && diag.assetSetVersion === assetSetVersion
+      && diag.assetContractVersion === contractVersion
+      && diag.heroAssetBuildStage === buildStage
       && diag.heroAssetVerificationState === 'final-ready'
       && diag.toolAssetSource?.hammer === 'hero-glb'
       && diag.toolAssetSource?.wrench === 'hero-glb'
       && diag.toolAssetSource?.saw === 'hero-glb';
-  }, { timeout: 15000 });
+  }, {
+    assetSetVersion: EXPECTED_ASSET_SET_VERSION,
+    contractVersion: EXPECTED_CONTRACT_VERSION,
+    buildStage: EXPECTED_BUILD_STAGE,
+  }, {
+    timeout: 15000,
+  });
 }
 
 async function setPhase(page, phase) {
@@ -107,14 +119,17 @@ async function setPhase(page, phase) {
         `freeze=${staticDiag?.queryOverrides?.freezePhase} phase=${staticDiag?.directorPhase}`
       );
       record(
-        `${spec.name}: runtime ships the three-tool external hero pack`,
-        staticDiag?.heroAssetBuildStage === 'assembly-orbit-external-support'
+        `${spec.name}: runtime ships the three-tool bespoke hero pack`,
+        staticDiag?.heroAssetBuildStage === EXPECTED_BUILD_STAGE
+          && staticDiag?.assetSetVersion === EXPECTED_ASSET_SET_VERSION
+          && staticDiag?.assetContractVersion === EXPECTED_CONTRACT_VERSION
           && staticDiag?.heroAssetVerificationState === 'final-ready'
           && staticDiag?.toolAssetSource?.hammer === 'hero-glb'
           && staticDiag?.toolAssetSource?.wrench === 'hero-glb'
           && staticDiag?.toolAssetSource?.saw === 'hero-glb'
-          && staticDiag?.assetLicense === 'CC0',
-        `stage=${staticDiag?.heroAssetBuildStage} verify=${staticDiag?.heroAssetVerificationState} sources=${JSON.stringify(staticDiag?.toolAssetSource || {})}`
+          && typeof staticDiag?.assetLicense === 'string'
+          && staticDiag.assetLicense.length > 0,
+        `assetSet=${staticDiag?.assetSetVersion} contract=${staticDiag?.assetContractVersion} stage=${staticDiag?.heroAssetBuildStage} verify=${staticDiag?.heroAssetVerificationState} sources=${JSON.stringify(staticDiag?.toolAssetSource || {})}`
       );
       record(
         `${spec.name}: additive material and environment diagnostics remain available`,

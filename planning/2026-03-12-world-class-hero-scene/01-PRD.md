@@ -2,22 +2,30 @@
 
 ## Overview
 - **Goal**: Transform the current Three.js hero scene into a world-class, production-grade animated experience that feels cinematic, premium, responsive, and unmistakably intentional.
-- **Status**: Vite/ESM baseline implemented; stabilization milestone packaging in progress
+- **Status**: Vite/ESM bespoke-pack baseline implemented; stabilization milestone validated in CI
 - **Owner**: Workspace user
 - **Created**: 2026-03-12
 - **Agent-Ready**: Yes
 - **Primary Surface**: `src/scene/index.js` integrated through `src/main.js` behind the hero in `index.html`
 
 ## Implementation Update (2026-03-14)
-- The current branch ships a manifest-backed three-tool hero pack in `assets/models/hero/`:
+- The current branch ships a manifest-backed bespoke-authored three-tool hero pack in `assets/models/hero/`:
   - `hero-pipe-wrench.glb` as the primary runtime hero asset
   - `hero-claw-hammer.glb` and `hero-handsaw.glb` as support-runtime assets
+- The shipped manifest baseline is:
+  - `assetSetVersion: hero-pack-v5`
+  - `contractVersion: hero-asset-contract-v4`
+  - `buildStage: assembly-orbit-bespoke-pack`
 - The runtime now boots through Vite + ESM using:
   - `src/main.js`
   - `src/runtime-globals.js`
   - `src/site/index.js`
   - `src/scene/index.js`
 - `src/scene/index.js` now exposes authored hero states for `pre-reveal`, `reveal`, `lockup`, `interactive-idle`, and `scroll-transition`.
+- The shipped scene baseline now includes:
+  - `precisionWorkshopBespoke` material handling for the final hero pack
+  - bespoke-authored provenance verification in runtime diagnostics and asset tests
+  - refreshed canonical evidence in `tests/evidence-desktop/`
 - Validation now covers asset verification, UI smoke, multi-viewport layout/readability gates, and canonical desktop lockup/interactivity evidence.
 - This milestone is stabilization-only: preserve the current baseline, clean generated artifacts, and align docs before any deeper Phase 2, Phase 3, or later Three.js-upgrade work.
 
@@ -27,7 +35,7 @@ The existing hero scene already exceeds a typical marketing-site WebGL backgroun
 Current limitations:
 1. The scene is visually strong in a single frame but not yet authored as a complete cinematic sequence.
 2. Lighting is attractive but not fully coherent: specular response is strong, while shadow logic and contact grounding remain limited.
-3. Geometry quality is improved by the shipped hero pack, but material and world response are not yet at the final hero-grade standard.
+3. Geometry quality is now unified by the shipped bespoke hero pack, but material and world response are not yet at the final hero-grade standard.
 4. The particle system is sophisticated, but its behavior is more reactive than narratively purposeful.
 5. The post-processing chain is disciplined, but still lighter than the final intended finishing pass.
 6. Camera behavior is responsive and phase-aware, but not yet fully developed into final shot language.
@@ -66,7 +74,7 @@ Current limitations:
 - **REQ-001**: Preserve the existing hero copy corridor and readability shielding behavior.
 - **REQ-002**: Introduce and preserve a cinematic hero entrance sequence with an authored timeline.
 - **REQ-003**: Maintain the upgraded lighting model with better shadow grounding and coherent key/fill/rim logic.
-- **REQ-004**: Keep the manifest-backed hero pack and scene-level material token layer as the runtime source of truth unless a later phase explicitly changes that contract.
+- **REQ-004**: Keep the manifest-backed bespoke hero pack and scene-level material token layer as the runtime source of truth unless a later phase explicitly introduces a new contract/manifest version.
 - **REQ-005**: Evolve the particle field from ambient activity into layered environmental storytelling in later phases without regressing readability.
 - **REQ-006**: Keep post-processing disciplined and quality-tier aware.
 - **REQ-007**: Preserve scroll- and interaction-driven state changes with clear narrative purpose.
@@ -118,10 +126,13 @@ Current limitations:
   - additional `three/examples/jsm` post-processing passes if a later phase justifies them
   - compressed texture / KTX2 pipeline if higher-fidelity materials are introduced
 
+## Resolved Decisions (2026-03-14)
+- [x] The active visual direction is `precision workshop ritual`, not a broader or more mystical style fork.
+- [x] Bespoke asset authoring is now part of the shipped baseline through `hero-pack-v5` and `hero-asset-contract-v4`.
+
 ## Open Questions
-- [ ] Should the final hero remain "stylized premium workshop" or move toward "near-photoreal product render in atmosphere"?
-- [ ] Is asset creation available for bespoke GLBs/textures in later phases, or should near-term refinement stay scene-level around the current shipped pack?
-- [ ] When the current Vite baseline is stable, is a later Three.js library upgrade acceptable as a dedicated follow-on milestone?
+- [ ] When the current Vite baseline is stable on real hardware, is a later Three.js library upgrade acceptable as a dedicated follow-on milestone?
+- [ ] If later material fidelity work needs heavier texture payloads, should the next asset milestone add a compressed texture / KTX2 path rather than expanding raw bundle cost?
 
 ## Agent Implementation Notes
 - Preserve the current hero readability corridor and CTA dominance.

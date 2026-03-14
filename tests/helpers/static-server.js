@@ -6,9 +6,6 @@ const { spawn, spawnSync } = require('child_process');
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
 function ensureBuild(root) {
-  const distEntry = path.join(root, 'dist', 'index.html');
-  if (fs.existsSync(distEntry)) return;
-
   const result = spawnSync(npmCommand, ['run', 'build'], {
     cwd: root,
     stdio: 'inherit',

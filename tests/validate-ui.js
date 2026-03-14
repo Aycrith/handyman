@@ -5,6 +5,9 @@ const { startStaticServer } = require('./helpers/static-server');
 const ROOT = path.resolve(__dirname, '..');
 const PORT = 8767;
 const BASE_URL = `http://localhost:${PORT}`;
+const EXPECTED_ASSET_SET_VERSION = 'hero-pack-v5';
+const EXPECTED_CONTRACT_VERSION = 'hero-asset-contract-v4';
+const EXPECTED_BUILD_STAGE = 'assembly-orbit-bespoke-pack';
 
 (async () => {
   console.log('\n╔══════════════════════════════════════════╗');
@@ -123,14 +126,14 @@ const BASE_URL = `http://localhost:${PORT}`;
     record(
       'Hero asset diagnostics present',
       !!sceneBoot.toolAssetSource
-        && typeof sceneBoot.assetSetVersion === 'string'
-        && typeof sceneBoot.assetContractVersion === 'string'
+        && sceneBoot.assetSetVersion === EXPECTED_ASSET_SET_VERSION
+        && sceneBoot.assetContractVersion === EXPECTED_CONTRACT_VERSION
         && typeof sceneBoot.heroAssetVariant === 'string'
         && typeof sceneBoot.heroAssetBuildStage === 'string'
         && typeof sceneBoot.heroAssetVerificationState === 'string'
         && sceneBoot.heroAssetVerification?.manifestLoaded === true
         && sceneBoot.heroAssetVerification?.packVerified === true
-        && sceneBoot.heroAssetBuildStage === 'assembly-orbit-external-support'
+        && sceneBoot.heroAssetBuildStage === EXPECTED_BUILD_STAGE
         && sceneBoot.heroAssetVerificationState === 'final-ready'
         && sceneBoot.toolAssetSource.hammer === 'hero-glb'
         && sceneBoot.toolAssetSource.wrench === 'hero-glb'

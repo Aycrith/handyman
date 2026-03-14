@@ -14,18 +14,20 @@ Do not add effects indiscriminately. Replace lower-value complexity with higher-
 - **Phase 4**: later Three.js library upgrade and compatibility work
 
 ## Status Update (2026-03-14)
-- The current branch already lands the Phase 0/1 baseline and the early Vite/ESM modernization.
+- The current branch already lands the Phase 0/1 baseline, the Vite/ESM modernization, and the bespoke-pack refresh called for by the next milestone plan.
 - Implemented in the current milestone:
-  - manifest-backed external three-tool hero pack with deterministic verification
+  - manifest-backed bespoke-authored three-tool hero pack with deterministic verification
+  - `hero-pack-v5` on `hero-asset-contract-v4` with `assembly-orbit-bespoke-pack` build stage
   - authored scene phases for `pre-reveal`, `reveal`, `lockup`, `interactive-idle`, and `scroll-transition`
   - wrench-first composition with support props kept subordinate or hidden where the layout gates require it
-  - stronger grounding/shadow treatment, bloom-first grading discipline, and a designed scroll handoff
+  - stronger grounding/shadow treatment, `precisionWorkshopBespoke` material/world tuning, and a designed scroll handoff
   - validation gates for assets, UI smoke, multi-viewport layout/readability, and desktop lockup/interactivity
   - Vite + ESM runtime modernization with preserved scene/test globals
   - scene-level material token refinement plus additive diagnostics for `materialProfile`, `environmentCue`, `interactionCue`, and `postFxMode`
 - Still pending after stabilization:
-  - deeper Phase 2 asset/material/environment refinement
-  - deeper Phase 3 finishing, particle storytelling, and interaction polish
+  - deeper Phase 3 finishing, particle storytelling, and interaction polish beyond the current directed baseline
+  - real-hardware perf capture against the `<=16.7ms` and `<=22ms` desktop budgets
+  - bundle optimization if the current Vite chunk warning starts affecting boot time or performance
   - any later Three.js library upgrade after the current module baseline proves stable
 - Treat the roadmap sections below as the next-phase backlog, not as in-scope work for the stabilization milestone.
 
@@ -155,7 +157,7 @@ Do not add effects indiscriminately. Replace lower-value complexity with higher-
 **Effort**: 10-16h depending on asset availability
 
 **Implementation**
-- Keep the current manifest-backed pack as the baseline.
+- Keep the shipped bespoke pack (`hero-pack-v5` / `hero-asset-contract-v4`) as the baseline.
 - Improve visible tool fidelity through either:
   - bespoke GLB refinements with consistent art direction, bevel density, texel density, and material authoring, or
   - scene-level refinement that masks remaining fidelity gaps without changing manifest semantics.

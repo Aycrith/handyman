@@ -1,33 +1,33 @@
 {
-  "assetSetVersion": "hero-pack-v4",
+  "assetSetVersion": "hero-pack-v5",
   "variant": "final",
-  "contractVersion": "hero-asset-contract-v3",
-  "buildStage": "assembly-orbit-external-support",
+  "contractVersion": "hero-asset-contract-v4",
+  "buildStage": "assembly-orbit-bespoke-pack",
   "tools": {
     "hammer": {
       "file": "hero-claw-hammer.glb",
-      "sha256": "45147110809c51f1dd772fc7793d1c901698ac7396149cc15d6d02a58c0d95d1",
+      "sha256": "1e617863839d7f816e659b116c1efa0068ad006c434eac8fb1228ab314e68663",
       "status": "support-runtime",
-      "provenance": "external-processed",
-      "sourceUrl": "https://polyhaven.com/a/wooden_hammer_01",
-      "license": "CC0",
-      "attribution": "Wooden Hammer 01 by James Ray Cock via Poly Haven",
-      "processedFrom": "assets/models/hero/external/wooden_hammer_01/wooden_hammer_01_1k.gltf",
+      "provenance": "bespoke-authored",
+      "sourceUrl": "workspace://handyman/assets/models/hero/source/hammer.mjs",
+      "license": "Original work - workspace authored",
+      "attribution": "Handyman bespoke precision-workshop hero pack",
+      "processedFrom": "assets/models/hero/source/hammer.mjs",
       "heroRole": "support",
-      "silhouetteProfile": "wooden-hammer-orbit-support",
+      "silhouetteProfile": "precision-forged-claw-hammer",
       "dimensions": {
-        "width": 1.12,
-        "height": 2.36,
-        "depth": 0.34
+        "width": 1.24,
+        "height": 2.42,
+        "depth": 0.36
       },
       "materialTokens": [
-        "steel",
-        "wood",
-        "accent"
+        "blackened_steel",
+        "rubber",
+        "brass"
       ],
       "pivotOrigin": {
         "mode": "authored-origin",
-        "description": "Authored origin preserved for balanced orbit support placement.",
+        "description": "Handle balance point below the head.",
         "coordinates": [
           0,
           0,
@@ -37,35 +37,36 @@
       "calibration": {
         "targetSize": 2.2,
         "originMode": "authored-origin",
-        "compositionRole": "orbit-support",
-        "supportLightPrivilege": 0.76
+        "compositionRole": "support-silhouette",
+        "supportLightPrivilege": 0.72
       }
     },
     "wrench": {
       "file": "hero-pipe-wrench.glb",
-      "sha256": "15b7bb0466aae975678a6a3e15b445622c8dfdc815396ff57603f64baeafa65b",
+      "sha256": "da8b249023c5cbe6041a863f2e8f31fb69b499bfb658a7cea1e9f9e4628be07d",
       "status": "final-runtime",
-      "provenance": "external-processed",
-      "sourceUrl": "https://polyhaven.com/a/pipe_wrench",
-      "license": "CC0",
-      "attribution": "Pipe Wrench by Will Evarts via Poly Haven",
-      "processedFrom": "assets/models/hero/external/pipe_wrench/pipe_wrench_1k.gltf",
+      "provenance": "bespoke-authored",
+      "sourceUrl": "workspace://handyman/assets/models/hero/source/wrench.mjs",
+      "license": "Original work - workspace authored",
+      "attribution": "Handyman bespoke precision-workshop hero pack",
+      "processedFrom": "assets/models/hero/source/wrench.mjs",
       "heroRole": "primary",
-      "silhouetteProfile": "pipe-wrench-workshop-hero",
+      "silhouetteProfile": "precision-pipe-wrench-hero",
       "dimensions": {
-        "width": 0.457,
-        "height": 2.2,
-        "depth": 0.187
+        "width": 1.04,
+        "height": 3.18,
+        "depth": 0.32
       },
       "materialTokens": [
         "steel",
-        "dark_metal",
-        "accent",
-        "grip"
+        "blackened_steel",
+        "rubber",
+        "brass",
+        "ember_core"
       ],
       "pivotOrigin": {
-        "mode": "grip-balance-point",
-        "description": "Adjusted from the external source so the origin sits near the grip balance point.",
+        "mode": "authored-origin",
+        "description": "Handle balance point below the adjustment housing.",
         "coordinates": [
           0,
           0,
@@ -78,37 +79,38 @@
         "compositionRole": "hero-dominant",
         "heroLightPrivilege": 1,
         "seamAnchor": [
-          0.02,
-          0.96,
-          0.05
+          0.14,
+          0.86,
+          0.11
         ]
       },
       "legacySha256": "74ee3569196e0f00493874964fa9f38edf4db3cf43eccfe2d07fbd6d93263aef"
     },
     "saw": {
       "file": "hero-handsaw.glb",
-      "sha256": "5221d4a771201c9ec034d95764e6072bf5e194a998a6736c4ef67cb43d424b18",
+      "sha256": "332c5f6ac36df1eba4daf5c5add0f905f1bddd5bc2ffa08fa35a656b3676cbe7",
       "status": "support-runtime",
-      "provenance": "external-processed",
-      "sourceUrl": "https://polyhaven.com/a/handsaw_wood",
-      "license": "CC0",
-      "attribution": "Handsaw Wood by Konrad Szalankiewicz via Poly Haven",
-      "processedFrom": "assets/models/hero/external/handsaw_wood/handsaw_wood_1k.gltf",
+      "provenance": "bespoke-authored",
+      "sourceUrl": "workspace://handyman/assets/models/hero/source/handsaw.mjs",
+      "license": "Original work - workspace authored",
+      "attribution": "Handyman bespoke precision-workshop hero pack",
+      "processedFrom": "assets/models/hero/source/handsaw.mjs",
       "heroRole": "support",
-      "silhouetteProfile": "handsaw-wood-orbit-support",
+      "silhouetteProfile": "precision-handsaw-workshop-support",
       "dimensions": {
-        "width": 2.18,
-        "height": 0.92,
-        "depth": 0.12
+        "width": 2.24,
+        "height": 0.96,
+        "depth": 0.14
       },
       "materialTokens": [
         "steel",
-        "wood",
-        "accent"
+        "blackened_steel",
+        "rubber",
+        "brass"
       ],
       "pivotOrigin": {
         "mode": "authored-origin",
-        "description": "Authored origin preserved for tangential orbit alignment.",
+        "description": "Grip center for balanced support framing.",
         "coordinates": [
           0,
           0,
@@ -116,10 +118,10 @@
         ]
       },
       "calibration": {
-        "targetSize": 2.18,
+        "targetSize": 2.04,
         "originMode": "authored-origin",
-        "compositionRole": "orbit-support",
-        "supportLightPrivilege": 0.7
+        "compositionRole": "support-silhouette",
+        "supportLightPrivilege": 0.64
       },
       "legacySha256": "bae1a152ada190fa13fd1f97107dd06c840eb1e8ccb6ad9949b2d41bfdc43220"
     }

@@ -1,10 +1,10 @@
 # Hero Asset Contract
 
-Contract version: `hero-asset-contract-v3`
+Contract version: `hero-asset-contract-v4`
 
 Current runtime variant: `final`
 
-This folder now ships three external processed runtime assets: one primary hero object and two support props. Only externally sourced processed assets may claim the runtime `final` variant.
+This folder now ships three bespoke authored runtime assets: one primary hero object and two support props. The runtime `final` variant now belongs to the bespoke precision-workshop pack generated from the local source descriptors.
 
 Runtime verification for this folder is stored in `HERO-ASSET-MANIFEST.json`. The manifest is the source of truth for:
 
@@ -37,15 +37,15 @@ Every `tools.*` entry must include:
 
 - `wrench`
   - `heroRole: primary`
-  - `provenance: external-processed`
+  - `provenance: bespoke-authored`
   - This is the only asset allowed to satisfy the runtime `final` hero requirement.
 - `hammer`
   - `heroRole: support`
-  - `provenance: external-processed`
+  - `provenance: bespoke-authored`
   - This is a support-runtime asset for the assembly-orbit composition.
 - `saw`
   - `heroRole: support`
-  - `provenance: external-processed`
+  - `provenance: bespoke-authored`
   - This is a support-runtime asset for the assembly-orbit composition.
 
 ## Runtime Expectations
@@ -56,14 +56,14 @@ Every `tools.*` entry must include:
 - Single root scene per GLB
 - The wrench origin must sit near the grip balance point so the hero lockup remains stable
 - Support assets may preserve authored origins so the orbit layout can place them by screen-space lanes
-- Runtime material remapping is optional for fallback assets only; external runtime assets keep authored PBR material response
+- Runtime material remapping is optional for fallback assets only; bespoke runtime assets are authored to accept the precision-workshop material profile without changing loader ids or fallback order.
 
 ## Art Direction Requirements
 
 - The wrench is the dominant shipped hero object in the default scene lockup.
 - Support props are part of the default assembly-orbit composition and must remain visually subordinate to the wrench.
 - The hero wrench must remain readable under a brighter workshop-grade light rig.
-- External hero assets must prioritize visual quality, silhouette read, and believable material response over thematic exactness.
+- Bespoke hero assets must prioritize visual quality, silhouette read, and believable material response over novelty or unnecessary complexity.
 
 ## Integration Notes
 

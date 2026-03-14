@@ -246,31 +246,31 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     [SCENE_DIRECTOR_STATE.scrollTransition]: 'scrollTransition',
   });
   const SHOT_CONFIG = Object.freeze({
-    introFallbackMs: 1500,
-    preRevealEndMs: 400,
-    revealEndMs: 1200,
-    lockupEndMs: 2200,
+    introFallbackMs: 1700,
+    preRevealEndMs: 520,
+    revealEndMs: 1480,
+    lockupEndMs: 2420,
     scrollTransitionStart: 0.12,
     camera: {
       desktop: {
-        preReveal: { z: 6.40, fov: 56, targetRotX: -0.018, targetRotY: 0.010, pointerGain: 0.04, sway: 0.05 },
-        reveal: { z: 6.04, fov: 55, targetRotX: -0.010, targetRotY: 0.008, pointerGain: 0.08, sway: 0.08 },
-        lockup: { z: 5.88, fov: 53, targetRotX: -0.002, targetRotY: -0.004, pointerGain: 0.05, sway: 0.025 },
-        interactiveIdle: { z: 5.92, fov: 53, targetRotX: 0.000, targetRotY: 0.000, pointerGain: 0.10, sway: 0.015 },
+        preReveal: { z: 6.52, fov: 56, targetRotX: -0.024, targetRotY: 0.012, pointerGain: 0.04, sway: 0.045 },
+        reveal: { z: 5.98, fov: 54, targetRotX: -0.012, targetRotY: 0.010, pointerGain: 0.08, sway: 0.065 },
+        lockup: { z: 5.80, fov: 52, targetRotX: -0.003, targetRotY: -0.006, pointerGain: 0.05, sway: 0.020 },
+        interactiveIdle: { z: 5.86, fov: 52, targetRotX: 0.000, targetRotY: 0.000, pointerGain: 0.09, sway: 0.012 },
         scrollTransition: { z: 6.18, fov: 54, targetRotX: 0.006, targetRotY: 0.096, pointerGain: 0.05, sway: 0.02 },
       },
       mobile: {
-        preReveal: { z: 6.04, fov: 53, targetRotX: -0.012, targetRotY: 0.008, pointerGain: 0.03, sway: 0.04 },
-        reveal: { z: 5.94, fov: 52, targetRotX: -0.006, targetRotY: 0.003, pointerGain: 0.05, sway: 0.05 },
-        lockup: { z: 5.84, fov: 51, targetRotX: -0.001, targetRotY: -0.002, pointerGain: 0.04, sway: 0.02 },
-        interactiveIdle: { z: 5.88, fov: 51, targetRotX: 0.000, targetRotY: 0.000, pointerGain: 0.06, sway: 0.012 },
+        preReveal: { z: 6.08, fov: 53, targetRotX: -0.015, targetRotY: 0.010, pointerGain: 0.03, sway: 0.034 },
+        reveal: { z: 5.90, fov: 51, targetRotX: -0.007, targetRotY: 0.004, pointerGain: 0.05, sway: 0.044 },
+        lockup: { z: 5.78, fov: 50, targetRotX: -0.001, targetRotY: -0.003, pointerGain: 0.04, sway: 0.016 },
+        interactiveIdle: { z: 5.84, fov: 50, targetRotX: 0.000, targetRotY: 0.000, pointerGain: 0.06, sway: 0.010 },
         scrollTransition: { z: 6.00, fov: 52, targetRotX: 0.004, targetRotY: 0.046, pointerGain: 0.04, sway: 0.015 },
       },
       low: {
-        preReveal: { z: 6.00, fov: 53, targetRotX: -0.007, targetRotY: 0.006, pointerGain: 0.02, sway: 0.03 },
-        reveal: { z: 5.94, fov: 52, targetRotX: -0.004, targetRotY: 0.002, pointerGain: 0.04, sway: 0.04 },
-        lockup: { z: 5.88, fov: 51, targetRotX: -0.001, targetRotY: -0.002, pointerGain: 0.03, sway: 0.018 },
-        interactiveIdle: { z: 5.90, fov: 51, targetRotX: 0.000, targetRotY: 0.000, pointerGain: 0.05, sway: 0.01 },
+        preReveal: { z: 6.02, fov: 53, targetRotX: -0.009, targetRotY: 0.007, pointerGain: 0.02, sway: 0.026 },
+        reveal: { z: 5.90, fov: 51, targetRotX: -0.004, targetRotY: 0.002, pointerGain: 0.04, sway: 0.032 },
+        lockup: { z: 5.84, fov: 50, targetRotX: -0.001, targetRotY: -0.002, pointerGain: 0.03, sway: 0.015 },
+        interactiveIdle: { z: 5.88, fov: 50, targetRotX: 0.000, targetRotY: 0.000, pointerGain: 0.05, sway: 0.008 },
         scrollTransition: { z: 6.00, fov: 52, targetRotX: 0.004, targetRotY: 0.042, pointerGain: 0.04, sway: 0.014 },
       },
     },
@@ -308,7 +308,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       anchor: { x: 0.63, y: 0.52 },
       heroPlaneZ: 1.16,
       heroScreenHeightRatio: 0.60,
-      heroScale: 0.88,
+      heroScale: 0.92,
       heroScaleBias: 1.0,
       heroMargins: { top: 0.07, right: 0.06, bottom: 0.11 },
       heroPose: { pitch: -0.122, yaw: 0.175, roll: -0.244 },
@@ -321,7 +321,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       anchor: { x: 0.62, y: 0.47 },
       heroPlaneZ: 1.20,
       heroScreenHeightRatio: 0.47,
-      heroScale: 0.70,
+      heroScale: 0.73,
       heroScaleBias: 1.0,
       heroMargins: { top: 0.07, right: 0.06, bottom: 0.11 },
       heroPose: { pitch: -0.105, yaw: 0.157, roll: -0.209 },
@@ -334,7 +334,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       anchor: { x: 0.57, y: 0.26 },
       heroPlaneZ: 1.32,
       heroScreenHeightRatio: 0.38,
-      heroScale: 0.52,
+      heroScale: 0.54,
       heroScaleBias: 1.0,
       heroMargins: { top: 0.02, right: 0.04, bottom: 0.40 },
       heroPose: { pitch: -0.070, yaw: 0.122, roll: -0.175 },
@@ -347,7 +347,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       anchor: { x: 0.55, y: 0.25 },
       heroPlaneZ: 1.36,
       heroScreenHeightRatio: 0.34,
-      heroScale: 0.47,
+      heroScale: 0.50,
       heroScaleBias: 1.0,
       heroMargins: { top: 0.02, right: 0.04, bottom: 0.38 },
       heroPose: { pitch: -0.070, yaw: 0.105, roll: -0.157 },
@@ -360,7 +360,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       anchor: { x: 0.55, y: 0.25 },
       heroPlaneZ: 1.32,
       heroScreenHeightRatio: 0.34,
-      heroScale: 0.45,
+      heroScale: 0.48,
       heroScaleBias: 1.0,
       heroMargins: { top: 0.02, right: 0.04, bottom: 0.36 },
       heroPose: { pitch: -0.070, yaw: 0.105, roll: -0.157 },
@@ -392,18 +392,18 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     },
   });
   const LIGHT_RIG_PRESETS = Object.freeze({
-    preReveal: { key: 0.74, fill: 0.54, rim: 0.56, heroShadow: 0.38, ground: 0.56, orbit: 0.00, sawSpot: 0.00 },
-    reveal: { key: 1.08, fill: 0.72, rim: 0.76, heroShadow: 0.90, ground: 0.76, orbit: 0.00, sawSpot: 0.00 },
-    lockup: { key: 1.30, fill: 0.74, rim: 0.86, heroShadow: 1.10, ground: 0.78, orbit: 0.00, sawSpot: 0.00 },
-    interactiveIdle: { key: 1.22, fill: 0.70, rim: 0.82, heroShadow: 1.02, ground: 0.76, orbit: 0.00, sawSpot: 0.00 },
-    scrollTransition: { key: 0.84, fill: 0.58, rim: 0.62, heroShadow: 0.56, ground: 0.56, orbit: 0.00, sawSpot: 0.00 },
+    preReveal: { key: 0.80, fill: 0.50, rim: 0.62, heroShadow: 0.54, ground: 0.62, orbit: 0.00, sawSpot: 0.00 },
+    reveal: { key: 1.18, fill: 0.68, rim: 0.88, heroShadow: 1.00, ground: 0.86, orbit: 0.00, sawSpot: 0.00 },
+    lockup: { key: 1.36, fill: 0.70, rim: 0.94, heroShadow: 1.18, ground: 0.90, orbit: 0.00, sawSpot: 0.00 },
+    interactiveIdle: { key: 1.28, fill: 0.66, rim: 0.88, heroShadow: 1.08, ground: 0.84, orbit: 0.00, sawSpot: 0.00 },
+    scrollTransition: { key: 0.88, fill: 0.54, rim: 0.68, heroShadow: 0.62, ground: 0.62, orbit: 0.00, sawSpot: 0.00 },
   });
   const POST_FX_PRESETS = Object.freeze({
-    preReveal: { bloomGain: 0.78, thresholdBias: 0.02, radiusBias: -0.04, gradeFloor: 0.24, copyShieldBoost: 0.03 },
-    reveal: { bloomGain: 0.92, thresholdBias: 0.01, radiusBias: -0.02, gradeFloor: 0.30, copyShieldBoost: 0.04 },
-    lockup: { bloomGain: 0.88, thresholdBias: 0.03, radiusBias: -0.04, gradeFloor: 0.34, copyShieldBoost: 0.05 },
-    interactiveIdle: { bloomGain: 0.84, thresholdBias: 0.04, radiusBias: -0.05, gradeFloor: 0.31, copyShieldBoost: 0.06 },
-    scrollTransition: { bloomGain: 0.76, thresholdBias: 0.06, radiusBias: -0.06, gradeFloor: 0.24, copyShieldBoost: 0.08 },
+    preReveal: { bloomGain: 0.70, thresholdBias: 0.04, radiusBias: -0.06, gradeFloor: 0.26, copyShieldBoost: 0.03 },
+    reveal: { bloomGain: 0.86, thresholdBias: 0.03, radiusBias: -0.04, gradeFloor: 0.32, copyShieldBoost: 0.05 },
+    lockup: { bloomGain: 0.80, thresholdBias: 0.05, radiusBias: -0.06, gradeFloor: 0.36, copyShieldBoost: 0.06 },
+    interactiveIdle: { bloomGain: 0.76, thresholdBias: 0.06, radiusBias: -0.08, gradeFloor: 0.34, copyShieldBoost: 0.07 },
+    scrollTransition: { bloomGain: 0.68, thresholdBias: 0.08, radiusBias: -0.08, gradeFloor: 0.26, copyShieldBoost: 0.08 },
   });
   const CINEMATIC_FINISH_PRESETS = Object.freeze({
     restrainedWorkshop: {
@@ -863,9 +863,9 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   });
   const ASSET_PROFILE_PRESETS = Object.freeze({
     heroPack: {
-      version: 'hero-pack-v4',
+      version: 'hero-pack-v5',
       variant: 'final',
-      contractVersion: 'hero-asset-contract-v3',
+      contractVersion: 'hero-asset-contract-v4',
       manifest: HERO_RUNTIME_ASSETS.manifest,
       preferred: {
         wrench: HERO_RUNTIME_ASSETS.preferred.wrench,
@@ -944,6 +944,70 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         envMapIntensity: 0.60,
       },
     },
+    precisionWorkshopBespoke: {
+      steel: {
+        color: 0xc6ccd0,
+        roughness: 0.20,
+        metalness: 0.98,
+        envMapIntensity: 1.04,
+        clearcoat: 0.24,
+        clearcoatRoughness: 0.18,
+        reflectivity: 0.68,
+      },
+      blackened_steel: {
+        color: 0x2a2f38,
+        roughness: 0.34,
+        metalness: 0.90,
+        envMapIntensity: 0.82,
+        clearcoat: 0.18,
+        clearcoatRoughness: 0.24,
+        reflectivity: 0.56,
+      },
+      rubber: {
+        color: 0x0d0f12,
+        roughness: 0.90,
+        metalness: 0.03,
+        envMapIntensity: 0.12,
+        clearcoat: 0.02,
+        clearcoatRoughness: 0.54,
+        reflectivity: 0.10,
+      },
+      wood: {
+        color: 0x7c5931,
+        roughness: 0.78,
+        metalness: 0.02,
+        envMapIntensity: 0.14,
+        clearcoat: 0.05,
+        clearcoatRoughness: 0.42,
+        reflectivity: 0.16,
+      },
+      brass: {
+        color: 0xca8f3b,
+        roughness: 0.26,
+        metalness: 0.92,
+        envMapIntensity: 0.88,
+        clearcoat: 0.16,
+        clearcoatRoughness: 0.18,
+        reflectivity: 0.62,
+      },
+      ember_core: {
+        color: 0x2d1409,
+        roughness: 0.24,
+        metalness: 0.04,
+        envMapIntensity: 0.18,
+        emissive: 0xf29e2f,
+        emissiveIntensity: 0.58,
+        clearcoat: 0.08,
+        clearcoatRoughness: 0.20,
+        reflectivity: 0.22,
+      },
+      floor: {
+        color: 0x070910,
+        roughness: 0.40,
+        metalness: 0.32,
+        envMapIntensity: 0.72,
+      },
+    },
   });
   const ENVIRONMENT_MAGIC_PRESETS = Object.freeze({
     forgedMagicHybrid: {
@@ -957,6 +1021,18 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       hazeCompression: 0.34,
       scrollEmberDrain: 0.26,
       toolWrapStrength: 1.18,
+    },
+    precisionWorkshopBespoke: {
+      wrenchRibbonBias: 1.14,
+      sawSparkBias: 0.52,
+      copyCorridorCalm: 0.92,
+      emberAccentGain: 0.16,
+      floorReflectivityCut: 0.20,
+      ctaWakePull: 0.26,
+      ctaWakeWrench: 0.28,
+      hazeCompression: 0.42,
+      scrollEmberDrain: 0.30,
+      toolWrapStrength: 1.26,
     },
   });
   const SCROLL_HANDOFF_PRESETS = Object.freeze({
@@ -1256,7 +1332,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     },
   });
   const ACTIVE_ASSET_PROFILE = ASSET_PROFILE_PRESETS.heroPack;
-  const ACTIVE_MATERIAL_PROFILE = 'forgedMagicHybrid';
+  const ACTIVE_MATERIAL_PROFILE = 'precisionWorkshopBespoke';
   const ACTIVE_CINEMATIC_FINISH = CINEMATIC_FINISH_PRESETS.restrainedWorkshop;
   const ACTIVE_SHOT_BEATS = SHOT_BEAT_PRESETS.restrainedWorkshop;
   const ACTIVE_LENS_FINISH = LENS_FINISH_PRESETS.restrainedWorkshop;
@@ -1265,7 +1341,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   const ACTIVE_ENVIRONMENT_DEPTH = ENVIRONMENT_DEPTH_PRESETS.hybridEmberSignature;
   const ACTIVE_PARALLAX_LAYERS = PARALLAX_LAYER_PRESETS.hybridEmberSignature;
   const ACTIVE_LENS_EVENTS = LENS_EVENT_PRESETS.hybridEmberSignature;
-  const ACTIVE_ENVIRONMENT_MAGIC = ENVIRONMENT_MAGIC_PRESETS.forgedMagicHybrid;
+  const ACTIVE_ENVIRONMENT_MAGIC = ENVIRONMENT_MAGIC_PRESETS.precisionWorkshopBespoke;
   const ACTIVE_PARTICLE_STORY = PARTICLE_STORY_PRESETS.hybridEmberSignature;
   const ACTIVE_PARTICLE_SIGNATURE = PARTICLE_SIGNATURE_PRESETS.hybridEmberSignature;
   const ACTIVE_RELEASE_ENVELOPE = RELEASE_ENVELOPE_PRESETS.hybridEmberSignature;
@@ -1464,6 +1540,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     manifestMatch: { hammer: false, wrench: false, saw: false },
     distinctFromLegacy: { hammer: false, wrench: false, saw: false },
   };
+  const FINAL_HERO_PROVENANCE = new Set(['external-processed', 'bespoke-authored']);
   let shotBeat = ACTIVE_SHOT_BEATS.preReveal.label;
   let lightingCue = ACTIVE_LIGHTING_CUES.preReveal.label;
   let gradePreset = ACTIVE_LENS_FINISH.preReveal.label;
@@ -2207,7 +2284,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
 
     const primaryManifestEntry = getManifestToolEntry(HERO_FOCUS_TOOL);
     const wantsFinalVariant = heroAssetVerification.manifestVariant === 'final'
-      && primaryManifestEntry?.provenance === 'external-processed'
+      && FINAL_HERO_PROVENANCE.has(primaryManifestEntry?.provenance)
       && primaryManifestEntry?.heroRole === 'primary';
     const distinctFromLegacy = REQUIRED_HERO_TOOL_IDS.every((toolId) => heroAssetVerification.distinctFromLegacy[toolId]);
     heroAssetVerification.finalReady = wantsFinalVariant && distinctFromLegacy;
@@ -3528,7 +3605,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   }
 
   function applyImportedToolMaterials(root, toolId, assetMeta = null) {
-    if (assetMeta?.manifestEntry?.provenance === 'external-processed') {
+    if (FINAL_HERO_PROVENANCE.has(assetMeta?.manifestEntry?.provenance)) {
       const materialTokens = getManifestMaterialTokenSet(assetMeta);
       root.traverse((obj) => {
         if (!obj.isMesh) return;
@@ -8995,10 +9072,10 @@ scene.add(hangingDepthCard);
       heroBoundsRect.bottom - heroHeight * (mobileComposition ? 0.18 : 0.24)
     );
     protectedZoneState.heroShadowRect = rectFromLTRB(
-      heroBoundsRect.left - heroWidth * (mobileComposition ? 0.04 : 0.04),
-      heroBoundsRect.bottom - heroHeight * (mobileComposition ? 0.14 : 0.16),
-      heroBoundsRect.right + heroWidth * (mobileComposition ? 0.16 : 0.22),
-      heroBoundsRect.bottom + heroHeight * (mobileComposition ? 0.08 : 0.10)
+      heroBoundsRect.left - heroWidth * (mobileComposition ? 0.02 : 0.04),
+      heroBoundsRect.bottom - heroHeight * (mobileComposition ? 0.12 : 0.16),
+      heroBoundsRect.right + heroWidth * (mobileComposition ? 0.10 : 0.22),
+      heroBoundsRect.bottom + heroHeight * (mobileComposition ? 0.04 : 0.10)
     );
     protectedZoneState.particleEmissionRect = expandScreenRect(
       heroBoundsRect,

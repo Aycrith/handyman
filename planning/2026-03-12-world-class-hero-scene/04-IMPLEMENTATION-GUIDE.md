@@ -7,9 +7,14 @@ Upgrade the current hero in `src/scene/index.js` from a premium interactive back
 - Tasks 1 through 4 now have a working baseline in the current branch and are covered by automated validation.
 - The current milestone is not a new feature pass. It is a stabilization pass:
   - preserve the existing scene-director phases and diagnostics contract
-  - keep the manifest-backed hero asset pack and pipeline as the source of truth
+  - keep the manifest-backed bespoke hero asset pack and pipeline as the source of truth
   - clean generated artifacts from the tracked diff
   - document the shipped baseline before deeper Phase 2 or Phase 3 work resumes
+- The shipped hero baseline for this milestone is:
+  - `assetSetVersion: hero-pack-v5`
+  - `contractVersion: hero-asset-contract-v4`
+  - `buildStage: assembly-orbit-bespoke-pack`
+  - `materialProfile: precisionWorkshopBespoke`
 - Canonical tracked evidence lives in `tests/evidence-desktop/`.
 - Ad hoc captures in `artifacts/` and root-level `debug-*.png` files should be treated as generated output.
 - Validation commands for this milestone:
@@ -129,6 +134,8 @@ Upgrade the current hero in `src/scene/index.js` from a premium interactive back
 **Changes Required**
 1. Audit all visible tools for silhouette quality, bevel richness, and material coherence.
 2. Keep the current manifest-backed pack stable unless a later phase explicitly changes that contract.
+   - Current baseline: `hero-pack-v5` on `hero-asset-contract-v4`
+   - If provenance or shipping semantics change again, introduce a new explicit contract/manifest version rather than overloading the current one.
 3. Improve materials with:
    - roughness variation
    - differentiated metal/wood/rubber response

@@ -2,7 +2,8 @@
 
 ## Implementation Update (2026-03-14)
 - The planning baseline below is now partially realized in the current branch.
-- The shipped runtime baseline is a manifest-backed external hero pack with one primary wrench and two subordinate support props.
+- The shipped runtime baseline is a manifest-backed bespoke-authored hero pack with one primary wrench and two subordinate support props.
+- The current asset baseline is `hero-pack-v5` on `hero-asset-contract-v4` with build stage `assembly-orbit-bespoke-pack`.
 - The hero now runs through explicit director phases: `pre-reveal`, `reveal`, `lockup`, `interactive-idle`, and `scroll-transition`.
 - Validation now includes:
   - deterministic asset pack verification
@@ -25,7 +26,7 @@
 - `src/scene/index.js`
   - fixed canvas hero scene
   - authored phase/director state handling
-  - manifest-backed external GLB hero pack with procedural fallback paths
+  - manifest-backed bespoke GLB hero pack with procedural fallback paths
   - custom particle systems with multiple species
   - ACES filmic tone mapping
   - Unreal Bloom pass
@@ -39,9 +40,9 @@
   - strong art direction, readability overlays, hero typography, and cinematic UI layers
 
 ### Observed asset strategy
-- External processed runtime assets live in `assets/models/hero/` and are tracked by `HERO-ASSET-MANIFEST.json`.
+- Bespoke authored runtime assets live in `assets/models/hero/` and are tracked by `HERO-ASSET-MANIFEST.json`.
 - `scripts/hero-asset-pipeline.mjs` owns deterministic hero asset generation and `tests/validate-hero-assets.js` verifies fingerprints and provenance.
-- Procedural assets remain as fallbacks, but the stabilization baseline is the manifest-backed external hero pack.
+- Procedural assets remain as fallbacks, but the stabilization baseline is the manifest-backed bespoke hero pack.
 
 ## Evidence-Based Scorecard
 
@@ -147,7 +148,7 @@
 
 ### 5. Geometry complexity
 **Strengths**
-- The manifest-backed hero pack improves the main silhouette and fidelity consistency.
+- The manifest-backed bespoke hero pack improves the main silhouette and fidelity consistency.
 - Support props now read as deliberate subordinate tools rather than equal-weight hero objects.
 
 **Current limiters**
@@ -196,7 +197,7 @@ The scene does not need a total rewrite. It needs a shift from feature richness 
 
 In practice that means:
 1. Make every effect serve a cinematic story beat.
-2. Refine prop material response and world integration around the current hero pack.
+2. Refine prop material response and world integration around the current bespoke hero pack.
 3. Replace generic interactivity with purposeful interactions.
 4. Strengthen lighting, grounding, and post finishing.
 5. Treat the hero like a short film shot, not a reactive background.

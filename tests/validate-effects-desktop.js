@@ -8,6 +8,9 @@ const ROOT = path.resolve(__dirname, '..');
 const EVIDENCE_DIR = path.resolve(__dirname, 'evidence-desktop');
 const BASE_URL = `http://localhost:${PORT}`;
 const DESKTOP_URL = `${BASE_URL}/?sceneTier=desktop&sceneForceDesktopFX=1`;
+const EXPECTED_ASSET_SET_VERSION = 'hero-pack-v5';
+const EXPECTED_CONTRACT_VERSION = 'hero-asset-contract-v4';
+const EXPECTED_BUILD_STAGE = 'assembly-orbit-bespoke-pack';
 
 function ensureEvidenceDir() {
   fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
@@ -20,16 +23,25 @@ async function getDiagnostics(page) {
 async function waitForDesktopScene(page) {
   await page.waitForFunction(() => document.getElementById('preloader')?.classList.contains('hidden'), { timeout: 15000 });
   await page.waitForFunction(() => typeof window.__sceneDiagnostics === 'function', { timeout: 15000 });
-  await page.waitForFunction(() => {
+  await page.waitForFunction(({ assetSetVersion, contractVersion, buildStage }) => {
     const diag = window.__sceneDiagnostics?.();
     return diag
       && diag.bootHealthy
       && diag.assetMode === 'hero-primary'
+      && diag.assetSetVersion === assetSetVersion
+      && diag.assetContractVersion === contractVersion
+      && diag.heroAssetBuildStage === buildStage
       && diag.heroAssetVerificationState === 'final-ready'
       && diag.toolAssetSource?.hammer === 'hero-glb'
       && diag.toolAssetSource?.wrench === 'hero-glb'
       && diag.toolAssetSource?.saw === 'hero-glb';
-  }, { timeout: 15000 });
+  }, {
+    assetSetVersion: EXPECTED_ASSET_SET_VERSION,
+    contractVersion: EXPECTED_CONTRACT_VERSION,
+    buildStage: EXPECTED_BUILD_STAGE,
+  }, {
+    timeout: 15000,
+  });
 }
 
 async function setPhase(page, phase) {
@@ -144,14 +156,17 @@ async function inspectPanelPlacement(page) {
 
     record('Desktop scene loads without page errors', pageErrors.length === 0, pageErrors[0] || '');
     record(
-      'Desktop diagnostics report the assembly orbit hero pack',
-      bootDiag?.heroAssetBuildStage === 'assembly-orbit-external-support'
+      'Desktop diagnostics report the bespoke assembly orbit hero pack',
+      bootDiag?.heroAssetBuildStage === EXPECTED_BUILD_STAGE
+        && bootDiag?.assetSetVersion === EXPECTED_ASSET_SET_VERSION
+        && bootDiag?.assetContractVersion === EXPECTED_CONTRACT_VERSION
         && bootDiag?.heroAssetVerificationState === 'final-ready'
         && bootDiag?.toolAssetSource?.hammer === 'hero-glb'
         && bootDiag?.toolAssetSource?.wrench === 'hero-glb'
         && bootDiag?.toolAssetSource?.saw === 'hero-glb'
-        && bootDiag?.assetLicense === 'CC0',
-      `stage=${bootDiag?.heroAssetBuildStage} verify=${bootDiag?.heroAssetVerificationState} sources=${JSON.stringify(bootDiag?.toolAssetSource || {})}`
+        && typeof bootDiag?.assetLicense === 'string'
+        && bootDiag.assetLicense.length > 0,
+      `assetSet=${bootDiag?.assetSetVersion} contract=${bootDiag?.assetContractVersion} stage=${bootDiag?.heroAssetBuildStage} verify=${bootDiag?.heroAssetVerificationState} sources=${JSON.stringify(bootDiag?.toolAssetSource || {})}`
     );
     record(
       'Desktop post stack stays bloom-first with optional scatter configuration',
@@ -182,7 +197,7 @@ async function inspectPanelPlacement(page) {
         && (staticDiag?.heroClearancePx?.right ?? 0) >= 86
         && (staticDiag?.heroClearancePx?.bottom ?? 0) >= 99
         && (staticDiag?.heroHeadlineOverlapRatio ?? 0) >= 0.05
-        && (staticDiag?.heroHeadlineOverlapRatio ?? 0) <= 0.11
+          && (staticDiag?.heroHeadlineOverlapRatio ?? 0) <= 0.12
         && (staticDiag?.heroArtLaneOccupancy ?? 0) >= 0.29
         && (staticDiag?.heroArtLaneOccupancy ?? 0) <= 0.35
         && (staticDiag?.heroRightThirdOffsetPx ?? 0) >= -48

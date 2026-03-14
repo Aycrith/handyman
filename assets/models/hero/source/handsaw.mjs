@@ -30,23 +30,31 @@ const rivetParts = [
   rotationEuler: [1.5707963268, 0.0, 0.0],
 }));
 
+const spineSlots = Array.from({ length: 4 }, (_, index) => ({
+  name: `blackened_steel_spine_slot_${index + 1}`,
+  role: 'blackened_steel',
+  kind: 'box',
+  size: [0.10, 0.04, 0.05],
+  translation: [-1.14 + index * 0.30, 0.15, 0.0],
+}));
+
 const handsawDescriptor = {
   id: 'saw',
   file: 'hero-handsaw.glb',
   dimensions: {
-    width: 2.18,
-    height: 0.92,
-    depth: 0.12,
+    width: 2.24,
+    height: 0.96,
+    depth: 0.14,
   },
-  silhouetteProfile: 'handsaw-workshop-support',
+  silhouetteProfile: 'precision-handsaw-workshop-support',
   pivotOrigin: {
     mode: 'authored-origin',
     description: 'Grip center for balanced support framing.',
     coordinates: [0, 0, 0],
   },
-  materialTokens: ['steel', 'rubber', 'brass'],
+  materialTokens: ['steel', 'blackened_steel', 'rubber', 'brass'],
   calibration: {
-    targetSize: 2.0,
+    targetSize: 2.04,
     originMode: 'authored-origin',
     compositionRole: 'support-silhouette',
     supportLightPrivilege: 0.64,
@@ -67,6 +75,14 @@ const handsawDescriptor = {
       depth: 0.04,
       translation: [0.0, 0.0, 0.0],
     },
+    {
+      name: 'blackened_steel_spine',
+      role: 'blackened_steel',
+      kind: 'box',
+      size: [1.18, 0.04, 0.06],
+      translation: [-0.98, 0.17, 0.0],
+    },
+    ...spineSlots,
     ...toothParts,
     {
       name: 'rubber_handle_back',
@@ -107,6 +123,24 @@ const handsawDescriptor = {
       height: 0.26,
       translation: [0.22, -0.02, 0.0],
       rotationEuler: [0.0, 0.0, -0.30],
+    },
+    {
+      name: 'rubber_handle_inset',
+      role: 'rubber',
+      kind: 'box',
+      size: [0.26, 0.16, 0.08],
+      translation: [0.28, 0.02, 0.05],
+    },
+    {
+      name: 'brass_medallion',
+      role: 'brass',
+      kind: 'cylinder',
+      radiusTop: 0.06,
+      radiusBottom: 0.06,
+      height: 0.04,
+      segments: 12,
+      translation: [0.48, 0.00, 0.05],
+      rotationEuler: [1.5707963268, 0.0, 0.0],
     },
     ...rivetParts,
   ],

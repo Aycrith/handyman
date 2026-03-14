@@ -4,6 +4,11 @@ Date: `2026-03-14`
 
 ## Current shipped baseline
 - `assets/models/hero/` is the runtime source of truth for the shipped hero pack.
+- The shipped hero pack baseline is:
+  - `assetSetVersion: hero-pack-v5`
+  - `contractVersion: hero-asset-contract-v4`
+  - `buildStage: assembly-orbit-bespoke-pack`
+  - `provenance: bespoke-authored`
 - The runtime now boots through Vite + ESM using:
   - `src/main.js`
   - `src/runtime-globals.js`
@@ -20,7 +25,7 @@ Date: `2026-03-14`
   - `scroll-transition`
 - The current branch also ships:
   - layout-specific composition presets and responsive quality-tier handling
-  - scene-level material token refinement for the shipped hero pack
+  - scene-level material token refinement for the shipped hero pack through `precisionWorkshopBespoke`
   - additive diagnostics for `materialProfile`, `environmentCue`, `interactionCue`, and `postFxMode`
   - preserved compatibility globals for tests and orchestration:
     - `window.__sceneDiagnostics`
@@ -77,11 +82,18 @@ Date: `2026-03-14`
 - Multi-viewport layout and readability gates across desktop, tablet, mobile, and narrow viewports
 - Desktop lockup/interactivity validation for reveal, lockup, idle, drag response, and callout safety
 
+## Current diagnostics baseline
+- The active layout/readability baseline is encoded in `tests/validate-effects.js` and `tests/validate-effects-desktop.js`.
+- The current bespoke-pack baseline accepts:
+  - desktop 1440 overlap up to `0.12` while holding art-lane occupancy in the `0.30..0.35` band
+  - tablet hero height in the `0.46..0.51` band
+- Treat these ranges as the regression envelope for the shipped `hero-pack-v5` scene until a later milestone intentionally re-baselines them with new evidence.
+
 ## Explicitly pending after this milestone
-- Further Phase 2 asset/material/environment refinement beyond the current scene-level material-token pass
-- Further Phase 3 finishing and deeper particle storytelling beyond the current additive interaction/post diagnostics
+- Further Phase 3 finishing and deeper particle storytelling beyond the current directed baseline
 - Any future Three.js version upgrade after the current Vite/ESM baseline is stable
 
 ## Known non-blocking follow-up
+- Real-hardware perf capture against the desktop `<=16.7ms` and integrated/mobile `<=22ms` budgets still needs to happen outside software-rendered CI.
 - Vite currently reports a chunk-size warning for the main JavaScript bundle during `npm run build`.
 - Keep it logged as a follow-up for later optimization; it is not part of this stabilization milestone unless it starts causing a functional regression.

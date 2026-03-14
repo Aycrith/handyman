@@ -1,6 +1,11 @@
 const path = require('path');
 const { pathToFileURL } = require('url');
 
+const EXPECTED_ASSET_SET_VERSION = 'hero-pack-v5';
+const EXPECTED_CONTRACT_VERSION = 'hero-asset-contract-v4';
+const EXPECTED_BUILD_STAGE = 'assembly-orbit-bespoke-pack';
+const EXPECTED_PROVENANCE = 'bespoke-authored';
+
 (async () => {
   console.log('\n╔══════════════════════════════════════════╗');
   console.log('║      Hero Asset Pipeline Verification   ║');
@@ -21,8 +26,8 @@ const { pathToFileURL } = require('url');
   const wrench = result.manifest?.tools?.wrench || {};
   const hammer = result.manifest?.tools?.hammer || {};
   const saw = result.manifest?.tools?.saw || {};
-  const allExternalProcessed = [hammer, wrench, saw].every((tool) => (
-    tool.provenance === 'external-processed'
+  const allBespokeAuthored = [hammer, wrench, saw].every((tool) => (
+    tool.provenance === EXPECTED_PROVENANCE
     && typeof tool.sourceUrl === 'string'
     && tool.sourceUrl.length > 0
     && typeof tool.license === 'string'
@@ -35,28 +40,38 @@ const { pathToFileURL } = require('url');
 
   record('Hero asset files match deterministic pipeline output', allFilesMatch, JSON.stringify(result.toolResults));
   record('Manifest matches regenerated pack', result.manifestMatches === true, `stage=${result.stage} variant=${result.variant}`);
-  record('Hero pack reports assembly orbit external support stage', result.stage === 'assembly-orbit-external-support', result.stage);
+  record(
+    'Hero pack reports the bespoke assembly orbit stage',
+    result.stage === EXPECTED_BUILD_STAGE,
+    result.stage
+  );
+  record(
+    'Hero pack reports the new bespoke asset contract',
+    result.manifest?.assetSetVersion === EXPECTED_ASSET_SET_VERSION
+      && result.manifest?.contractVersion === EXPECTED_CONTRACT_VERSION,
+    `assetSet=${result.manifest?.assetSetVersion} contract=${result.manifest?.contractVersion}`
+  );
   record('Hero pack reports final variant', result.variant === 'final', result.variant);
   record(
-    'Primary wrench is external processed with public license metadata',
-    wrench.provenance === 'external-processed'
+    'Primary wrench is bespoke-authored with final-runtime metadata',
+    wrench.provenance === EXPECTED_PROVENANCE
       && wrench.heroRole === 'primary'
       && wrench.status === 'final-runtime',
     JSON.stringify(wrench)
   );
   record(
-    'Support props are external processed support assets',
-    hammer.provenance === 'external-processed'
+    'Support props are bespoke-authored support assets',
+    hammer.provenance === EXPECTED_PROVENANCE
       && hammer.heroRole === 'support'
       && hammer.status === 'support-runtime'
-      && saw.provenance === 'external-processed'
+      && saw.provenance === EXPECTED_PROVENANCE
       && saw.heroRole === 'support'
       && saw.status === 'support-runtime',
     JSON.stringify({ hammer, saw })
   );
   record(
-    'All shipped hero tools carry external asset lineage metadata',
-    allExternalProcessed,
+    'All shipped hero tools carry bespoke asset lineage metadata',
+    allBespokeAuthored,
     JSON.stringify({
       hammer: { sourceUrl: hammer.sourceUrl, license: hammer.license, processedFrom: hammer.processedFrom },
       wrench: { sourceUrl: wrench.sourceUrl, license: wrench.license, processedFrom: wrench.processedFrom },
