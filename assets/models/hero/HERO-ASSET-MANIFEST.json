@@ -1,0 +1,127 @@
+{
+  "assetSetVersion": "hero-pack-v4",
+  "variant": "final",
+  "contractVersion": "hero-asset-contract-v3",
+  "buildStage": "assembly-orbit-external-support",
+  "tools": {
+    "hammer": {
+      "file": "hero-claw-hammer.glb",
+      "sha256": "45147110809c51f1dd772fc7793d1c901698ac7396149cc15d6d02a58c0d95d1",
+      "status": "support-runtime",
+      "provenance": "external-processed",
+      "sourceUrl": "https://polyhaven.com/a/wooden_hammer_01",
+      "license": "CC0",
+      "attribution": "Wooden Hammer 01 by James Ray Cock via Poly Haven",
+      "processedFrom": "assets/models/hero/external/wooden_hammer_01/wooden_hammer_01_1k.gltf",
+      "heroRole": "support",
+      "silhouetteProfile": "wooden-hammer-orbit-support",
+      "dimensions": {
+        "width": 1.12,
+        "height": 2.36,
+        "depth": 0.34
+      },
+      "materialTokens": [
+        "steel",
+        "wood",
+        "accent"
+      ],
+      "pivotOrigin": {
+        "mode": "authored-origin",
+        "description": "Authored origin preserved for balanced orbit support placement.",
+        "coordinates": [
+          0,
+          0,
+          0
+        ]
+      },
+      "calibration": {
+        "targetSize": 2.2,
+        "originMode": "authored-origin",
+        "compositionRole": "orbit-support",
+        "supportLightPrivilege": 0.76
+      }
+    },
+    "wrench": {
+      "file": "hero-pipe-wrench.glb",
+      "sha256": "15b7bb0466aae975678a6a3e15b445622c8dfdc815396ff57603f64baeafa65b",
+      "status": "final-runtime",
+      "provenance": "external-processed",
+      "sourceUrl": "https://polyhaven.com/a/pipe_wrench",
+      "license": "CC0",
+      "attribution": "Pipe Wrench by Will Evarts via Poly Haven",
+      "processedFrom": "assets/models/hero/external/pipe_wrench/pipe_wrench_1k.gltf",
+      "heroRole": "primary",
+      "silhouetteProfile": "pipe-wrench-workshop-hero",
+      "dimensions": {
+        "width": 0.457,
+        "height": 2.2,
+        "depth": 0.187
+      },
+      "materialTokens": [
+        "steel",
+        "dark_metal",
+        "accent",
+        "grip"
+      ],
+      "pivotOrigin": {
+        "mode": "grip-balance-point",
+        "description": "Adjusted from the external source so the origin sits near the grip balance point.",
+        "coordinates": [
+          0,
+          0,
+          0
+        ]
+      },
+      "calibration": {
+        "targetSize": 2.2,
+        "originMode": "authored-origin",
+        "compositionRole": "hero-dominant",
+        "heroLightPrivilege": 1,
+        "seamAnchor": [
+          0.02,
+          0.96,
+          0.05
+        ]
+      },
+      "legacySha256": "74ee3569196e0f00493874964fa9f38edf4db3cf43eccfe2d07fbd6d93263aef"
+    },
+    "saw": {
+      "file": "hero-handsaw.glb",
+      "sha256": "5221d4a771201c9ec034d95764e6072bf5e194a998a6736c4ef67cb43d424b18",
+      "status": "support-runtime",
+      "provenance": "external-processed",
+      "sourceUrl": "https://polyhaven.com/a/handsaw_wood",
+      "license": "CC0",
+      "attribution": "Handsaw Wood by Konrad Szalankiewicz via Poly Haven",
+      "processedFrom": "assets/models/hero/external/handsaw_wood/handsaw_wood_1k.gltf",
+      "heroRole": "support",
+      "silhouetteProfile": "handsaw-wood-orbit-support",
+      "dimensions": {
+        "width": 2.18,
+        "height": 0.92,
+        "depth": 0.12
+      },
+      "materialTokens": [
+        "steel",
+        "wood",
+        "accent"
+      ],
+      "pivotOrigin": {
+        "mode": "authored-origin",
+        "description": "Authored origin preserved for tangential orbit alignment.",
+        "coordinates": [
+          0,
+          0,
+          0
+        ]
+      },
+      "calibration": {
+        "targetSize": 2.18,
+        "originMode": "authored-origin",
+        "compositionRole": "orbit-support",
+        "supportLightPrivilege": 0.7
+      },
+      "legacySha256": "bae1a152ada190fa13fd1f97107dd06c840eb1e8ccb6ad9949b2d41bfdc43220"
+    }
+  }
+}

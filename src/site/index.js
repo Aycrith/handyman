@@ -1,12 +1,17 @@
 /**
- * main.js — Handyman Landing Page
+ * src/site/index.js - Handyman landing-page orchestration.
  *
  * Animation stack:
  *  - Lenis (smooth scroll)
  *  - GSAP + ScrollTrigger (all animations)
  *
- * Load order: GSAP → ScrollTrigger → Lenis → this file
+ * Runtime globals are prepared by src/runtime-globals.js before this module runs.
  */
+
+const gsap = window.gsap;
+const ScrollTrigger = window.ScrollTrigger;
+const Lenis = window.Lenis;
+const SplitType = window.SplitType;
 
 /* ─────────────────────────────────────────────────────────
    UTILITIES
@@ -27,6 +32,49 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
 ───────────────────────────────────────────────────────── */
 
 let lenis;
+let heroIntroTimeline = null;
+let heroIntroStarted = false;
+
+function dispatchHeroIntroStart() {
+  if (window.__heroIntroStarted) return;
+  window.__heroIntroStarted = true;
+  window.__heroIntroStartedAt = performance.now();
+  window.dispatchEvent(new CustomEvent('hero:intro-start', {
+    detail: { startedAt: window.__heroIntroStartedAt },
+  }));
+}
+
+function playHeroEntrance() {
+  if (heroIntroStarted) return;
+  heroIntroStarted = true;
+  heroIntroTimeline?.play(0);
+}
+
+function dispatchHeroMagicPulse(source, detail = {}) {
+  window.dispatchEvent(new CustomEvent('hero:magic-pulse', {
+    detail: {
+      source,
+      strength: detail.strength ?? 0.18,
+      durationMs: detail.durationMs ?? 760,
+      anchorTool: detail.anchorTool ?? 'wrench',
+      sparkCount: detail.sparkCount ?? 0,
+    },
+  }));
+}
+
+function dispatchHeroSectionTransition(progress, source = 'main-scroll') {
+  const clampedProgress = Math.max(0, Math.min(1, progress));
+  const state = clampedProgress > 0.74
+    ? 'handedOff'
+    : (clampedProgress > 0.04 ? 'compressing' : 'idle');
+  window.dispatchEvent(new CustomEvent('hero:section-transition', {
+    detail: {
+      state,
+      progress: Number(clampedProgress.toFixed(3)),
+      source,
+    },
+  }));
+}
 
 function initLenis() {
   if (typeof Lenis === 'undefined') return;
@@ -149,46 +197,132 @@ function initHeroEntrance() {
       '.hero__title', '.hero__sub',
       '.hero__ctas', '.hero__trust', '#scrollCue',
     ], { opacity: 1, y: 0 });
+    heroIntroStarted = true;
     return;
   }
 
-  const heroTl = gsap.timeline({
-    delay: 0.15,
+  gsap.set('.hero__eyebrow', { opacity: 0 });
+  gsap.set('.eyebrow-seg, .eyebrow-dot', { opacity: 0, y: 10 });
+  gsap.set('.hero__title', { opacity: 0, y: typeof SplitType === 'undefined' ? 45 : 0 });
+  gsap.set('.hero__sub', { opacity: 0, y: 22 });
+  gsap.set('.hero__ctas', { opacity: 0, y: 18 });
+  gsap.set('.hero__trust', { opacity: 0, y: 10 });
+  gsap.set('#scrollCue', { opacity: 0, y: 8 });
+
+  heroIntroTimeline = gsap.timeline({
+    paused: true,
     defaults: { ease: 'power3.out' },
   });
 
-  // Reveal eyebrow container first, then stagger each segment
-  heroTl
-    .set('.hero__eyebrow', { opacity: 1 })
-    .fromTo('.eyebrow-seg, .eyebrow-dot',
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, stagger: 0.14, duration: 0.55, ease: 'power2.out' }
-    )
-    .fromTo('.hero__title',
-      { opacity: 0, y: typeof SplitType === 'undefined' ? 45 : 0 },
-      { opacity: 1, y: 0, duration: 1.0, clearProps: 'clip-path', immediateRender: false },
-      '-=0.35'
-    )
-    .fromTo('.hero__sub',
-      { opacity: 0, y: 22 },
-      { opacity: 1, y: 0, duration: 0.75, immediateRender: false },
-      '-=0.55'
-    )
-    .fromTo('.hero__ctas',
-      { opacity: 0, y: 18 },
-      { opacity: 1, y: 0, duration: 0.65, immediateRender: false },
-      '-=0.45'
-    )
-    .fromTo('.hero__trust',
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 0.55, immediateRender: false },
-      '-=0.35'
-    )
-    .fromTo('#scrollCue',
-      { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: 0.55, immediateRender: false },
-      '-=0.15'
-    );
+  // Absolute timings keep the DOM reveal aligned with the scene director phases.
+  heroIntroTimeline
+    .set('.hero__eyebrow', { opacity: 1 }, 0.40)
+    .to('.eyebrow-seg, .eyebrow-dot', {
+      opacity: 1,
+      y: 0,
+      stagger: 0.10,
+      duration: 0.34,
+      ease: 'power2.out',
+      clearProps: 'y',
+    }, 0.40)
+    .call(() => {
+      dispatchHeroMagicPulse('director-intro-prepulse', {
+        strength: 0.11,
+        durationMs: 620,
+        anchorTool: 'wrench',
+        sparkCount: 0,
+      });
+    }, null, 0.52)
+    .to('.hero__title', {
+      opacity: 1,
+      y: 0,
+      duration: 0.66,
+      ease: 'power3.out',
+      clearProps: 'clip-path,y',
+    }, 0.56)
+    .to('.hero__sub', {
+      opacity: 1,
+      y: 0,
+      duration: 0.54,
+      clearProps: 'y',
+    }, 0.94)
+    .to('.hero__ctas', {
+      opacity: 1,
+      y: 0,
+      duration: 0.48,
+      clearProps: 'y',
+    }, 1.18)
+    .to('.hero__trust', {
+      opacity: 1,
+      y: 0,
+      duration: 0.44,
+      clearProps: 'y',
+    }, 1.34)
+    .to('#scrollCue', {
+      opacity: 1,
+      y: 0,
+      duration: 0.40,
+      clearProps: 'y',
+    }, 1.52);
+
+  if (window.__heroIntroStarted) {
+    playHeroEntrance();
+  } else {
+    window.addEventListener('hero:intro-start', playHeroEntrance, { once: true });
+  }
+}
+
+function initHeroCtaWake() {
+  const ctas = document.querySelectorAll('.hero__ctas .btn, .nav__cta');
+  if (!ctas.length) return;
+
+  const dispatchWake = (active, source) => {
+    window.dispatchEvent(new CustomEvent('hero:cta-wake', {
+      detail: { active, source },
+    }));
+  };
+
+  ctas.forEach((cta) => {
+    const source = cta.classList.contains('nav__cta') ? 'nav-cta' : 'hero-cta';
+    cta.addEventListener('mouseenter', () => dispatchWake(true, source));
+    cta.addEventListener('mouseleave', () => dispatchWake(false, source));
+    cta.addEventListener('focus', () => dispatchWake(true, source));
+    cta.addEventListener('blur', () => dispatchWake(false, source));
+    cta.addEventListener('click', () => {
+      dispatchHeroMagicPulse(source, {
+        strength: source === 'nav-cta' ? 0.16 : 0.20,
+        durationMs: source === 'nav-cta' ? 680 : 760,
+      });
+    });
+  });
+}
+
+function initHeroSectionTransitionSignal() {
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+
+  const emitFromScroll = () => {
+    const heroScrollVh = window.scrollY / Math.max(1, window.innerHeight);
+    const progress = (heroScrollVh - 0.12) / 0.18;
+    dispatchHeroSectionTransition(progress);
+  };
+
+  if (typeof ScrollTrigger !== 'undefined') {
+    ScrollTrigger.create({
+      trigger: hero,
+      start: 'top top',
+      end: '32% top',
+      onUpdate: emitFromScroll,
+      onRefresh: emitFromScroll,
+      onLeave: () => dispatchHeroSectionTransition(1),
+      onEnterBack: emitFromScroll,
+    });
+  } else {
+    window.addEventListener('scroll', emitFromScroll, { passive: true });
+  }
+
+  window.addEventListener('resize', emitFromScroll);
+  emitFromScroll();
 }
 
 
@@ -679,9 +813,12 @@ function initPreloader() {
   const preloader = document.getElementById('preloader');
   const bar = document.getElementById('preloaderBar');
   const label = document.getElementById('preloaderLabel');
-  if (!preloader) return;
+  if (!preloader) {
+    dispatchHeroIntroStart();
+    return;
+  }
 
-  // Exposed to three-scene.js for GLB load progress updates
+  // Exposed to src/scene/index.js for GLB load progress updates
   window.__preloaderProgress = (pct) => {
     if (bar) bar.style.width = pct + '%';
     if (label) label.textContent = pct < 100 ? 'Loading assets...' : 'Ready';
@@ -708,10 +845,14 @@ function initPreloader() {
           opacity: 0,
           duration: 0.7,
           ease: 'power2.inOut',
-          onComplete: () => preloader.classList.add('hidden'),
+          onComplete: () => {
+            preloader.classList.add('hidden');
+            dispatchHeroIntroStart();
+          },
         });
       } else {
         preloader.classList.add('hidden');
+        dispatchHeroIntroStart();
       }
     }, 250);
   });
@@ -1101,6 +1242,8 @@ function initContactFormSubmission() {
 function initAll() {
   initCursor();
   initMagneticButtons();
+  initHeroCtaWake();
+  initHeroSectionTransitionSignal();
   initNavHighlight();
   initHeroEntrance();
   initSectionReveals();
@@ -1123,7 +1266,7 @@ function initAll() {
 }
 
 // Preloader must run immediately (before fonts) to register the progress callback
-// so three-scene.js can call window.__preloaderProgress during GLB loading
+// so src/scene/index.js can call window.__preloaderProgress during GLB loading
 initPreloader();
 
 // Use document.fonts.ready for font-aware layout (prevents jump)
