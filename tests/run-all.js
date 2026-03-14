@@ -41,35 +41,47 @@ let previewProc = null;
 let previewStarted = false;
 
 if (PREVIEW_TESTS.length > 0) {
-  previewProc = spawn(npmCommand, ['run', 'preview'], {
-    cwd: root,
-    shell: process.platform === 'win32',
-    stdio: 'pipe',
-  });
+  (async () => {
+    // Kill any stale process on port 4173 before starting preview server
+    spawnSync(
+      process.platform === 'win32' ? 'cmd.exe' : 'sh',
+      process.platform === 'win32'
+        ? ['/c', 'for /f "tokens=5" %a in (\'netstat -aon ^| findstr :4173\') do taskkill /F /PID %a 2>NUL']
+        : ['-c', 'lsof -ti:4173 | xargs kill -9 2>/dev/null || true'],
+      { shell: false, stdio: 'pipe' }
+    );
+    // Wait briefly for port to release
+    await new Promise(r => setTimeout(r, 500));
 
-  // Wait for preview server to be ready
-  const waitForPreview = () => new Promise((resolve) => {
-    const timeout = setTimeout(() => resolve(false), 10000);
-    previewProc.stdout.on('data', (data) => {
-      const str = data.toString();
-      if (str.includes('4173') || str.includes('Local')) {
-        clearTimeout(timeout);
-        resolve(true);
-      }
+    previewProc = spawn(npmCommand, ['run', 'preview'], {
+      cwd: root,
+      shell: process.platform === 'win32',
+      stdio: 'pipe',
     });
-    previewProc.stderr.on('data', (data) => {
-      const str = data.toString();
-      if (str.includes('4173') || str.includes('Local')) {
-        clearTimeout(timeout);
-        resolve(true);
-      }
-    });
-    // Fallback: just wait 3s
-    setTimeout(() => { clearTimeout(timeout); resolve(true); }, 3000);
-  });
 
-  // Run preview-dependent tests
-  waitForPreview().then(() => {
+    // Wait for preview server to be ready
+    const waitForPreview = () => new Promise((resolve) => {
+      const timeout = setTimeout(() => resolve(false), 10000);
+      previewProc.stdout.on('data', (data) => {
+        const str = data.toString();
+        if (str.includes('4173') || str.includes('Local')) {
+          clearTimeout(timeout);
+          resolve(true);
+        }
+      });
+      previewProc.stderr.on('data', (data) => {
+        const str = data.toString();
+        if (str.includes('4173') || str.includes('Local')) {
+          clearTimeout(timeout);
+          resolve(true);
+        }
+      });
+      // Fallback: just wait 8s (allow time for kill+restart cycle on Windows)
+      setTimeout(() => { clearTimeout(timeout); resolve(true); }, 8000);
+    });
+
+    await waitForPreview();
+
     for (const testFile of PREVIEW_TESTS) {
       const fullPath = path.join(__dirname, testFile);
       const result = spawnSync(process.execPath, [fullPath], {
@@ -81,7 +93,7 @@ if (PREVIEW_TESTS.length > 0) {
 
     if (previewProc) previewProc.kill();
     process.exit(failed ? 1 : 0);
-  });
+  })();
 } else {
   process.exit(failed ? 1 : 0);
 }

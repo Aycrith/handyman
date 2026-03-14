@@ -6,6 +6,8 @@ export default defineConfig({
   },
   preview: {
     host: '127.0.0.1',
+    port: 4173,
+    strictPort: true,  // FAIL instead of auto-incrementing — forces the caller to kill the port first
   },
   build: {
     target: 'es2022',
