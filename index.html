@@ -39,6 +39,28 @@
 
 <body>
 
+  <!-- Skip-to-content link (PRD 11 — Accessibility) -->
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <!-- Preloader live region for screen readers -->
+  <div id="preloader-status" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <!-- Ambient CSS particles — mid-page atmospheric depth (PRD 05) -->
+  <div class="ambient-particles" aria-hidden="true">
+    <div class="ambient-particle"></div>
+    <div class="ambient-particle"></div>
+    <div class="ambient-particle"></div>
+    <div class="ambient-particle"></div>
+    <div class="ambient-particle"></div>
+    <div class="ambient-particle"></div>
+    <div class="ambient-particle"></div>
+    <div class="ambient-particle"></div>
+    <div class="ambient-particle"></div>
+    <div class="ambient-particle"></div>
+    <div class="ambient-particle"></div>
+    <div class="ambient-particle"></div>
+  </div>
+
   <!-- ═══════════════════════════════════════════
        GLOBAL OVERLAYS
   ═══════════════════════════════════════════ -->
@@ -104,6 +126,11 @@
     </div>
   </nav>
 
+
+  <!-- ═══════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════ -->
+  <main id="main-content">
 
   <!-- ═══════════════════════════════════════════
        HERO SECTION
@@ -191,11 +218,13 @@
     <div class="services__pin-wrap services__scroll-pin" id="servicesPin">
 
       <div class="container">
-        <header class="section__header reveal">
-          <p class="section__eyebrow">What We Do</p>
-          <h2 class="section__title">Services</h2>
-          <!-- PLACEHOLDER: Optionally replace subtitle -->
-          <p class="section__sub">From quick repairs to complete renovations — skilled work for every job.</p>
+        <header class="section__header section__header--fold reveal">
+          <div class="section-reveal-inner">
+            <p class="section__eyebrow">What We Do</p>
+            <h2 class="section__title">Services</h2>
+            <!-- PLACEHOLDER: Optionally replace subtitle -->
+            <p class="section__sub">From quick repairs to complete renovations — skilled work for every job.</p>
+          </div>
         </header>
       </div>
 
@@ -282,7 +311,7 @@
        RHETORIC SECTION — Confident craft statement
   ═══════════════════════════════════════════ -->
   <section class="rhetoric-section" aria-label="Our commitment">
-    <div class="rhetoric-inner">
+    <div class="rhetoric-inner section-reveal-inner">
       <p class="rhetoric-kicker">Why Springfield keeps calling ProCraft</p>
       <p class="rhetoric-line">We show up.</p>
       <p class="rhetoric-line">We do it right.</p>
@@ -302,10 +331,12 @@
   <section class="section process" id="process" aria-label="How it works">
     <div class="container">
 
-      <header class="section__header reveal">
-        <p class="section__eyebrow">Simple Process</p>
-        <h2 class="section__title">How It Works</h2>
-        <p class="section__sub">Getting your project done is easy. Three steps — that's it.</p>
+      <header class="section__header section__header--fold reveal">
+        <div class="section-reveal-inner">
+          <p class="section__eyebrow">Simple Process</p>
+          <h2 class="section__title">How It Works</h2>
+          <p class="section__sub">Getting your project done is easy. Three steps — that's it.</p>
+        </div>
       </header>
 
       <div class="process__steps">
@@ -359,10 +390,12 @@
   <section class="section gallery" id="gallery" aria-label="Project gallery">
     <div class="container">
 
-      <header class="section__header reveal">
-        <p class="section__eyebrow">Our Work</p>
-        <h2 class="section__title">Recent Projects</h2>
-        <p class="section__sub">A sample of completed work across Springfield and surrounding areas.</p>
+      <header class="section__header section__header--fold reveal">
+        <div class="section-reveal-inner">
+          <p class="section__eyebrow">Our Work</p>
+          <h2 class="section__title">Recent Projects</h2>
+          <p class="section__sub">A sample of completed work across Springfield and surrounding areas.</p>
+        </div>
       </header>
 
       <div class="gallery__grid" role="list">
@@ -800,6 +833,9 @@
 
     </div>
   </section>
+
+
+  </main><!-- /#main-content -->
 
 
   <!-- ═══════════════════════════════════════════

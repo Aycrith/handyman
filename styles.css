@@ -54,8 +54,8 @@
   --shadow-nav:         0 1px 0 var(--color-border), 0 8px 32px rgba(0, 0, 0, 0.5);
 
   /* ── Typography ────────────────────────────────────────── */
-  --font-display:       'Fraunces', Georgia, serif;
-  --font-body:          'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-display:       'Fraunces', 'Fraunces-fallback', Georgia, serif;
+  --font-body:          'DM Sans', 'DM-Sans-fallback', system-ui, -apple-system, sans-serif;
   --font-mono:          'DM Mono', 'Courier New', monospace;
 
   --fluid-hero:         clamp(3.2rem, 8.5vw, 8rem);
@@ -82,6 +82,47 @@
   --radius-md:          12px;
   --radius-lg:          18px;
   --radius-xl:          28px;
+
+  /* ── Motion Grammar ────────────────────────────────────── */
+  --motion-sweep-duration:  0.9s;
+  --motion-stagger-base:    0.055s;
+  --motion-fold-duration:   1.2s;
+
+  /* ── Section Depth Layers ──────────────────────────────── */
+  --section-depth-near:     2;
+  --section-depth-mid:      4;
+  --section-depth-far:      1;
+  --section-particle-density: 0;
+  --section-depth-blur:     0;
+
+  /* ── Background Color Breathing (Gap R5) ───────────────── */
+  --bg-breathe-r:           10;
+  --bg-breathe-g:           10;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   FONT METRIC OVERRIDES — Prevent CLS during font swap
+   size-adjust + metric overrides match actual font metrics
+   so fallback fonts occupy same space as loaded fonts.
+   (Amendment 7 — mantis.works pattern)
+   ═══════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'Fraunces-fallback';
+  src: local('Georgia'), local('Times New Roman');
+  size-adjust: 96.5%;
+  ascent-override: 92%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'DM-Sans-fallback';
+  src: local('Arial'), local('Helvetica Neue');
+  size-adjust: 100.3%;
+  ascent-override: 94%;
+  descent-override: 21%;
 }
 
 
@@ -137,6 +178,18 @@ button {
   cursor: pointer;
 }
 
+/* ── SplitType Overflow Mask Wrapper (Amendment 1) ─────── */
+/* The "stage curtain" — words rise from below this container.
+   overflow:hidden is what hides the word until it rises in.
+   padding-bottom prevents descender clipping (g, p, y, etc.) */
+.split-line-wrap {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.08em;
+  line-height: inherit;
+}
+
 /* Accessible focus rings */
 :focus-visible {
   outline: 2px solid var(--color-amber-light);
@@ -182,6 +235,18 @@ button {
 
 .section + .section {
   border-top: 1px solid var(--color-border);
+}
+
+/* ── Section Reveal Inner — fold-in wrapper (Amendment 2) ── */
+/* Sections using clip-path fold-in (Dragonfly.xyz pattern).
+   clip-path is animated by JS initSectionFolds(). */
+.section-reveal-inner {
+  will-change: clip-path;
+}
+
+/* Header variant — add fold class to .section__header */
+.section__header--fold {
+  will-change: clip-path;
 }
 
 
@@ -2472,6 +2537,28 @@ a.contact-detail:hover { color: var(--color-amber-light); }
   }
 }
 
+/* ── Cursor: mix-blend-mode exclusion (Amendment 5) ────── */
+/* White in exclusion mode inverts dark backgrounds = always visible */
+.cursor__dot {
+  mix-blend-mode: exclusion;
+  background: white !important;
+}
+.cursor__ring {
+  mix-blend-mode: exclusion;
+  border-color: white !important;
+}
+
+/* CTA state: switch to amber (exclusion disabled for visibility) */
+#cursor.cursor--cta .cursor__dot {
+  mix-blend-mode: normal;
+  background: var(--color-amber) !important;
+}
+#cursor.cursor--cta .cursor__ring {
+  mix-blend-mode: normal;
+  border-color: var(--color-amber) !important;
+  box-shadow: 0 0 12px var(--color-amber-glow);
+}
+
 
 /* ═══════════════════════════════════════════════════════════
    SPLIT TEXT — #3 hero title clip wrapper
@@ -2612,4 +2699,344 @@ a.contact-detail:hover { color: var(--color-amber-light); }
   margin-top: 0.5rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   SKELETON CONTENT — Progressive loading shimmer
+   Visible during Stage 1 (before fonts load).
+   ═══════════════════════════════════════════════════════════ */
+
+.skeleton-line {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.10) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: 4px;
+  height: 1em;
+  margin-block: 0.5em;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line { animation: none; background: rgba(255, 255, 255, 0.06); }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   AMBIENT CSS PARTICLES — Mid-page atmospheric depth
+   Pure CSS, no WebGL. 12 particles with varied drift animations.
+   Visibility controlled by --section-particle-density CSS var.
+   (PRD 05 — Environmental FX)
+   ═══════════════════════════════════════════════════════════ */
+
+.ambient-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: var(--section-particle-density, 0);
+  transition: opacity 0.8s ease;
+}
+
+.ambient-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--color-amber);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.ambient-particle:nth-child(1)  { left: 8%;  top: 35%; animation: drift-a 9s 0.0s infinite; }
+.ambient-particle:nth-child(2)  { left: 22%; top: 55%; animation: drift-b 7s 1.2s infinite; }
+.ambient-particle:nth-child(3)  { left: 38%; top: 28%; animation: drift-a 8s 2.4s infinite; }
+.ambient-particle:nth-child(4)  { left: 55%; top: 65%; animation: drift-b 10s 0.6s infinite; }
+.ambient-particle:nth-child(5)  { left: 70%; top: 42%; animation: drift-a 7s 3.0s infinite; }
+.ambient-particle:nth-child(6)  { left: 85%; top: 30%; animation: drift-b 9s 1.8s infinite; }
+.ambient-particle:nth-child(7)  { left: 14%; top: 72%; animation: drift-a 8s 0.9s infinite; }
+.ambient-particle:nth-child(8)  { left: 46%; top: 80%; animation: drift-b 6s 2.1s infinite; }
+.ambient-particle:nth-child(9)  { left: 62%; top: 20%; animation: drift-a 11s 0.3s infinite; }
+.ambient-particle:nth-child(10) { left: 78%; top: 58%; animation: drift-b 8s 1.5s infinite; }
+.ambient-particle:nth-child(11) { left: 32%; top: 90%; animation: drift-a 7s 2.7s infinite; }
+.ambient-particle:nth-child(12) { left: 92%; top: 75%; animation: drift-b 9s 0.0s infinite; }
+
+@keyframes drift-a {
+  0%   { opacity: 0; transform: translate(0, 0); }
+  20%  { opacity: 0.18; }
+  80%  { opacity: 0.12; }
+  100% { opacity: 0; transform: translate(18px, -65px); }
+}
+
+@keyframes drift-b {
+  0%   { opacity: 0; transform: translate(0, 0); }
+  25%  { opacity: 0.14; }
+  75%  { opacity: 0.10; }
+  100% { opacity: 0; transform: translate(-14px, -50px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-particles { display: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   MOTION-DISABLED — Low-end touch devices / Dogstudio pattern
+   All animatable elements jump to final (visible) state.
+   JS adds .motion-disabled to <html> on low-end touch devices.
+   ═══════════════════════════════════════════════════════════ */
+
+.motion-disabled [data-animate],
+.motion-disabled .split-word,
+.motion-disabled .reveal,
+.motion-disabled .split-line-wrap .split-word,
+.motion-disabled .section-reveal-inner,
+.motion-disabled .section__header--fold,
+.motion-disabled .service-card,
+.motion-disabled .gallery-card,
+.motion-disabled .process-step,
+.motion-disabled .testimonial,
+.motion-disabled .pillar {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  clip-path: none !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   ACCESSIBILITY — Skip link + screen-reader utils
+   (PRD 11 — D6)
+   ═══════════════════════════════════════════════════════════ */
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 10000;
+  padding: 0.5rem 1.25rem;
+  background: var(--color-amber);
+  color: #0a0c12;
+  font-weight: 700;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+  outline: 2px solid #0a0c12;
+  outline-offset: 2px;
+}
+
+/* Screen-reader-only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   PHASE C — SECTIONAL VISUAL IDENTITIES
+   Each section is a distinct "room" in the same architectural world.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── C1: Services — Blueprint Workshop ──────────────────── */
+/* Blueprint grid overlay, blue-dim accents, amber on dark blue */
+.services {
+  position: relative;
+}
+
+.services::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(68, 136, 204, 0.04) 0px, transparent 1px, transparent 60px, rgba(68, 136, 204, 0.04) 60px),
+    repeating-linear-gradient(90deg, rgba(68, 136, 204, 0.04) 0px, transparent 1px, transparent 60px, rgba(68, 136, 204, 0.04) 60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.services .service-card {
+  border-color: rgba(68, 136, 204, 0.14);
+}
+
+.services .service-card:hover {
+  border-color: rgba(68, 136, 204, 0.4);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(68, 136, 204, 0.35), 0 0 28px rgba(68, 136, 204, 0.06);
+}
+
+.services .section__eyebrow {
+  color: var(--color-blue);
+}
+
+/* ── C2: Gallery — Evidence Room ────────────────────────── */
+/* Editorial dark tone, monospace labels, amber accent */
+.gallery {
+  background-color: #070a0f;
+}
+
+.gallery .section__eyebrow {
+  font-family: var(--font-mono);
+  letter-spacing: 0.18em;
+  font-size: var(--fluid-xs);
+}
+
+.gallery-card__label {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+}
+
+/* Amber tick prefix on gallery labels */
+.gallery-card__label::before {
+  content: '→ ';
+  color: var(--color-amber-light);
+  font-family: var(--font-mono);
+}
+
+/* High-contrast card edges in evidence room */
+.gallery .gallery-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gallery .gallery-card:hover {
+  border-color: rgba(201, 117, 18, 0.5);
+}
+
+/* ── C3: Process — Precision Workflow ───────────────────── */
+/* Amber circle counters, deliberate breathing room */
+.process {
+  background-color: var(--color-bg);
+}
+
+.process-step__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--color-amber-glow);
+  border: 1px solid rgba(201, 117, 18, 0.35);
+  color: var(--color-amber-light);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.process .section__eyebrow {
+  font-family: var(--font-mono);
+  letter-spacing: 0.15em;
+}
+
+/* ── C4: Rhetoric — Statement Room ──────────────────────── */
+/* Near-fullscreen, large Fraunces, amber-clipped highlight words */
+.rhetoric-section {
+  padding-block: clamp(6rem, 14vw, 12rem);
+}
+
+/* Amber highlight on <em> in rhetoric lines */
+.rhetoric-line em {
+  font-style: normal;
+  background: var(--gradient-amber);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Make rhetoric lines larger for statement room feel */
+.rhetoric-line {
+  font-size: clamp(2rem, 5.5vw, 4.5rem);
+}
+
+/* ── C5: CTA Band — Ember Warmth ────────────────────────── */
+/* Amber radial gradient, warm ember atmosphere */
+.cta-band {
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 50%, rgba(201, 117, 18, 0.16) 0%, rgba(13, 12, 10, 0) 70%),
+    var(--color-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle ember particles in CTA band (CSS pseudo-elements) */
+.cta-band::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(201, 117, 18, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 80% 30%, rgba(251, 191, 36, 0.05) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.cta-band .btn--primary {
+  background: var(--gradient-amber);
+  box-shadow: var(--shadow-btn);
+}
+
+.cta-band .btn--primary:hover {
+  box-shadow: var(--shadow-btn-hover);
+  transform: translateY(-2px);
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE GALLERY — Scroll-snap carousel (PRD 10)
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .gallery__grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    /* Allow horizontal scroll to escape container */
+    margin-inline: calc(-1 * var(--container-pad));
+    padding-inline: var(--container-pad);
+  }
+
+  .gallery-card {
+    flex: 0 0 82vw;
+    max-width: 82vw;
+    scroll-snap-align: center;
+    /* Don't apply tilt on mobile */
+    transform: none !important;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   PERFORMANCE — Canvas pointer-events verification (Amendment 8)
+   Defensive CSS rule to ensure WebGL canvas never captures events
+   ═══════════════════════════════════════════════════════════ */
+
+#three-canvas,
+canvas[data-engine] {
+  pointer-events: none !important;
 }
