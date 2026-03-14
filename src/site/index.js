@@ -292,6 +292,11 @@ function initHeroEntrance() {
     playHeroEntrance();
   } else {
     window.addEventListener('hero:intro-start', playHeroEntrance, { once: true });
+    setTimeout(() => {
+      if (!heroIntroStarted) {
+        playHeroEntrance();
+      }
+    }, 3000); // Hard-cap: if scene never signals, force hero visible
   }
 }
 
@@ -1270,7 +1275,7 @@ function initServicesHScroll() {
 
     const getOverflow = () => Math.max(0, grid.scrollWidth - viewport.clientWidth);
     const getScrollDistance = () => getOverflow() + 120;
-    const maxScrollBudget = Math.min(window.innerHeight, 960);
+    const maxScrollBudget = Math.min(window.innerHeight * 0.5, 480);
     const minOverflowToPin = 520;
 
     if (getOverflow() < minOverflowToPin || getOverflow() > maxScrollBudget) {
