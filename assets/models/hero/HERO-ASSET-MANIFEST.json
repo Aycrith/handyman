@@ -1,0 +1,129 @@
+{
+  "assetSetVersion": "hero-pack-v5",
+  "variant": "final",
+  "contractVersion": "hero-asset-contract-v4",
+  "buildStage": "assembly-orbit-bespoke-pack",
+  "tools": {
+    "hammer": {
+      "file": "hero-claw-hammer.glb",
+      "sha256": "1e617863839d7f816e659b116c1efa0068ad006c434eac8fb1228ab314e68663",
+      "status": "support-runtime",
+      "provenance": "bespoke-authored",
+      "sourceUrl": "workspace://handyman/assets/models/hero/source/hammer.mjs",
+      "license": "Original work - workspace authored",
+      "attribution": "Handyman bespoke precision-workshop hero pack",
+      "processedFrom": "assets/models/hero/source/hammer.mjs",
+      "heroRole": "support",
+      "silhouetteProfile": "precision-forged-claw-hammer",
+      "dimensions": {
+        "width": 1.24,
+        "height": 2.42,
+        "depth": 0.36
+      },
+      "materialTokens": [
+        "blackened_steel",
+        "rubber",
+        "brass"
+      ],
+      "pivotOrigin": {
+        "mode": "authored-origin",
+        "description": "Handle balance point below the head.",
+        "coordinates": [
+          0,
+          0,
+          0
+        ]
+      },
+      "calibration": {
+        "targetSize": 2.2,
+        "originMode": "authored-origin",
+        "compositionRole": "support-silhouette",
+        "supportLightPrivilege": 0.72
+      }
+    },
+    "wrench": {
+      "file": "hero-pipe-wrench.glb",
+      "sha256": "da8b249023c5cbe6041a863f2e8f31fb69b499bfb658a7cea1e9f9e4628be07d",
+      "status": "final-runtime",
+      "provenance": "bespoke-authored",
+      "sourceUrl": "workspace://handyman/assets/models/hero/source/wrench.mjs",
+      "license": "Original work - workspace authored",
+      "attribution": "Handyman bespoke precision-workshop hero pack",
+      "processedFrom": "assets/models/hero/source/wrench.mjs",
+      "heroRole": "primary",
+      "silhouetteProfile": "precision-pipe-wrench-hero",
+      "dimensions": {
+        "width": 1.04,
+        "height": 3.18,
+        "depth": 0.32
+      },
+      "materialTokens": [
+        "steel",
+        "blackened_steel",
+        "rubber",
+        "brass",
+        "ember_core"
+      ],
+      "pivotOrigin": {
+        "mode": "authored-origin",
+        "description": "Handle balance point below the adjustment housing.",
+        "coordinates": [
+          0,
+          0,
+          0
+        ]
+      },
+      "calibration": {
+        "targetSize": 2.2,
+        "originMode": "authored-origin",
+        "compositionRole": "hero-dominant",
+        "heroLightPrivilege": 1,
+        "seamAnchor": [
+          0.14,
+          0.86,
+          0.11
+        ]
+      },
+      "legacySha256": "74ee3569196e0f00493874964fa9f38edf4db3cf43eccfe2d07fbd6d93263aef"
+    },
+    "saw": {
+      "file": "hero-handsaw.glb",
+      "sha256": "332c5f6ac36df1eba4daf5c5add0f905f1bddd5bc2ffa08fa35a656b3676cbe7",
+      "status": "support-runtime",
+      "provenance": "bespoke-authored",
+      "sourceUrl": "workspace://handyman/assets/models/hero/source/handsaw.mjs",
+      "license": "Original work - workspace authored",
+      "attribution": "Handyman bespoke precision-workshop hero pack",
+      "processedFrom": "assets/models/hero/source/handsaw.mjs",
+      "heroRole": "support",
+      "silhouetteProfile": "precision-handsaw-workshop-support",
+      "dimensions": {
+        "width": 2.24,
+        "height": 0.96,
+        "depth": 0.14
+      },
+      "materialTokens": [
+        "steel",
+        "blackened_steel",
+        "rubber",
+        "brass"
+      ],
+      "pivotOrigin": {
+        "mode": "authored-origin",
+        "description": "Grip center for balanced support framing.",
+        "coordinates": [
+          0,
+          0,
+          0
+        ]
+      },
+      "calibration": {
+        "targetSize": 2.04,
+        "originMode": "authored-origin",
+        "compositionRole": "support-silhouette",
+        "supportLightPrivilege": 0.64
+      },
+      "legacySha256": "bae1a152ada190fa13fd1f97107dd06c840eb1e8ccb6ad9949b2d41bfdc43220"
+    }
+  }
+}

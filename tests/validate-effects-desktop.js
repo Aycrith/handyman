@@ -1,13 +1,4 @@
-/**
- * validate-effects-desktop.js — Desktop-forced hero fidelity validation
- *
- * Runs the hero scene with explicit query-param overrides so the desktop
- * scatter pipeline is exercised even in automated environments that would
- * otherwise default to the low tier.
- */
-
 const { chromium } = require('playwright');
-const { PNG } = require('pngjs');
 const fs = require('fs');
 const path = require('path');
 const { startStaticServer } = require('./helpers/static-server');
@@ -16,400 +7,313 @@ const PORT = 8766;
 const ROOT = path.resolve(__dirname, '..');
 const EVIDENCE_DIR = path.resolve(__dirname, 'evidence-desktop');
 const BASE_URL = `http://localhost:${PORT}`;
-const DESKTOP_URL = `${BASE_URL}/?sceneTier=desktop&sceneForceDesktopFX=1&sceneDisablePerfAutoDowngrade=1`;
-const SCENE_CLIP = { x: 120, y: 120, width: 1040, height: 620 };
-const QUIET_CLIP_REGION = { x: 960, y: 80, width: 80, height: 80 };
-const FOCAL_CLIP_REGION = { x: 300, y: 140, width: 460, height: 320 };
-const BURST_CLIP_REGION = { x: 450, y: 200, width: 160, height: 160 };
+const DESKTOP_URL = `${BASE_URL}/?sceneTier=desktop&sceneForceDesktopFX=1`;
+const EXPECTED_ASSET_SET_VERSION = 'hero-pack-v5';
+const EXPECTED_CONTRACT_VERSION = 'hero-asset-contract-v4';
+const EXPECTED_BUILD_STAGE = 'assembly-orbit-bespoke-pack';
 
-const CRITERIA = {
-  D1_MIN_SCATTER_SAMPLES: 180,
-  D2_MIN_IDLE_SCATTER_INTENSITY: 0.05,
-  D3_MIN_FOCAL_RATIO: 1.5,
-  D4_MIN_DRAG_SCATTER_DELTA: 0.025,
-  D5_MIN_RELEASE_SCATTER_DELTA: 0.035,
-  D6_MIN_DRAG_WAKE_BRIGHTNESS_DELTA: 26,
-  D7_MIN_RELEASE_BRIGHTNESS_DELTA: 34,
-  D8_MAX_COPY_ZONE_DENSITY: 0.26,
-  D8_MAX_COPY_SHIELD_OPACITY: 0.28,
-  D8_MAX_COPY_REGION_MEAN: 108,
-  D9_MAX_FRAME_MS_HARDWARE: 18,
-  D9_MAX_POST_MS_HARDWARE: 8,
-};
+function ensureEvidenceDir() {
+  fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
+}
 
 async function getDiagnostics(page) {
   return page.evaluate(() => (typeof window.__sceneDiagnostics === 'function' ? window.__sceneDiagnostics() : null));
 }
 
-async function getToolScreenPosition(page, toolId) {
-  return page.evaluate((id) => {
-    const diag = typeof window.__sceneDiagnostics === 'function' ? window.__sceneDiagnostics() : null;
-    return diag?.toolScreenPositions?.[id] || null;
-  }, toolId);
+async function waitForDesktopScene(page) {
+  await page.waitForFunction(() => document.getElementById('preloader')?.classList.contains('hidden'), { timeout: 15000 });
+  await page.waitForFunction(() => typeof window.__sceneDiagnostics === 'function', { timeout: 15000 });
+  await page.waitForFunction(({ assetSetVersion, contractVersion, buildStage }) => {
+    const diag = window.__sceneDiagnostics?.();
+    return diag
+      && diag.bootHealthy
+      && diag.assetMode === 'hero-primary'
+      && diag.assetSetVersion === assetSetVersion
+      && diag.assetContractVersion === contractVersion
+      && diag.heroAssetBuildStage === buildStage
+      && diag.heroAssetVerificationState === 'final-ready'
+      && diag.toolAssetSource?.hammer === 'hero-glb'
+      && diag.toolAssetSource?.wrench === 'hero-glb'
+      && diag.toolAssetSource?.saw === 'hero-glb';
+  }, {
+    assetSetVersion: EXPECTED_ASSET_SET_VERSION,
+    contractVersion: EXPECTED_CONTRACT_VERSION,
+    buildStage: EXPECTED_BUILD_STAGE,
+  }, {
+    timeout: 15000,
+  });
 }
 
-async function hoverTool(page, toolId) {
-  const pos = await getToolScreenPosition(page, toolId);
-  if (!pos) throw new Error(`Missing screen position for ${toolId}`);
-
-  const offsets = [[0, 0]];
-  for (const radius of [18, 32, 52, 76, 96]) {
-    for (const dx of [-radius, 0, radius]) {
-      for (const dy of [-radius, 0, radius]) {
-        if (dx === 0 && dy === 0) continue;
-        offsets.push([dx, dy]);
-      }
-    }
-  }
-
-  for (const [dx, dy] of offsets) {
-    await page.mouse.move(pos.x + dx, pos.y + dy, { steps: 6 });
-    await page.waitForTimeout(80);
-    const diag = await getDiagnostics(page);
-    if (diag?.hoverTarget === toolId) {
-      return { x: pos.x + dx, y: pos.y + dy };
-    }
-  }
-
-  throw new Error(`Unable to hover ${toolId}`);
+async function setPhase(page, phase) {
+  await page.evaluate((nextPhase) => {
+    window.__setSceneDirectorPhaseForTest?.(nextPhase);
+  }, phase);
+  await page.waitForTimeout(260);
 }
 
-async function resolveToolTarget(page, preferredToolIds) {
-  const ids = Array.isArray(preferredToolIds) ? preferredToolIds : [preferredToolIds];
-  for (const id of ids) {
-    try {
-      const hovered = await hoverTool(page, id);
-      return { toolId: id, ...hovered };
-    } catch {
-      // try next
-    }
-  }
-
-  throw new Error(`Unable to hover any preferred tool: ${ids.join(', ')}`);
+async function capturePhase(page, phase, filename) {
+  await setPhase(page, phase);
+  await page.screenshot({ path: path.join(EVIDENCE_DIR, filename) });
+  return getDiagnostics(page);
 }
 
-async function dragTool(page, preferredToolIds, deltaX = 170, steps = 20) {
-  const target = await resolveToolTarget(page, preferredToolIds);
-  await page.mouse.move(target.x, target.y, { steps: 4 });
-  await page.waitForTimeout(120);
+async function getWrenchCenter(page) {
+  const diag = await getDiagnostics(page);
+  const bounds = diag?.projectedToolBounds?.wrench;
+  if (!bounds || !Number.isFinite(bounds.left) || !Number.isFinite(bounds.right)) {
+    throw new Error('Missing wrench bounds.');
+  }
+  return {
+    x: Math.round((bounds.left + bounds.right) * 0.5),
+    y: Math.round((bounds.top + bounds.bottom) * 0.5),
+  };
+}
+
+async function dragWrench(page) {
+  const point = await getWrenchCenter(page);
+  await page.mouse.move(point.x, point.y, { steps: 6 });
   await page.mouse.down();
-  await page.mouse.move(target.x + deltaX, target.y - 10, { steps });
+  await page.mouse.move(point.x + 150, point.y - 10, { steps: 20 });
   await page.waitForTimeout(180);
-  const diag = await getDiagnostics(page);
   await page.mouse.up();
-  return {
-    ...diag,
-    interactedTool: target.toolId,
-    interactionPoint: { x: target.x, y: target.y },
-  };
+  return point;
 }
 
-async function getBurstPoint(page, viewportSize) {
-  const diag = await getDiagnostics(page);
-  const tools = Object.values(diag?.toolScreenPositions || {});
-  const candidates = [
-    { x: Math.round(viewportSize.width * 0.5), y: Math.round(viewportSize.height * 0.62) },
-    { x: Math.round(viewportSize.width * 0.44), y: Math.round(viewportSize.height * 0.58) },
-    { x: Math.round(viewportSize.width * 0.56), y: Math.round(viewportSize.height * 0.58) },
-    { x: Math.round(viewportSize.width * 0.5), y: Math.round(viewportSize.height * 0.69) },
-  ];
+async function inspectPanelPlacement(page) {
+  return page.evaluate(() => {
+    const panel = document.getElementById('tool-info-panel');
+    const nav = document.querySelector('.nav__inner');
+    const diag = window.__sceneDiagnostics?.();
+    const panelRect = panel?.getBoundingClientRect?.();
+    const navRect = nav?.getBoundingClientRect?.();
+    const readability = diag?.readabilityWindow?.active
+      ? {
+          left: diag.readabilityWindow.left,
+          top: diag.readabilityWindow.top,
+          right: diag.readabilityWindow.left + diag.readabilityWindow.width,
+          bottom: diag.readabilityWindow.top + diag.readabilityWindow.height,
+        }
+      : null;
+    const wrench = diag?.projectedToolBounds?.wrench || null;
+    const overlaps = (a, b) => {
+      if (!a || !b) return false;
+      return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+    };
 
-  const scored = candidates.map((point) => {
-    const nearest = tools.reduce((best, tool) => Math.min(best, Math.hypot(point.x - tool.x, point.y - tool.y)), Infinity);
-    return { point, nearest };
-  }).sort((a, b) => b.nearest - a.nearest);
-
-  return scored[0]?.point || { x: Math.round(viewportSize.width * 0.5), y: Math.round(viewportSize.height * 0.64) };
-}
-
-function decodePng(buffer) {
-  return PNG.sync.read(buffer);
-}
-
-async function captureSceneFrame(page, filename) {
-  const options = { clip: SCENE_CLIP };
-  if (filename) options.path = path.join(EVIDENCE_DIR, filename);
-
-  const buffer = await page.screenshot(options);
-  return {
-    buffer,
-    png: decodePng(buffer),
-  };
-}
-
-async function captureScenePng(page, filename) {
-  const frame = await captureSceneFrame(page, filename);
-  return frame.png;
-}
-
-function percentile(sortedValues, ratio) {
-  if (!sortedValues.length) return 0;
-  const index = Math.min(sortedValues.length - 1, Math.max(0, Math.floor((sortedValues.length - 1) * ratio)));
-  return sortedValues[index];
-}
-
-function regionStats(png, region) {
-  const brightness = [];
-  let brightnessSum = 0;
-  let count = 0;
-  const maxX = Math.min(png.width, region.x + region.width);
-  const maxY = Math.min(png.height, region.y + region.height);
-
-  for (let y = region.y; y < maxY; y += 4) {
-    for (let x = region.x; x < maxX; x += 4) {
-      const idx = (png.width * y + x) * 4;
-      const sum = png.data[idx] + png.data[idx + 1] + png.data[idx + 2];
-      brightness.push(sum);
-      brightnessSum += sum;
-      count++;
-    }
-  }
-
-  brightness.sort((a, b) => a - b);
-  return {
-    meanBrightness: count ? brightnessSum / count : 0,
-    p95Brightness: percentile(brightness, 0.95),
-    p99Brightness: percentile(brightness, 0.99),
-  };
-}
-
-function diffRegionStats(basePng, nextPng, region) {
-  const brightnessDelta = [];
-  let totalBrightnessDelta = 0;
-  let count = 0;
-  const maxX = Math.min(basePng.width, nextPng.width, region.x + region.width);
-  const maxY = Math.min(basePng.height, nextPng.height, region.y + region.height);
-
-  for (let y = region.y; y < maxY; y += 4) {
-    for (let x = region.x; x < maxX; x += 4) {
-      const idx = (basePng.width * y + x) * 4;
-      const baseBrightness = basePng.data[idx] + basePng.data[idx + 1] + basePng.data[idx + 2];
-      const nextBrightness = nextPng.data[idx] + nextPng.data[idx + 1] + nextPng.data[idx + 2];
-      const delta = nextBrightness - baseBrightness;
-      brightnessDelta.push(delta);
-      totalBrightnessDelta += Math.abs(delta);
-      count++;
-    }
-  }
-
-  brightnessDelta.sort((a, b) => a - b);
-  return {
-    meanAbsBrightnessDelta: count ? totalBrightnessDelta / count : 0,
-    p95BrightnessDelta: percentile(brightnessDelta, 0.95),
-    p99BrightnessDelta: percentile(brightnessDelta, 0.99),
-  };
-}
-
-function makeClipRegionFromScreen(screenX, screenY, width, height) {
-  const x = Math.max(0, Math.round(screenX - SCENE_CLIP.x - width / 2));
-  const y = Math.max(0, Math.round(screenY - SCENE_CLIP.y - height / 2));
-  return {
-    x,
-    y,
-    width: Math.max(8, Math.min(SCENE_CLIP.width - x, Math.round(width))),
-    height: Math.max(8, Math.min(SCENE_CLIP.height - y, Math.round(height))),
-  };
-}
-
-function makeCopyCleanRegion(diag) {
-  const windowRect = diag?.readabilityWindow;
-  if (!windowRect?.active) return { x: 700, y: 180, width: 140, height: 160 };
-
-  const width = Math.max(90, Math.min(150, Math.round(windowRect.width * 0.18)));
-  const height = Math.max(90, Math.min(170, Math.round(windowRect.height * 0.26)));
-  const centerX = windowRect.left + windowRect.width * 0.78;
-  const centerY = windowRect.top + windowRect.height * 0.50;
-  return makeClipRegionFromScreen(centerX, centerY, width, height);
+    return {
+      visible: !!panel
+        && panel.style.visibility !== 'hidden'
+        && parseFloat(panel.style.opacity || '0') > 0.5
+        && !!panelRect
+        && panelRect.width > 0
+        && panelRect.height > 0
+        && panelRect.right > 0
+        && panelRect.bottom > 0,
+      panelRect: panelRect
+        ? { left: panelRect.left, top: panelRect.top, right: panelRect.right, bottom: panelRect.bottom, width: panelRect.width, height: panelRect.height }
+        : null,
+      navOverlap: overlaps(panelRect, navRect),
+      readabilityOverlap: overlaps(panelRect, readability),
+      wrenchOverlap: overlaps(panelRect, wrench),
+      wrench,
+      readability,
+    };
+  });
 }
 
 (async () => {
+  ensureEvidenceDir();
+
   console.log('\n╔══════════════════════════════════════════╗');
-  console.log('║   Desktop Hero Fidelity — Playwright    ║');
+  console.log('║ Hero Scene Validation (Desktop Lockup)  ║');
   console.log('╚══════════════════════════════════════════╝\n');
 
-  fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
-
   const server = await startStaticServer(ROOT, PORT);
-  console.log(`[server] Listening on ${BASE_URL}`);
-
   const browser = await chromium.launch({ headless: true });
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-  const page = await ctx.newPage();
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const pageErrors = [];
-  const results = [];
-
-  const record = (test, pass, detail) => {
-    results.push({ test, pass, detail });
-    console.log(`  ${pass ? '✓ PASS' : '✗ FAIL'} ${test}${detail ? ` — ${detail}` : ''}`);
-  };
+  const checks = [];
 
   page.on('pageerror', (error) => {
-    const detail = error.stack || error.message || String(error);
-    pageErrors.push(detail);
-    console.error(`  [pageerror] ${detail}`);
+    pageErrors.push(error.stack || error.message || String(error));
   });
 
+  const record = (name, pass, detail = '') => {
+    checks.push({ name, pass, detail });
+    console.log(`  ${pass ? '✓ PASS' : '✗ FAIL'} ${name}${detail ? ` — ${detail}` : ''}`);
+  };
+
   try {
-    console.log('[init] Loading desktop-forced hero...');
     await page.goto(DESKTOP_URL, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => typeof window.__sceneDiagnostics === 'function', { timeout: 15000 });
-    await page.waitForFunction(() => {
-      const diag = window.__sceneDiagnostics?.();
-      return diag
-        && diag.bootHealthy
-        && diag.activeTier === 'desktop'
-        && diag.featureFlags?.halfResScatterPass === true
-        && diag.desktopScatter?.configured === true;
-    }, { timeout: 20000 });
-    await page.waitForTimeout(2200);
+    await waitForDesktopScene(page);
 
-    const initialDiag = await getDiagnostics(page);
-    record(
-      'Desktop overrides apply',
-      initialDiag?.activeTier === 'desktop'
-        && initialDiag?.queryOverrides?.sceneTier === 'desktop'
-        && initialDiag?.queryOverrides?.forceDesktopFX === true
-        && initialDiag?.queryOverrides?.disablePerfAutoDowngrade === true,
-      `active=${initialDiag?.activeTier ?? 'n/a'} mode=${initialDiag?.desktopScatter?.mode ?? 'n/a'}`
-    );
+    const bootDiag = await getDiagnostics(page);
+    const revealDiag = await capturePhase(page, 'reveal', 'desktop-reveal.png');
+    const staticDiag = await capturePhase(page, 'staticLayout', 'desktop-static-layout.png');
+    const lockupDiag = await capturePhase(page, 'lockup', 'desktop-lockup.png');
+    const idleDiag = await capturePhase(page, 'interactiveIdle', 'desktop-interactive-idle.png');
+    const scrollDiag = await capturePhase(page, 'scrollTransition', 'desktop-scroll-transition.png');
 
+    record('Desktop scene loads without page errors', pageErrors.length === 0, pageErrors[0] || '');
     record(
-      'Scatter pass active on load',
-      !!initialDiag
-        && initialDiag.featureFlags.halfResScatterPass === true
-        && initialDiag.desktopScatter?.configured === true
-        && initialDiag.desktopScatter?.mode === 'desktop-scatter'
-        && initialDiag.desktopScatter?.active === true,
-      `mode=${initialDiag?.desktopScatter?.mode ?? 'n/a'} active=${initialDiag?.desktopScatter?.active ?? 'n/a'}`
-    );
-
-    const idleSamplesPass = !!initialDiag
-      && (initialDiag.visualMetrics?.volumetricScatterSamples ?? 0) >= CRITERIA.D1_MIN_SCATTER_SAMPLES
-      && (initialDiag.visualMetrics?.scatterPassIntensity ?? 0) >= CRITERIA.D2_MIN_IDLE_SCATTER_INTENSITY;
-    record(
-      'Idle scatter density present',
-      idleSamplesPass,
-      `samples=${initialDiag?.visualMetrics?.volumetricScatterSamples ?? 'n/a'} intensity=${initialDiag?.visualMetrics?.scatterPassIntensity ?? 'n/a'}`
-    );
-
-    const idlePng = await captureScenePng(page, 'desktop-idle.png');
-    const copyPng = await captureScenePng(page, 'desktop-copy-clean.png');
-    const idleFocalStats = regionStats(idlePng, FOCAL_CLIP_REGION);
-    const idleQuietStats = regionStats(idlePng, QUIET_CLIP_REGION);
-    const focalRatio = idleFocalStats.p99Brightness / Math.max(1, idleQuietStats.meanBrightness);
-    record(
-      'Idle depth layering',
-      focalRatio > CRITERIA.D3_MIN_FOCAL_RATIO,
-      `${focalRatio.toFixed(2)}×`
-    );
-
-    const dragDiag = await dragTool(page, ['saw', 'hammer', 'wrench'], 170, 20);
-    await page.waitForTimeout(180);
-    const dragPng = await captureScenePng(page, 'desktop-drag-wake.png');
-    const dragRegion = makeClipRegionFromScreen(
-      dragDiag?.interactionPoint?.x || 640,
-      dragDiag?.interactionPoint?.y || 360,
-      220,
-      220
-    );
-    const dragDiff = diffRegionStats(idlePng, dragPng, dragRegion);
-    const dragScatterDelta = (dragDiag?.visualMetrics?.scatterPassIntensity ?? 0) - (initialDiag?.visualMetrics?.scatterPassIntensity ?? 0);
-    record(
-      'Hover/drag scatter rises',
-      dragScatterDelta >= CRITERIA.D4_MIN_DRAG_SCATTER_DELTA,
-      `${dragScatterDelta.toFixed(3)}`
+      'Desktop diagnostics report the bespoke assembly orbit hero pack',
+      bootDiag?.heroAssetBuildStage === EXPECTED_BUILD_STAGE
+        && bootDiag?.assetSetVersion === EXPECTED_ASSET_SET_VERSION
+        && bootDiag?.assetContractVersion === EXPECTED_CONTRACT_VERSION
+        && bootDiag?.heroAssetVerificationState === 'final-ready'
+        && bootDiag?.toolAssetSource?.hammer === 'hero-glb'
+        && bootDiag?.toolAssetSource?.wrench === 'hero-glb'
+        && bootDiag?.toolAssetSource?.saw === 'hero-glb'
+        && typeof bootDiag?.assetLicense === 'string'
+        && bootDiag.assetLicense.length > 0,
+      `assetSet=${bootDiag?.assetSetVersion} contract=${bootDiag?.assetContractVersion} stage=${bootDiag?.heroAssetBuildStage} verify=${bootDiag?.heroAssetVerificationState} sources=${JSON.stringify(bootDiag?.toolAssetSource || {})}`
     );
     record(
-      'Hover/drag wake screenshot gate',
-      dragDiff.p99BrightnessDelta >= CRITERIA.D6_MIN_DRAG_WAKE_BRIGHTNESS_DELTA,
-      `p99Δ=${dragDiff.p99BrightnessDelta.toFixed(2)}`
-    );
-
-    await page.mouse.move(60, 60, { steps: 6 });
-    await page.waitForTimeout(300);
-    const burstPoint = await getBurstPoint(page, page.viewportSize());
-    await page.mouse.click(burstPoint.x, burstPoint.y);
-    let releaseElapsedMs = 0;
-    const releaseCandidates = [];
-    for (const stepMs of [120, 80, 80, 80, 80, 120]) {
-      await page.waitForTimeout(stepMs);
-      releaseElapsedMs += stepMs;
-      const frame = await captureSceneFrame(page);
-      const diag = await getDiagnostics(page);
-      releaseCandidates.push({
-        label: `${releaseElapsedMs}ms`,
-        frame,
-        diag,
-        diff: diffRegionStats(idlePng, frame.png, BURST_CLIP_REGION),
-      });
-    }
-    const releaseCandidate = releaseCandidates.reduce((best, candidate) => (
-      candidate.diff.p99BrightnessDelta > best.diff.p99BrightnessDelta ? candidate : best
-    ));
-    fs.writeFileSync(path.join(EVIDENCE_DIR, 'desktop-release-lift.png'), releaseCandidate.frame.buffer);
-    const releaseDiag = releaseCandidate.diag;
-    const releaseDiff = releaseCandidate.diff;
-    const releaseScatterDelta = (releaseDiag?.visualMetrics?.scatterPassIntensity ?? 0) - (initialDiag?.visualMetrics?.scatterPassIntensity ?? 0);
-    record(
-      'Release scatter rises',
-      releaseScatterDelta >= CRITERIA.D5_MIN_RELEASE_SCATTER_DELTA,
-      `${releaseScatterDelta.toFixed(3)}`
+      'Desktop post stack stays bloom-first with optional scatter configuration',
+      bootDiag?.desktopScatter?.configured === true
+        && ['disabled', 'desktop-base', 'desktop-scatter'].includes(bootDiag?.desktopScatter?.mode),
+      `configured=${bootDiag?.desktopScatter?.configured} mode=${bootDiag?.desktopScatter?.mode} authority=${bootDiag?.perfAuthority}`
     );
     record(
-      'Release atmospheric lift screenshot gate',
-      releaseDiff.p99BrightnessDelta >= CRITERIA.D7_MIN_RELEASE_BRIGHTNESS_DELTA,
-      `p99Δ=${releaseDiff.p99BrightnessDelta.toFixed(2)} @${releaseCandidate.label}`
+      'Desktop diagnostics expose material, environment, interaction, and post cues',
+      typeof bootDiag?.materialProfile === 'string'
+        && typeof bootDiag?.environmentCue === 'string'
+        && typeof idleDiag?.interactionCue === 'string'
+        && typeof idleDiag?.postFxMode === 'string',
+      `material=${bootDiag?.materialProfile} env=${bootDiag?.environmentCue} interaction=${idleDiag?.interactionCue} post=${idleDiag?.postFxMode}`
+    );
+    record(
+      'Desktop lockup resolves to the dedicated desktop preset',
+      staticDiag?.orbitLayout?.key === 'desktop' && staticDiag?.compositionMode === 'stillLifeDesktop',
+      `layout=${staticDiag?.orbitLayout?.key} composition=${staticDiag?.compositionMode}`
+    );
+    record(
+      'Desktop wrench fills the authored hero height and framing margins',
+      (staticDiag?.heroViewportHeightRatio ?? 0) >= 0.58
+        && (staticDiag?.heroViewportHeightRatio ?? 0) <= 0.65
+        && (staticDiag?.heroViewportAreaRatio ?? 0) >= 0.17
+        && (staticDiag?.heroViewportAreaRatio ?? 0) <= 0.21
+        && (staticDiag?.heroClearancePx?.top ?? 0) >= 63
+        && (staticDiag?.heroClearancePx?.right ?? 0) >= 86
+        && (staticDiag?.heroClearancePx?.bottom ?? 0) >= 99
+        && (staticDiag?.heroHeadlineOverlapRatio ?? 0) >= 0.05
+          && (staticDiag?.heroHeadlineOverlapRatio ?? 0) <= 0.12
+        && (staticDiag?.heroArtLaneOccupancy ?? 0) >= 0.29
+        && (staticDiag?.heroArtLaneOccupancy ?? 0) <= 0.35
+        && (staticDiag?.heroRightThirdOffsetPx ?? 0) >= -48
+        && (staticDiag?.heroRightThirdOffsetPx ?? 0) <= -22,
+      `ratio=${staticDiag?.heroViewportHeightRatio} area=${staticDiag?.heroViewportAreaRatio} overlap=${staticDiag?.heroHeadlineOverlapRatio} artLane=${staticDiag?.heroArtLaneOccupancy} offset=${staticDiag?.heroRightThirdOffsetPx} clearance=${JSON.stringify(staticDiag?.heroClearancePx || {})}`
+    );
+    record(
+      'Reveal-to-lockup phases keep strong hero and world separation',
+      (revealDiag?.heroReadMetrics?.focalContrast ?? 0) >= 6
+        && (lockupDiag?.heroReadMetrics?.focalContrast ?? 0) >= 3.8
+        && (lockupDiag?.worldReadMetrics?.backgroundSeparation ?? 0) >= 0.18
+        && (scrollDiag?.worldReadMetrics?.copyContamination ?? 1) <= 0.24,
+      `reveal=${revealDiag?.heroReadMetrics?.focalContrast ?? 'n/a'} lockup=${lockupDiag?.heroReadMetrics?.focalContrast ?? 'n/a'} separation=${lockupDiag?.worldReadMetrics?.backgroundSeparation ?? 'n/a'} contamination=${scrollDiag?.worldReadMetrics?.copyContamination ?? 'n/a'}`
+    );
+    record(
+      'Desktop staging elements stay inside the authored hero lane',
+      (staticDiag?.heroBacklightCoverage ?? 0) >= 0.95
+        && (staticDiag?.heroShadowCoverage ?? 0) >= 0.95,
+      `backlight=${staticDiag?.heroBacklightCoverage ?? 'n/a'} shadow=${staticDiag?.heroShadowCoverage ?? 'n/a'}`
     );
 
-    const copyRegion = makeCopyCleanRegion(initialDiag);
-    const copyStats = regionStats(copyPng, copyRegion);
-    const copyPass = !!initialDiag
-      && (initialDiag.visualMetrics?.densityInCopyZone ?? 1) <= CRITERIA.D8_MAX_COPY_ZONE_DENSITY
-      && (initialDiag.visualMetrics?.copyShieldOpacity ?? 1) <= CRITERIA.D8_MAX_COPY_SHIELD_OPACITY
-      && copyStats.meanBrightness <= CRITERIA.D8_MAX_COPY_REGION_MEAN;
     record(
-      'Copy corridor cleanliness',
-      copyPass,
-      `density=${initialDiag?.visualMetrics?.densityInCopyZone ?? 'n/a'} shield=${initialDiag?.visualMetrics?.copyShieldOpacity ?? 'n/a'} mean=${copyStats.meanBrightness.toFixed(1)}`
+      'Lockup keeps the desktop hero wrench-only with no support clutter',
+      (lockupDiag?.supportVisibleCount ?? 99) === 0
+        && lockupDiag?.mobileSupportState?.hammer !== 'visible'
+        && lockupDiag?.mobileSupportState?.saw !== 'visible',
+      `support=${JSON.stringify(lockupDiag?.supportPolicy || lockupDiag?.mobileSupportState || {})} visible=${lockupDiag?.supportVisibleCount ?? 'n/a'}`
     );
 
-    const representativeHardware = !initialDiag?.environment?.lowEndGpu;
-    const perfPass = !representativeHardware || (
-      (initialDiag?.avgFrameMs ?? Number.POSITIVE_INFINITY) <= CRITERIA.D9_MAX_FRAME_MS_HARDWARE
-      && (initialDiag?.avgPostMs ?? Number.POSITIVE_INFINITY) <= CRITERIA.D9_MAX_POST_MS_HARDWARE
-    );
     record(
-      'Desktop performance target',
+      'Interactive idle preserves safe zones and clean hero framing',
+      !Object.values(idleDiag?.safeZoneViolations?.nav || {}).some(Boolean)
+        && !Object.values(idleDiag?.safeZoneViolations?.viewport || {}).some(Boolean)
+        && idleDiag?.safeZoneViolations?.readability?.wrench === false
+        && idleDiag?.ctaLaneIntrusions?.wrench === false
+        && (idleDiag?.heroReadMetrics?.focalContrast ?? 0) >= 4.2
+        && (idleDiag?.particleStrokeCrossings?.headlineZone ?? 1) === 0
+        && (idleDiag?.particleStrokeCrossings?.bodyZone ?? 1) === 0
+        && (idleDiag?.particleStrokeCrossings?.ctaZone ?? 1) === 0
+        && (idleDiag?.particleLongStrokeCount ?? 1) === 0
+        && (idleDiag?.particleRodCount ?? 1) === 0
+        && (idleDiag?.particleOutOfHeroLaneCount ?? 1) === 0
+        && (idleDiag?.gridLuminanceUnderCopy ?? 1) <= 0.16,
+      `safe=${JSON.stringify(idleDiag?.safeZoneViolations || {})} cta=${JSON.stringify(idleDiag?.ctaLaneIntrusions || {})} focal=${idleDiag?.heroReadMetrics?.focalContrast} particles=${JSON.stringify(idleDiag?.particleStrokeCrossings || {})} long=${idleDiag?.particleLongStrokeCount} rod=${idleDiag?.particleRodCount} out=${idleDiag?.particleOutOfHeroLaneCount} grid=${idleDiag?.gridLuminanceUnderCopy}`
+    );
+
+    record(
+      'Interactive idle keeps support props intentionally absent',
+      (idleDiag?.supportVisibleCount ?? 99) === 0
+        && idleDiag?.mobileSupportState?.hammer !== 'visible'
+        && idleDiag?.mobileSupportState?.saw !== 'visible',
+      `support=${JSON.stringify(idleDiag?.supportPolicy || idleDiag?.mobileSupportState || {})} visible=${idleDiag?.supportVisibleCount ?? 'n/a'}`
+    );
+
+    await setPhase(page, 'interactiveIdle');
+    const dragPoint = await dragWrench(page);
+    await page.waitForTimeout(420);
+    const dragDiag = await getDiagnostics(page);
+    record(
+      'Dragging the wrench produces localized hero response',
+      (dragDiag?.toolInfluenceState?.wrench ?? 0) >= 0.14
+        && (dragDiag?.releaseEnvelope ?? 0) >= 0.03
+        && typeof dragDiag?.interactionCue === 'string',
+      `wrench=${dragDiag?.toolInfluenceState?.wrench ?? 'n/a'} release=${dragDiag?.releaseEnvelope ?? 'n/a'} interaction=${dragDiag?.interactionCue ?? 'n/a'} @ ${dragPoint.x},${dragPoint.y}`
+    );
+
+    await page.evaluate(() => window.__openToolPanelForTest?.('wrench'));
+    await page.waitForTimeout(220);
+    const panelState = await inspectPanelPlacement(page);
+    record(
+      'Anchored callout avoids the nav and active object',
+      panelState.visible === true
+        && panelState.navOverlap === false
+        && panelState.wrenchOverlap === false,
+      JSON.stringify(panelState)
+    );
+
+    await page.waitForTimeout(3600);
+    const perfDiag = await getDiagnostics(page);
+    const perfPass = perfDiag?.perfAuthority !== 'local-hardware'
+      || (
+        (perfDiag?.avgFrameMs ?? Number.POSITIVE_INFINITY) <= 19
+        && (perfDiag?.approxFps ?? 0) >= 58
+      );
+    record(
+      'Performance reporting respects local-hardware versus software-ci authority',
       perfPass,
-      representativeHardware
-        ? `frame=${initialDiag?.avgFrameMs ?? 'n/a'}ms post=${initialDiag?.avgPostMs ?? 'n/a'}ms`
-        : `software/low-end renderer; observed frame=${initialDiag?.avgFrameMs ?? 'n/a'}ms post=${initialDiag?.avgPostMs ?? 'n/a'}ms`
+      perfDiag?.perfAuthority === 'local-hardware'
+        ? `fps=${perfDiag?.approxFps ?? 'n/a'} frame=${perfDiag?.avgFrameMs ?? 'n/a'} post=${perfDiag?.avgPostMs ?? 'n/a'}`
+        : `informational ${perfDiag?.perfAuthority} fps=${perfDiag?.approxFps ?? 'n/a'} frame=${perfDiag?.avgFrameMs ?? 'n/a'} post=${perfDiag?.avgPostMs ?? 'n/a'}`
     );
 
-    record(
-      'No page errors',
-      pageErrors.length === 0,
-      pageErrors[0] || ''
-    );
+    const snapshot = await page.evaluate(() => window.__captureSceneSnapshot?.('validate-effects-desktop'));
+    fs.writeFileSync(path.join(EVIDENCE_DIR, 'results.json'), JSON.stringify({
+      generatedAt: new Date().toISOString(),
+      bootDiag,
+      revealDiag,
+      staticDiag,
+      lockupDiag,
+      idleDiag,
+      scrollDiag,
+      dragDiag,
+      panelState,
+      perfDiag,
+      snapshot,
+      checks,
+    }, null, 2));
 
-    const failed = results.some((result) => !result.pass);
-    fs.writeFileSync(
-      path.join(EVIDENCE_DIR, 'results.json'),
-      JSON.stringify({
-        url: DESKTOP_URL,
-        generatedAt: new Date().toISOString(),
-        results,
-      }, null, 2)
-    );
-
-    console.log('\n  Evidence PNGs saved to: tests/evidence-desktop/');
-    console.log(`\n  Overall: ${failed ? '✗ Desktop fidelity checks FAILED' : '✓ Desktop fidelity checks passed'}`);
-    process.exitCode = failed ? 1 : 0;
+    if (checks.some((check) => !check.pass)) {
+      process.exitCode = 1;
+    }
   } catch (error) {
-    console.error(`\n  ✗ FAIL ${error.stack || error.message || String(error)}`);
+    console.error(error);
     process.exitCode = 1;
   } finally {
     await browser.close();
-    await new Promise((resolve) => server.close(resolve));
+    await server.close();
   }
 })();

@@ -24,9 +24,6 @@
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css">
 
-  <!-- SplitType — character/word level text splitting for reveals -->
-  <script src="https://unpkg.com/split-type@0.3.4/umd/index.min.js"></script>
-
   <!-- Hidden SVG noise filter (referenced by CSS) -->
   <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute">
     <defs>
@@ -934,21 +931,7 @@
   <!-- ═══════════════════════════════════════════
        SCRIPTS
   ═══════════════════════════════════════════ -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-  <!-- EffectComposer post-processing chain (must match r134 version) -->
-  <script src="https://unpkg.com/three@0.134.0/examples/js/postprocessing/EffectComposer.js"></script>
-  <script src="https://unpkg.com/three@0.134.0/examples/js/postprocessing/RenderPass.js"></script>
-  <script src="https://unpkg.com/three@0.134.0/examples/js/postprocessing/ShaderPass.js"></script>
-  <script src="https://unpkg.com/three@0.134.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-  <script src="https://unpkg.com/three@0.134.0/examples/js/shaders/CopyShader.js"></script>
-  <script src="https://unpkg.com/three@0.134.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-  <script src="https://unpkg.com/three@0.134.0/examples/js/libs/meshopt_decoder.js"></script>
-  <script src="https://unpkg.com/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
-  <script src="three-scene.js"></script>
-  <script src="main.js"></script>
+  <script type="module" src="/src/main.js"></script>
 
 </body>
 </html>

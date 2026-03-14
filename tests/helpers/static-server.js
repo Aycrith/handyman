@@ -1,48 +1,94 @@
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
+const { spawn, spawnSync } = require('child_process');
 
-function startStaticServer(rootPath, port) {
-  return new Promise((resolve) => {
-    const root = path.resolve(rootPath);
+const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
-    const server = http.createServer((req, res) => {
-      const requestUrl = new URL(req.url, 'http://localhost');
-      const relativePath = requestUrl.pathname === '/' ? 'index.html' : `.${requestUrl.pathname}`;
-      const filePath = path.resolve(root, relativePath);
+function ensureBuild(root) {
+  const result = spawnSync(npmCommand, ['run', 'build'], {
+    cwd: root,
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  });
 
-      if (!filePath.startsWith(root)) {
-        res.writeHead(403);
-        res.end('Forbidden');
-        return;
-      }
+  if (result.status !== 0) {
+    throw new Error('Failed to build the Vite app before preview.');
+  }
+}
 
-      fs.readFile(filePath, (err, data) => {
-        if (err) {
-          res.writeHead(404);
-          res.end('Not found');
+function waitForServer(url, timeoutMs = 20000) {
+  const startedAt = Date.now();
+
+  return new Promise((resolve, reject) => {
+    const attempt = () => {
+      const req = http.get(url, (res) => {
+        res.resume();
+        resolve();
+      });
+
+      req.on('error', () => {
+        if (Date.now() - startedAt > timeoutMs) {
+          reject(new Error(`Timed out waiting for preview server at ${url}`));
           return;
         }
-
-        const ext = path.extname(filePath).toLowerCase();
-        const mime = {
-          '.css': 'text/css',
-          '.glb': 'model/gltf-binary',
-          '.gltf': 'model/gltf+json',
-          '.html': 'text/html',
-          '.jpg': 'image/jpeg',
-          '.js': 'application/javascript',
-          '.json': 'application/json',
-          '.png': 'image/png',
-          '.svg': 'image/svg+xml',
-        }[ext] || 'application/octet-stream';
-
-        res.writeHead(200, { 'Content-Type': mime });
-        res.end(data);
+        setTimeout(attempt, 200);
       });
+    };
+
+    attempt();
+  });
+}
+
+function startStaticServer(rootPath, port) {
+  const root = path.resolve(rootPath);
+  ensureBuild(root);
+
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      npmCommand,
+      ['run', 'preview', '--', '--host', '127.0.0.1', '--port', String(port), '--strictPort'],
+      {
+        cwd: root,
+        stdio: ['ignore', 'pipe', 'pipe'],
+        shell: process.platform === 'win32',
+      }
+    );
+
+    let settled = false;
+    const output = [];
+    const record = (chunk) => {
+      const text = chunk.toString();
+      output.push(text);
+      if (output.length > 20) output.shift();
+    };
+
+    child.stdout.on('data', record);
+    child.stderr.on('data', record);
+
+    child.once('exit', (code) => {
+      if (settled) return;
+      settled = true;
+      reject(new Error(`Vite preview exited early with code ${code}\n${output.join('')}`));
     });
 
-    server.listen(port, () => resolve(server));
+    waitForServer(`http://127.0.0.1:${port}/`)
+      .then(() => {
+        if (settled) return;
+        settled = true;
+        resolve({
+          close: () => new Promise((closeResolve) => {
+            child.once('exit', () => closeResolve());
+            child.kill();
+          }),
+        });
+      })
+      .catch((error) => {
+        if (settled) return;
+        settled = true;
+        child.kill();
+        reject(error);
+      });
   });
 }
 
