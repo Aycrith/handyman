@@ -2921,6 +2921,28 @@ a.contact-detail:hover { color: var(--color-amber-light); }
   font-family: var(--font-mono);
 }
 
+/* Amber ✦ tick icon in overlay */
+.gallery-card__tick {
+  color: var(--color-amber);
+  font-size: 0.75rem;
+  margin-bottom: 0.15rem;
+  display: block;
+  line-height: 1;
+}
+
+/* Amber diagonal corner badge (top-right triangle) */
+.gallery-card__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 48px 48px 0;
+  border-color: transparent var(--color-amber) transparent transparent;
+  z-index: 2;
+}
+
 /* High-contrast card edges in evidence room */
 .gallery .gallery-card {
   border: 1px solid rgba(255, 255, 255, 0.12);
