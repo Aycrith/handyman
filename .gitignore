@@ -27,3 +27,6 @@ tests/evidence/results.json
 tests/evidence/*.png
 artifacts/
 /debug-*.png
+
+# Git worktrees
+.worktrees/
