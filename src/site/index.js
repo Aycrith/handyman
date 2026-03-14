@@ -22,6 +22,12 @@ const $$ = (selector, ctx = document) => [...ctx.querySelectorAll(selector)];
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+const IS_TOUCH = window.matchMedia('(pointer: coarse)').matches;
+const IS_LOW_END_TOUCH = IS_TOUCH && navigator.hardwareConcurrency <= 2;
+const SHOULD_DISABLE_MOTION =
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+  IS_LOW_END_TOUCH;
+
 /* Set footer year */
 const yearEl = $('#currentYear');
 if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -80,12 +86,13 @@ function initLenis() {
   if (typeof Lenis === 'undefined') return;
 
   lenis = new Lenis({
-    duration: 1.15,
+    duration: 1.2,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     orientation: 'vertical',
     gestureOrientation: 'vertical',
     smoothWheel: !prefersReducedMotion,
-    touchMultiplier: 1.8,
+    smoothTouch: false,      // native touch scroll (Mantis pattern)
+    touchMultiplier: 2,      // was 1.8
   });
 
   // Connect Lenis to GSAP ticker for frame-perfect sync
@@ -129,6 +136,22 @@ if (lenis) {
   const setWarmth = gsap.quickSetter(document.documentElement, '--scene-warmth', '');
   lenis.on('scroll', ({ progress }) => {
     setWarmth(progress.toFixed(3));
+
+    // Scroll-position color breathing (Gap R5 — nohero.studio pattern)
+    const bgStopsR = [10, 12, 10, 10, 14];
+    const bgStopsG = [10, 11, 10, 10, 11];
+    const rawIdx = Math.min(progress * 4, 3.99);
+    const lo = Math.floor(rawIdx);
+    const t = rawIdx - lo;
+    const bgR = bgStopsR[lo] + (bgStopsR[lo + 1] - bgStopsR[lo]) * t;
+    const bgG = bgStopsG[lo] + (bgStopsG[lo + 1] - bgStopsG[lo]) * t;
+    document.documentElement.style.setProperty('--bg-breathe-r', bgR.toFixed(1));
+    document.documentElement.style.setProperty('--bg-breathe-g', bgG.toFixed(1));
+
+    // Particle density driven by scroll position
+    const particleDensity = progress < 0.3 ? 0 : Math.min(1, (progress - 0.3) / 0.4);
+    document.documentElement.style.setProperty('--section-particle-density', particleDensity.toFixed(3));
+
     ScrollTrigger.update();
   });
 }
@@ -348,6 +371,145 @@ if (scrollCue && !prefersReducedMotion) {
 
 
 /* ─────────────────────────────────────────────────────────
+   MOTION GRAMMAR SYSTEM
+   4 canonical motion modes + section-fold mode.
+   All section reveals must go through motionMode() dispatcher.
+   Implements overflow:hidden mask technique (Amendment 1):
+   words rise from below a clipping parent — NOT opacity fades.
+───────────────────────────────────────────────────────── */
+
+/**
+ * Wraps each .split-word in a .split-line-wrap span (overflow:hidden mask).
+ * Uses DOM manipulation (not innerHTML) to preserve aria-label.
+ * The "stage curtain" — word is below it, rises through into view.
+ */
+function wrapSplitWords(container) {
+  const words = $$('.split-word', container);
+  words.forEach(word => {
+    if (word.parentElement?.classList.contains('split-line-wrap')) return;
+    const wrap = document.createElement('span');
+    wrap.className = 'split-line-wrap';
+    word.parentNode.insertBefore(wrap, word);
+    wrap.appendChild(word);
+  });
+}
+
+/**
+ * cinematic-sweep: words rise through overflow:hidden mask.
+ * NO opacity — the mask provides invisibility. This is the
+ * "printing press" emergence seen on sr-seventy.one, Dragonfly.
+ */
+function cinematicSweep(els, opts = {}) {
+  if (prefersReducedMotion) {
+    gsap.set(els, { y: '0%' });
+    return;
+  }
+  gsap.set(els, { y: '110%' });
+  return gsap.to(els, {
+    y: '0%',
+    duration: opts.duration || 0.9,
+    ease: opts.ease || 'power3.out',
+    stagger: opts.stagger || 0.055,
+    ...opts.tweenOpts,
+  });
+}
+
+/**
+ * precision-stagger: cards/elements enter with opacity + scale.
+ * For lists, cards, grid items — controlled, deliberate.
+ */
+function precisionStagger(els, opts = {}) {
+  if (prefersReducedMotion) {
+    gsap.set(els, { opacity: 1, y: 0, scale: 1 });
+    return;
+  }
+  gsap.set(els, { opacity: 0, y: opts.y ?? 28, scale: opts.scale ?? 0.97 });
+  return gsap.to(els, {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    duration: opts.duration || 0.75,
+    ease: opts.ease || 'expo.out',
+    stagger: opts.stagger || 0.08,
+    ...opts.tweenOpts,
+  });
+}
+
+/**
+ * velocity-scrub: scroll-scrubbed parallax motion.
+ * Position tied directly to scroll progress.
+ */
+function velocityScrub(el, opts = {}) {
+  if (prefersReducedMotion) return;
+  return gsap.to(el, {
+    y: opts.y || -60,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: opts.trigger || el,
+      start: opts.start || 'top bottom',
+      end: opts.end || 'bottom top',
+      scrub: opts.scrub || 1.2,
+    },
+  });
+}
+
+/**
+ * ambient-drift: slow float for background elements, CSS particles.
+ * No scroll trigger — continuous motion.
+ */
+function ambientDrift(el, opts = {}) {
+  if (prefersReducedMotion) return;
+  return gsap.to(el, {
+    y: opts.y || -20,
+    duration: opts.duration || (4 + Math.random() * 2),
+    yoyo: true,
+    repeat: -1,
+    ease: 'sine.inOut',
+    delay: opts.delay || Math.random() * 2,
+  });
+}
+
+/**
+ * section-fold: clip-path collapses from center outward on entry.
+ * The Dragonfly.xyz "fold open" technique — applies to section containers.
+ */
+function sectionFold(el, opts = {}) {
+  if (prefersReducedMotion) {
+    gsap.set(el, { clipPath: 'inset(0% 0% 0% 0%)' });
+    return;
+  }
+  gsap.set(el, { clipPath: 'inset(8% 0% 8% 0%)' });
+  return ScrollTrigger.create({
+    trigger: el,
+    start: opts.start || 'top 80%',
+    once: true,
+    onEnter() {
+      gsap.to(el, {
+        clipPath: 'inset(0% 0% 0% 0%)',
+        duration: opts.duration || 1.2,
+        ease: opts.ease || 'expo.out',
+      });
+    },
+  });
+}
+
+/**
+ * motionMode() — dispatch to canonical reveal mode.
+ */
+function motionMode(els, mode, opts = {}) {
+  switch (mode) {
+    case 'cinematic-sweep':   return cinematicSweep(els, opts);
+    case 'precision-stagger': return precisionStagger(els, opts);
+    case 'velocity-scrub':    return velocityScrub(els, opts);
+    case 'ambient-drift':     return ambientDrift(els, opts);
+    case 'section-fold':      return sectionFold(els, opts);
+    default:
+      console.warn('[motionMode] Unknown mode:', mode);
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────
    SECTION REVEALS
    Generic .reveal elements fade+slide in on scroll
 ───────────────────────────────────────────────────────── */
@@ -392,24 +554,25 @@ function initServiceCards() {
     return;
   }
 
-  // Stagger them in batches of columns
+  // precision-stagger: cards enter with perspective-flip (B1)
   cards.forEach((card, i) => {
-    gsap.fromTo(card,
-      { opacity: 0, y: 52 },
-      {
-        opacity: 1, y: 0,
-        duration: 0.75,
-        delay: (i % 3) * 0.08,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '.services__grid',
-          start: 'top 82%',
-          toggleActions: 'play none none none',
-          once: true,
-          invalidateOnRefresh: true,
-        },
-      }
-    );
+    gsap.set(card, { opacity: 0, y: 40, rotateX: -8, transformPerspective: 1200 });
+    gsap.to(card, {
+      opacity: 1,
+      y: 0,
+      rotateX: 0,
+      duration: 0.75,
+      delay: (i % 3) * 0.09 + Math.floor(i / 3) * 0.06,
+      ease: 'power3.out',
+      clearProps: 'rotateX,transformPerspective',
+      scrollTrigger: {
+        trigger: '.services__grid',
+        start: 'top 82%',
+        toggleActions: 'play none none none',
+        once: true,
+        invalidateOnRefresh: true,
+      },
+    });
   });
 }
 
@@ -534,6 +697,62 @@ function initCtaBand() {
       },
     }
   );
+}
+
+
+/* ─────────────────────────────────────────────────────────
+   SECTION TITLE REVEAL — OVERFLOW MASK TECHNIQUE
+   Replaces all per-section title reveals.
+   Words rise from below overflow:hidden parent (Amendment 1).
+───────────────────────────────────────────────────────── */
+
+function initSectionTitleReveal(selectorOrEls, opts = {}) {
+  if (prefersReducedMotion || typeof SplitType === 'undefined') {
+    // Fall through to static state — all elements visible
+    const targets = typeof selectorOrEls === 'string'
+      ? $$(selectorOrEls)
+      : Array.isArray(selectorOrEls) ? selectorOrEls : [selectorOrEls];
+    targets.forEach(el => gsap.set(el, { opacity: 1 }));
+    return;
+  }
+
+  const targets = typeof selectorOrEls === 'string'
+    ? $$(selectorOrEls)
+    : Array.isArray(selectorOrEls) ? selectorOrEls : [selectorOrEls];
+
+  targets.forEach(el => {
+    // 1. Preserve aria-label BEFORE split (accessibility)
+    if (!el.getAttribute('aria-label')) {
+      el.setAttribute('aria-label', el.textContent.trim());
+    }
+
+    // 2. SplitType word-level split
+    const split = new SplitType(el, { types: 'words' });
+    if (!split.words?.length) return;
+
+    // 3. Wrap each word in overflow:hidden mask (DOM manipulation)
+    wrapSplitWords(el);
+
+    // 4. Position words below the mask (hidden by overflow:hidden)
+    gsap.set(split.words, { y: '110%' });
+
+    // 5. Animate on scroll entry — words rise through the curtain
+    ScrollTrigger.create({
+      trigger: el,
+      start: opts.start || 'top 88%',
+      once: true,
+      invalidateOnRefresh: true,
+      onEnter() {
+        gsap.to(split.words, {
+          y: '0%',
+          duration: opts.duration || 0.9,
+          ease: opts.ease || 'power3.out',
+          stagger: opts.stagger || 0.055,
+          clearProps: 'transform',
+        });
+      },
+    });
+  });
 }
 
 
@@ -682,22 +901,25 @@ function initGallery() {
   if (!cards.length || prefersReducedMotion) return;
 
   cards.forEach((card, i) => {
-    gsap.fromTo(card,
-      { opacity: 0, y: 36, scale: 0.97 },
-      {
-        opacity: 1, y: 0, scale: 1,
-        duration: 0.7,
-        delay: (i % 3) * 0.1,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '.gallery__grid',
-          start: 'top 82%',
-          toggleActions: 'play none none none',
-          once: true,
-          invalidateOnRefresh: true,
-        },
-      }
-    );
+    const col = i % 3;
+    const row = Math.floor(i / 3);
+    gsap.set(card, { opacity: 0, y: 36, scale: 0.97 });
+    gsap.to(card, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.7,
+      delay: col * 0.08 + row * 0.05,
+      ease: 'expo.out',
+      clearProps: 'scale',
+      scrollTrigger: {
+        trigger: '.gallery__grid',
+        start: 'top 82%',
+        toggleActions: 'play none none none',
+        once: true,
+        invalidateOnRefresh: true,
+      },
+    });
   });
 }
 
@@ -895,6 +1117,13 @@ function initCursor() {
   // Click flash
   window.addEventListener('mousedown', () => cursor.classList.add('cursor--click'));
   window.addEventListener('mouseup',   () => cursor.classList.remove('cursor--click'));
+
+  // CTA state — add cursor--cta class for primary buttons (blend mode switches to amber)
+  const ctaEls = document.querySelectorAll('.btn--primary, .nav__cta');
+  ctaEls.forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('cursor--cta'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('cursor--cta'));
+  });
 }
 
 
@@ -921,21 +1150,29 @@ function initSplitTextReveals() {
     });
   }
 
-  // Section titles — words reveal left-to-right on scroll
+  // Section titles — overflow mask technique (Amendment 1)
+  // Words rise from below an overflow:hidden parent — NO opacity fade
   document.querySelectorAll('.section__title, .about-narrative__title, .contact-info__title').forEach(el => {
+    // Set aria-label before split
+    if (!el.getAttribute('aria-label')) {
+      el.setAttribute('aria-label', el.textContent.trim());
+    }
     const split = new SplitType(el, { types: 'words' });
-    gsap.from(split.words, {
-      opacity: 0,
-      y: 40,
-      rotateX: -20,
-      stagger: 0.08,
-      duration: 0.75,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: el,
-        start: 'top 88%',
-        toggleActions: 'play none none none',
-        once: true,
+    if (!split.words?.length) return;
+    wrapSplitWords(el);
+    gsap.set(split.words, { y: '110%' });
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 88%',
+      once: true,
+      onEnter() {
+        gsap.to(split.words, {
+          y: '0%',
+          duration: 0.85,
+          ease: 'power3.out',
+          stagger: 0.055,
+          clearProps: 'transform',
+        });
       },
     });
   });
@@ -1239,6 +1476,28 @@ function initContactFormSubmission() {
 }
 
 
+/* ─────────────────────────────────────────────────────────
+   SECTION FOLD TRANSITIONS — B6
+   clip-path inset reveals for section inner containers.
+   Apply to services, rhetoric, gallery header, about.
+   (Amendment 2 — Dragonfly.xyz pattern)
+───────────────────────────────────────────────────────── */
+
+function initSectionFolds() {
+  if (prefersReducedMotion) return;
+
+  // Target section-reveal-inner elements (added to HTML in Phase C)
+  $$('.section-reveal-inner').forEach(el => {
+    sectionFold(el, { start: 'top 82%', duration: 1.2 });
+  });
+
+  // Also apply fold to section headers that have the class
+  $$('.section__header--fold').forEach(el => {
+    sectionFold(el, { start: 'top 85%', duration: 1.1, ease: 'expo.out' });
+  });
+}
+
+
 function initAll() {
   initCursor();
   initMagneticButtons();
@@ -1262,6 +1521,7 @@ function initAll() {
   initContactFormSubmission();
   initRhetoricalSection();
   initParallaxSections();
+  initSectionFolds();
   initServicesHScroll();
 }
 
@@ -1269,17 +1529,41 @@ function initAll() {
 // so src/scene/index.js can call window.__preloaderProgress during GLB loading
 initPreloader();
 
-// Use document.fonts.ready for font-aware layout (prevents jump)
-if (document.fonts && document.fonts.ready) {
-  document.fonts.ready.then(() => {
-    initAll();
-    // SplitType reveals after fonts so metrics are accurate
-    initSplitTextReveals();
-    ScrollTrigger.refresh();
+// Motion-kill mode: low-end touch devices get a functional static page
+// (Amendment 6 — Dogstudio pattern: not "reduce", but "kill" entirely)
+if (SHOULD_DISABLE_MOTION) {
+  document.documentElement.classList.add('motion-disabled');
+  // Only run the essential non-animation functions
+  initNavHighlight();
+  initContactFormSubmission();
+  // SplitType: set all text visible without animation
+  document.querySelectorAll('.section__title, .about-narrative__title, .contact-info__title').forEach(el => {
+    gsap.set(el, { opacity: 1 });
   });
 } else {
-  document.addEventListener('DOMContentLoaded', () => {
-    initAll();
-    initSplitTextReveals();
-  });
+  // Full motion path: font-aware init
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      initAll();
+      // SplitType reveals after fonts so metrics are accurate
+      initSplitTextReveals();
+      ScrollTrigger.refresh();
+
+      // Update preloader status for screen readers
+      const statusEl = document.getElementById('preloader-status');
+      if (statusEl) statusEl.textContent = 'Page ready';
+    });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      initAll();
+      initSplitTextReveals();
+    });
+  }
 }
+
+// Tab-visibility optimization: pause scroll engine when tab hidden (D5)
+document.addEventListener('visibilitychange', () => {
+  if (!lenis) return;
+  if (document.hidden) lenis.stop();
+  else lenis.start();
+});
