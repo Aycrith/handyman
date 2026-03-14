@@ -40,14 +40,21 @@ async function safeScreenshot(page, filePath) {
 }
 
 async function scrollToSection(page, sectionId) {
-  await page.evaluate((id) => {
+  const result = await page.evaluate((id) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'instant' });
-      // Force ScrollTrigger refresh if available
-      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+    if (!el) {
+      return { found: false, sectionId: id };
     }
+    el.scrollIntoView({ behavior: 'instant' });
+    // Force ScrollTrigger refresh if available
+    if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+    return { found: true, sectionId: id };
   }, sectionId);
+
+  if (!result.found) {
+    throw new Error(`Section #${sectionId} not found in DOM`);
+  }
+
   await page.waitForTimeout(ANIMATION_WAIT_MS);
 }
 
@@ -74,6 +81,19 @@ async function main() {
 
   await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(3000); // let intro animations complete
+
+  // Diagnostic: verify DOM structure exists
+  const domCheck = await page.evaluate(() => {
+    return {
+      body: !!document.body,
+      services: !!document.getElementById('services'),
+      gallery: !!document.getElementById('gallery'),
+      process: !!document.getElementById('process'),
+      serviceCards: document.querySelectorAll('.service-card').length,
+      galleryCards: document.querySelectorAll('.gallery-card').length,
+    };
+  });
+  console.log('  DOM diagnostic:', domCheck);
 
   let passed = 0;
   let failed = 0;
@@ -144,6 +164,11 @@ async function main() {
       const cards = document.querySelectorAll('.gallery-card');
       return cards.length;
     });
+    if (count === 0) {
+      // Diagnostic: check if gallery section even exists
+      const gallerySectionExists = !!document.getElementById('gallery');
+      throw new Error(`Expected 6 gallery cards, got ${count}. Gallery section found: ${gallerySectionExists}`);
+    }
     if (count < 6) throw new Error(`Expected 6 gallery cards, got ${count}`);
   });
 
