@@ -1455,13 +1455,15 @@ function initSectionFolds() {
    SCROLL ZONE DRIVER — WORKSHOP JOURNEY
    Tracks which [data-scene-zone] section is active and
    updates document.body.dataset.sceneZone + dispatches
-   scene:zone-change event for scene/index.js.
+   scene:world-change event for scene/index.js.
 ───────────────────────────────────────────────────────── */
 
 function initScrollZoneDriver() {
   if (prefersReducedMotion) return;
   const zoneEls = Array.from($$('[data-scene-zone]')).map(el => ({
-    id: el.dataset.sceneZone, el, top: 0,
+    id: el.dataset.sceneZone,
+    worldId: el.dataset.sceneWorld || null,
+    el, top: 0,
   }));
   if (!zoneEls.length) return;
 
@@ -1483,8 +1485,8 @@ function initScrollZoneDriver() {
     if (active.id !== lastZone) {
       lastZone = active.id;
       document.body.dataset.sceneZone = active.id;
-      window.dispatchEvent(new CustomEvent('scene:zone-change', {
-        detail: { zoneId: active.id },
+      window.dispatchEvent(new CustomEvent('scene:world-change', {
+        detail: { zoneId: active.id, worldId: active.worldId },
       }));
     }
   }

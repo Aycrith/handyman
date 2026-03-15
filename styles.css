@@ -111,6 +111,22 @@
 [data-scene-zone="testimonials"] { --zone-bg-r: 11; --zone-bg-g: 10; --zone-bg-b: 12; }
 [data-scene-zone="contact"]      { --zone-bg-r: 14; --zone-bg-g: 12; --zone-bg-b: 9;  }
 
+/* ── World Identity Tokens ──────────────────────────────────
+   Per-world CSS custom properties for 3D scene theming.
+   --world-hue:       dominant hue angle (0-360)
+   --world-intensity:  glow / bloom intensity scalar (0-1)
+   --world-grain:      film-grain opacity (0-1)
+   ─────────────────────────────────────────────────────── */
+[data-scene-world="forge-hero"]          { --world-hue: 25;  --world-intensity: 0.8; --world-grain: 0.06; }
+[data-scene-world="blueprint-workshop"]  { --world-hue: 210; --world-intensity: 0.5; --world-grain: 0.04; }
+[data-scene-world="statement-room"]      { --world-hue: 0;   --world-intensity: 0.4; --world-grain: 0.03; }
+[data-scene-world="precision-line"]      { --world-hue: 35;  --world-intensity: 0.6; --world-grain: 0.05; }
+[data-scene-world="evidence-room"]       { --world-hue: 220; --world-intensity: 0.3; --world-grain: 0.02; }
+[data-scene-world="origin-story"]        { --world-hue: 30;  --world-intensity: 0.5; --world-grain: 0.04; }
+[data-scene-world="testimony-space"]     { --world-hue: 270; --world-intensity: 0.4; --world-grain: 0.03; }
+[data-scene-world="ember-transition"]    { --world-hue: 15;  --world-intensity: 0.9; --world-grain: 0.08; }
+[data-scene-world="workshop-return"]     { --world-hue: 40;  --world-intensity: 0.6; --world-grain: 0.05; }
+
 /* ── Section Atmospheric Overlays ─────────────────────────
    Dark radial gradients per zone. Fade to transparent at
    edges so the 3D canvas always breathes through.
