@@ -37,3 +37,4 @@ artifacts/
 
 # Large binary assets (use CDN or LFS)
 assets/models/hero/pbr_rivet_gun.glb
+assets/3dmodels/
