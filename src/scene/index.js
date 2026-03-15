@@ -286,13 +286,19 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       bgColor:  { r: 0.004, g: 0.004, b: 0.005 }, fogDensity: 0.006,
       particleStory: 'ember-scatter', exposureBias: -0.12 },
 
-    { id: 'about',        scrollStart: 0.62, scrollEnd: 0.76,
+    { id: 'about',        scrollStart: 0.62, scrollEnd: 0.72,
       lightRig: { key: 0.92, fill: 0.60, rim: 0.76, ground: 0.72 },
       postFx:   { bloomGain: 0.58, thresholdBias: 0.08 },
       bgColor:  { r: 0.009, g: 0.007, b: 0.006 }, fogDensity: 0.010,
       particleStory: 'ember-low', exposureBias: 0.02 },
 
-    { id: 'contact',      scrollStart: 0.76, scrollEnd: 1.00,
+    { id: 'testimonials', scrollStart: 0.72, scrollEnd: 0.84,
+      lightRig: { key: 0.78, fill: 0.44, rim: 0.62, ground: 0.55 },
+      postFx:   { bloomGain: 0.50, thresholdBias: 0.11 },
+      bgColor:  { r: 0.007, g: 0.006, b: 0.009 }, fogDensity: 0.008,
+      particleStory: 'testimony-haze', exposureBias: -0.02 },
+
+    { id: 'contact',      scrollStart: 0.84, scrollEnd: 1.00,
       lightRig: { key: 1.06, fill: 0.66, rim: 0.88, ground: 0.82 },
       postFx:   { bloomGain: 0.62, thresholdBias: 0.07 },
       bgColor:  { r: 0.010, g: 0.008, b: 0.006 }, fogDensity: 0.012,
@@ -1424,8 +1430,88 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     'dust-drift':        { wrenchAttractor: 0.28, hazeScale: 0.64, sparkGate: 0.30 },
     'ember-scatter':     { wrenchAttractor: 0.16, hazeScale: 0.22, sparkGate: 0.50 },
     'ember-low':         { wrenchAttractor: 0.34, hazeScale: 0.52, sparkGate: 0.36 },
+    'testimony-haze':    { wrenchAttractor: 0.00, hazeScale: 0.80, sparkGate: 0.05 },
     'ember-invitation':  { wrenchAttractor: 0.42, hazeScale: 0.72, sparkGate: 0.44 },
   });
+
+  // ── Workshop Journey: Zone Prop Manifest ────────────────────────────────
+  // Each scroll zone gets a unique 3D asset as its focal prop.
+  // Assets fade in/out via opacity as the user scrolls through each zone.
+  // floatAmp/floatSpeed drive the gentle sine-wave float animation.
+  // rotSpeed overrides the default Y-axis ambient rotation rate.
+  const ZONE_PROP_MANIFEST = Object.freeze([
+    {
+      zoneId: 'services',
+      glb: new URL('../../assets/3dmodels/industrial_toolbox.glb', import.meta.url).href,
+      position: { x: 1.9, y: -0.3, z: 0.0 },
+      rotation: { x: 0.05, y: -0.5, z: 0 },
+      scale: 0.50,
+      floatAmp: 0.05, floatSpeed: 0.00020,
+      // Toolbox sweeps in from lower-right, rotating as it settles
+      entry: { fromX: 4.0, fromY: -1.2, fromZ: 0.8, fromScale: 0.25, fromRotY: 1.6, easing: 'expo' },
+    },
+    {
+      zoneId: 'rhetoric',
+      glb: new URL('../../assets/3dmodels/looking_glass_hologram_technology_meet_art.glb', import.meta.url).href,
+      position: { x: 0.0, y: 0.0, z: -1.0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: 2.0,
+      floatAmp: 0.15, floatSpeed: 0.00012,
+      // Hologram blooms outward from camera depth — expands into existence
+      entry: { fromX: 0, fromY: 0, fromZ: 3.0, fromScale: 0.1, fromRotY: 0, easing: 'expo' },
+    },
+    {
+      zoneId: 'process',
+      glb: new URL('../../assets/3dmodels/source/Spanner.glb', import.meta.url).href,
+      position: { x: -1.8, y: 0.3, z: 0.6 },
+      rotation: { x: 0.1, y: 0.7, z: -0.12 },
+      scale: 0.85,
+      floatAmp: 0.06, floatSpeed: 0.00022,
+      // Spanner arcs in from upper-left — sweeping precision arc motion
+      entry: { fromX: -4.5, fromY: 1.0, fromZ: 0, fromScale: 0.6, fromRotY: -2.0, easing: 'sine' },
+    },
+    {
+      zoneId: 'gallery',
+      glb: new URL('../../assets/3dmodels/source/AXE.glb', import.meta.url).href,
+      position: { x: 2.1, y: 0.5, z: 0.3 },
+      rotation: { x: -0.15, y: -0.9, z: 0.08 },
+      scale: 0.75,
+      floatAmp: 0.04, floatSpeed: 0.00018,
+      // Axe drops in from upper-right — falling, weighty, dramatic
+      entry: { fromX: 3.5, fromY: 2.5, fromZ: -0.5, fromScale: 0.4, fromRotY: 1.8, easing: 'expo' },
+    },
+    {
+      zoneId: 'about',
+      glb: new URL('../../assets/3dmodels/building_workshop_parking_workshop.glb', import.meta.url).href,
+      position: { x: -2.0, y: -0.5, z: -0.8 },
+      rotation: { x: 0, y: 0.4, z: 0 },
+      scale: 0.18,
+      floatAmp: 0.03, floatSpeed: 0.00012,
+      // Building rises from below — grounded, architectural emergence
+      entry: { fromX: -1.0, fromY: -3.0, fromZ: -2.0, fromScale: 0.05, fromRotY: -0.8, easing: 'sine' },
+    },
+    {
+      zoneId: 'testimonials',
+      glb: new URL('../../assets/3dmodels/wireframe_3d_globe.glb', import.meta.url).href,
+      position: { x: 1.6, y: 0.1, z: 0.3 },
+      rotation: { x: 0.1, y: 0, z: -0.05 },
+      scale: 1.4,
+      rotSpeed: 0.00025,
+      floatAmp: 0.04, floatSpeed: 0.00016,
+      // Globe materialises from nothing — scale up from a point
+      entry: { fromX: 0, fromY: 0, fromZ: 0, fromScale: 0.0, fromRotY: 0, easing: 'bounce' },
+    },
+    {
+      zoneId: 'contact',
+      glb: new URL('../../assets/3dmodels/pbr_rivet_gun.glb', import.meta.url).href,
+      position: { x: 1.6, y: -0.5, z: 0.8 },
+      rotation: { x: 0, y: -0.4, z: 0.15 },
+      scale: 0.60,
+      floatAmp: 0.05, floatSpeed: 0.00020,
+      // Rivet gun slides in from depth + right — precision tool arriving at the CTA moment
+      entry: { fromX: 2.0, fromY: -2.0, fromZ: 2.5, fromScale: 0.3, fromRotY: 2.4, easing: 'expo' },
+    },
+  ]);
 
   const ACTIVE_PARTICLE_SIGNATURE = PARTICLE_SIGNATURE_PRESETS.hybridEmberSignature;
   const ACTIVE_RELEASE_ENVELOPE = RELEASE_ENVELOPE_PRESETS.hybridEmberSignature;
@@ -1744,18 +1830,25 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   let _zoneT              = 0;
   let _workshopEnv        = null;
   let _zoneResizeTimer    = null;
+  const _zoneProps        = {};   // { [zoneId]: THREE.Group } — per-zone focal props
 
   // ── Workshop Journey: Camera Spline (Phase C6) ─────────────────────────
   // Subtle waypoints — ±0.3z, ±0.15x, ±0.08y amplitude.
   // Content-first: movement barely perceptible, environment transitions more prominent.
+  // ── Workshop Journey: Camera Spline Waypoints ────────────────────────────
+  // Left-right weave frames each zone's prop on the opposite side from its text.
+  // services/gallery/contact: prop right → camera shifts left (+x text, +x prop in world)
+  // process/about: prop left → camera shifts right
   const CAMERA_JOURNEY_WAYPOINTS = [
-    { t: 0.00, x: -0.34, y:  0.00, z: 5.82 },  // hero
-    { t: 0.12, x: -0.30, y:  0.00, z: 6.10 },  // scroll-transition start
-    { t: 0.28, x: -0.22, y:  0.05, z: 5.94 },  // services
-    { t: 0.46, x: -0.28, y:  0.02, z: 5.88 },  // process
-    { t: 0.62, x: -0.20, y: -0.03, z: 6.02 },  // gallery
-    { t: 0.76, x: -0.26, y:  0.04, z: 5.96 },  // about
-    { t: 1.00, x: -0.24, y:  0.02, z: 5.90 },  // contact
+    { t: 0.00, x:  0.00, y:  0.00, z: 5.82 },  // hero — centered, intimate
+    { t: 0.12, x:  0.20, y: -0.05, z: 6.40 },  // handoff — pull back wide
+    { t: 0.28, x:  1.40, y: -0.15, z: 6.00 },  // services — strong right pan (toolbox right)
+    { t: 0.40, x:  0.00, y:  0.20, z: 7.20 },  // rhetoric — far back, centered (hologram fills frame)
+    { t: 0.52, x: -1.40, y:  0.15, z: 5.80 },  // process — hard left (spanner left)
+    { t: 0.62, x:  1.20, y:  0.25, z: 5.40 },  // gallery — push close-right (axe dramatic angle)
+    { t: 0.76, x: -1.20, y: -0.10, z: 6.20 },  // about — left, mild pullback (building wide)
+    { t: 0.86, x:  0.80, y:  0.15, z: 6.80 },  // testimonials — right, far back (globe small in space)
+    { t: 1.00, x:  1.00, y: -0.20, z: 5.60 },  // contact — close-right (rivet gun intimate CTA)
   ];
   let _cameraJourneyCurve = null;
 
@@ -9790,6 +9883,9 @@ scene.add(particulateStreamCard);
       });
     }
 
+    // Workshop Journey — per-zone focal props (unique model per scroll zone)
+    updateZoneProps(getEffectiveScrollProgress());
+
     // Part C — toolbox silhouette fades in with depth layer, hidden until scene is interactive
     if (toolboxEnvGroup) {
       const toolboxVisible = DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.interactiveIdle
@@ -9897,9 +9993,11 @@ scene.add(particulateStreamCard);
     worldReadMetrics.heroWorldBalance = clamp01(
       heroRead / Math.max(0.08, heroRead + supportRead * 0.22 + worldEnergy)
     );
-    canvas.style.visibility    = heroVisible ? 'visible' : 'hidden';
+    // Canvas stays visible for full page — it's the continuous 3D backdrop.
+    // Pointer-events still gate on heroVisible so scroll sections remain clickable.
+    canvas.style.visibility    = 'visible';
     canvas.style.pointerEvents = heroVisible ? 'auto'    : 'none';
-    vignette.style.visibility  = heroVisible ? 'visible' : 'hidden';
+    vignette.style.visibility  = 'visible';
     vignette.style.opacity = heroVisible ? String(Math.min(1, lensFinishPreset.vignetteStrength + readabilityClamp * 0.08)) : '0';
     vignette.style.background = `radial-gradient(ellipse ${(86 + lensFinishPreset.vignetteFocus * 8).toFixed(1)}% ${(68 + lensFinishPreset.vignetteFocus * 6).toFixed(1)}% at ${(50 + shotBeatPreset.cameraXBias * -44).toFixed(1)}% ${(45 + shotBeatPreset.cameraYBias * -38).toFixed(1)}%, transparent ${(38 + lensFinishPreset.vignetteFocus * 4).toFixed(1)}%, rgba(3,4,8, ${(0.42 + finishPreset.negativeFill * 0.18).toFixed(3)}) ${(70 + lensFinishPreset.vignetteStrength * 3).toFixed(1)}%, rgba(0,0,0, ${(0.88 + lensFinishPreset.vignetteStrength * 0.08).toFixed(3)}) 100%), linear-gradient(to top, rgba(0,0,0, ${(0.84 + finishPreset.negativeFill * 0.10).toFixed(3)}) 0%, transparent 38%), linear-gradient(to bottom, rgba(1,2,5, ${(0.48 + lensFinishPreset.coolShadowLift * 0.26).toFixed(3)}) 0%, transparent 22%)`;
     // CSS-layer depth of field: blur during reveal phases only
@@ -9909,13 +10007,13 @@ scene.add(particulateStreamCard);
       ? THREE.MathUtils.lerp(4.2, 0.0, DIRECTOR_STATE.revealMix * 1.4)
       : 0;
     vignette.style.backdropFilter = dofStrength > 0.3 ? `blur(${dofStrength.toFixed(1)}px)` : '';
-    sceneGrade.style.visibility = heroVisible ? 'visible' : 'hidden';
+    sceneGrade.style.visibility = 'visible';
     sceneGrade.style.opacity = heroVisible ? String(Math.max(postFxPreset.gradeFloor * handoffPreset.gradeLift * (1 - scrollCopyCompression * 0.12), postFxPreset.gradeFloor * handoffPreset.gradeLift + activeCue.warm * 0.08 + atmosphereMetrics.titleHalo * 0.04 + scatterCoupling * 0.04 + magicIntensity * 0.03 + heroEmberLevel * 0.04 + releaseEnvelope * 0.10 + pulseWindow * 0.08 * lensPulseScale + lensFinishPreset.coolShadowLift * 0.08 - readabilityClamp * 0.08 - scrollCopyCompression * 0.18)) : '0';
     // Grade warm spot tracks wrench position for dynamic parallax
     const gradeWarmX = (clamp01((wrenchGroup.position.x + 5.5) / 11) * 100).toFixed(1);
     const gradeWarmY = (clamp01(1 - (wrenchGroup.position.y + 4.5) / 9) * 100).toFixed(1);
     sceneGrade.style.background = `radial-gradient(circle at ${gradeWarmX}% ${gradeWarmY}%, rgba(242, 182, 86, ${(0.016 + shaftPreset.warmSeam * 0.030 + heroEmberLevel * 0.040 + releaseEnvelope * 0.060 + DIRECTOR_STATE.lockupMix * 0.020 - handoffPreset.emberDrain * 0.030 - scrollCopyCompression * 0.042).toFixed(3)}), transparent 30%), radial-gradient(circle at 24% 24%, rgba(92, 132, 196, ${(0.018 + shaftPreset.coolBackscatter * 0.040 + SCENE_STATE.release * 0.050 + magicPulseStrength * 0.060 + pulseWindow * 0.16 * lensPulseScale + lensFinishPreset.coolShadowLift * 0.08 - scrollCopyCompression * 0.052).toFixed(3)}), transparent 28%), linear-gradient(180deg, rgba(18, 32, 60, ${(0.028 + shaftPreset.coolBackscatter * 0.040 + SCENE_STATE.release * 0.060 + magicPulseStrength * 0.050 + lensFinishPreset.coolShadowLift * 0.10 - scrollCopyCompression * 0.062).toFixed(3)}) 0%, rgba(9, 11, 16, 0) 34%, rgba(255, 156, 68, ${(0.016 + shaftPreset.warmSeam * 0.024 + atmosphereMetrics.floor * 0.02 + heroEmberLevel * 0.026 + releaseEnvelope * 0.034 - handoffPreset.emberDrain * 0.02 - scrollCopyCompression * 0.030).toFixed(3)}) 100%)`;
-    sceneLensAccent.style.visibility = heroVisible ? 'visible' : 'hidden';
+    sceneLensAccent.style.visibility = 'visible';
     sceneLensAccent.style.opacity = heroVisible
       ? String(
           Math.max(
@@ -10226,6 +10324,159 @@ scene.add(particulateStreamCard);
     }
   }
 
+  // ── Workshop Journey: Zone Prop Loader ───────────────────────────────────
+  // Loads one unique 3D focal prop per scroll zone. All loads are non-blocking
+  // and sequential so they don't compete with the hero reveal for GPU bandwidth.
+  // Props start invisible (opacity 0); updateZoneProps() animates them in/out.
+  async function loadZoneProps() {
+    if (SCENE_CONFIG.qualityTier === 'low') return;
+    const loader = new THREE.GLTFLoader();
+    try {
+      const meshoptDecoder = await getMeshoptDecoder();
+      if (meshoptDecoder && typeof loader.setMeshoptDecoder === 'function') {
+        loader.setMeshoptDecoder(meshoptDecoder);
+      }
+    } catch (_) { /* continue without meshopt */ }
+
+    for (const spec of ZONE_PROP_MANIFEST) {
+      try {
+        const gltf = await new Promise((resolve, reject) =>
+          loader.load(spec.glb, resolve, undefined, reject)
+        );
+        const group = gltf.scene;
+        group.name = `zoneProp_${spec.zoneId}`;
+        // Start at entry offset — animation travels FROM entry → resting (correct direction)
+        const e0 = spec.entry || { fromX: 0, fromY: 0, fromZ: 0, fromScale: 0.3 };
+        group.position.set(
+          spec.position.x + e0.fromX,
+          spec.position.y + e0.fromY,
+          spec.position.z + e0.fromZ
+        );
+        group.rotation.set(spec.rotation.x, spec.rotation.y, spec.rotation.z);
+        group.scale.setScalar((e0.fromScale || 0.3) * spec.scale);
+        group.traverse(child => {
+          if (child.isMesh) {
+            child.material = child.material.clone();
+            child.material.transparent = true;
+            child.material.opacity = 0;
+            child.material.depthWrite = false;
+            // scene.environment (IBL) is applied automatically to MeshStandardMaterial
+            // renderOrder 5: behind hero tools (10+) but above workshop env (0)
+            child.renderOrder = 5;
+          }
+        });
+        scene.add(group);
+        _zoneProps[spec.zoneId] = group;
+        console.info(`[three-scene] zone prop loaded: ${spec.zoneId}`);
+      } catch (err) {
+        console.info(`[three-scene] zone prop skipped (${spec.zoneId}):`, err?.message || err);
+      }
+    }
+  }
+
+  // ── Zone Prop Easing Helpers (inline, no extra deps) ────────────────────
+  function _easeExpo(t) { return t === 0 ? 0 : Math.pow(2, 10 * (t - 1)); }
+  function _easeSine(t) { return Math.sin((t * Math.PI) / 2); }
+  function _easeBounce(t) {
+    const n1 = 7.5625, d1 = 2.75;
+    if (t < 1 / d1) return n1 * t * t;
+    if (t < 2 / d1) { t -= 1.5 / d1; return n1 * t * t + 0.75; }
+    if (t < 2.5 / d1) { t -= 2.25 / d1; return n1 * t * t + 0.9375; }
+    t -= 2.625 / d1; return n1 * t * t + 0.984375;
+  }
+  function _applyZoneEasing(t, easingName) {
+    switch (easingName) {
+      case 'expo':   return _easeExpo(t);
+      case 'bounce': return _easeBounce(t);
+      default:       return _easeSine(t);
+    }
+  }
+
+  // ── Workshop Journey: Per-Frame Zone Prop Cinematic Animation ───────────
+  // Each prop has an `entry` descriptor defining where it starts (off-screen
+  // offsets + smaller scale + extra rotation). As the zone scrolls in, the
+  // prop flies from that starting position to its resting world position over
+  // the first 45% of the zone. Opacity uses a sine bell curve (0 at edges,
+  // peak at center). This creates the activetheory/mont-fort effect where
+  // 3D objects arrive with physical momentum, not just fade in.
+  function updateZoneProps(scrollProg) {
+    if (!_zoneActive) {
+      // Fade opacity to 0 and reset position to entry offset so next zone-enter
+      // starts from the correct off-screen start position, not mid-animation
+      for (const spec of ZONE_PROP_MANIFEST) {
+        const group = _zoneProps[spec.zoneId];
+        if (!group) continue;
+        group.traverse(child => {
+          if (child.isMesh && child.material?.transparent) {
+            child.material.opacity += (0 - child.material.opacity) * 0.05;
+          }
+        });
+        const e = spec.entry || { fromX: 0, fromY: 0, fromZ: 0, fromScale: 0.3 };
+        group.position.x = spec.position.x + e.fromX;
+        group.position.y = spec.position.y + e.fromY;
+        group.position.z = spec.position.z + e.fromZ;
+        group.scale.setScalar((e.fromScale || 0.3) * spec.scale);
+      }
+      return;
+    }
+
+    const zones = ZONE_STATE.resolvedZones.length ? ZONE_STATE.resolvedZones : SCROLL_ZONES;
+    const nowMs = performance.now();
+
+    for (const spec of ZONE_PROP_MANIFEST) {
+      const group = _zoneProps[spec.zoneId];
+      if (!group) continue;
+
+      const zone = zones.find(z => z.id === spec.zoneId);
+      if (!zone) continue;
+
+      // zoneLocalT: 0 at zone start → 1 at zone end
+      const zoneSpan = Math.max(0.001, zone.scrollEnd - zone.scrollStart);
+      const zoneLocalT = clamp01((scrollProg - zone.scrollStart) / zoneSpan);
+
+      // Entry phase: eased 0→1 over first 45% of the zone
+      const rawEntryT = clamp01(zoneLocalT / 0.45);
+      const entryT = _applyZoneEasing(rawEntryT, spec.entry?.easing || 'sine');
+
+      // Opacity: sine bell — 0 at zone edges, peaks at center
+      const targetOpacity = Math.sin(Math.PI * clamp01(zoneLocalT)) * 0.88;
+
+      // Entry offsets → resting position
+      const e = spec.entry || { fromX: 0, fromY: 0, fromZ: 0, fromScale: 0.3, fromRotY: 0 };
+      const targetX = THREE.MathUtils.lerp(spec.position.x + e.fromX, spec.position.x, entryT);
+      const targetZ = THREE.MathUtils.lerp(spec.position.z + e.fromZ, spec.position.z, entryT);
+      const baseY   = THREE.MathUtils.lerp(spec.position.y + e.fromY, spec.position.y, entryT);
+
+      // Sine float on top of the animated base Y
+      const floatY = Math.sin(nowMs * (spec.floatSpeed || 0.00020) + spec.zoneId.length * 1.3) * (spec.floatAmp || 0.05);
+
+      // Scale: fromScale → spec.scale over entry phase
+      const targetScale = THREE.MathUtils.lerp((e.fromScale || 0.3) * spec.scale, spec.scale, entryT);
+
+      // Extra entry Y-rotation twist that settles to zero
+      const entryRotOffset = THREE.MathUtils.lerp(e.fromRotY || 0, 0, entryT);
+      const prevEntryRot = group.userData._entryRotY || 0;
+
+      // Direct scroll-driven assignment — position is a pure function of scroll progress.
+      // Smoothness comes from the easing curve, not per-frame temporal damping.
+      // This matches activetheory's pattern: hold scroll = hold scene state exactly.
+      group.position.x = targetX;
+      group.position.y = baseY + floatY;
+      group.position.z = targetZ;
+      group.scale.setScalar(targetScale);
+
+      // Ambient slow rotation + dissipating entry twist
+      group.rotation.y += (spec.rotSpeed || 0.00008) + (entryRotOffset - prevEntryRot) * 0.04;
+      group.userData._entryRotY = entryRotOffset;
+
+      group.traverse(child => {
+        if (child.isMesh && child.material?.transparent) {
+          child.material.opacity += (targetOpacity - child.material.opacity) * 0.05;
+        }
+      });
+    }
+  }
+
   function startScene() {
     applyResponsiveLayout();
     updateReadabilityWindow();
@@ -10256,6 +10507,7 @@ scene.add(particulateStreamCard);
   // Loaded after hero tools complete so it never delays the hero reveal.
   initCameraJourneyCurve();
   loadEnvProps();
+  loadZoneProps();
 
   /* ─── Timer cleanup on unload ─────────────────────────── */
   window.addEventListener('beforeunload', () => {

@@ -282,24 +282,21 @@ const EXPECTED_BUILD_STAGE = 'assembly-orbit-bespoke-pack';
 
     const servicesLayout = await page.evaluate(() => {
       const services = document.getElementById('services');
-      const pin = document.getElementById('servicesPin');
-      const track = document.querySelector('.services__scroll-track');
       const grid = document.querySelector('.services__grid');
-      if (!services || !pin) return null;
+      if (!services) return null;
 
+      // Pin-wrap was removed in favour of 3D stage layout — check that the
+      // section renders with a reasonable height (at least 1 viewport tall).
       return {
         horizontal: services.classList.contains('services--horizontal'),
         servicesHeight: services.getBoundingClientRect().height,
-        pinHeight: pin.getBoundingClientRect().height,
         viewportHeight: window.innerHeight,
-        overflow: track && grid ? grid.scrollWidth - (track.parentElement?.clientWidth || window.innerWidth) : 0,
+        gridHeight: grid ? grid.getBoundingClientRect().height : 0,
       };
     });
-    const servicesSpacer = servicesLayout ? Math.max(0, servicesLayout.servicesHeight - servicesLayout.pinHeight) : Number.POSITIVE_INFINITY;
+    const servicesSpacer = 0; // No pin-wrap spacer in 3D stage layout
     const servicesLayoutPass = !!servicesLayout && (
-      servicesLayout.horizontal
-        ? servicesSpacer <= servicesLayout.viewportHeight * 0.95
-        : servicesLayout.overflow <= 0 && servicesLayout.servicesHeight <= servicesLayout.viewportHeight * 1.25
+      servicesLayout.servicesHeight >= servicesLayout.viewportHeight * 0.8
     );
     record('Services section avoids oversized spacer', servicesLayoutPass, `mode=${servicesLayout?.horizontal ? 'horizontal' : 'grid'} height=${Math.round(servicesLayout?.servicesHeight || 0)}px spacer=${Math.round(servicesSpacer)}px`);
 

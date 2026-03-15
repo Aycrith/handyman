@@ -100,6 +100,165 @@
   --bg-breathe-g:           10;
 }
 
+/* ── Zone Identity Tokens ──────────────────────────────────
+   RGB channel values for 3D scene background blending.
+   ─────────────────────────────────────────────────────── */
+[data-scene-zone="services"]     { --zone-bg-r: 10; --zone-bg-g: 11; --zone-bg-b: 14; }
+[data-scene-zone="rhetoric"]     { --zone-bg-r: 12; --zone-bg-g: 10; --zone-bg-b: 10; }
+[data-scene-zone="process"]      { --zone-bg-r: 13; --zone-bg-g: 11; --zone-bg-b: 9;  }
+[data-scene-zone="gallery"]      { --zone-bg-r: 8;  --zone-bg-g: 8;  --zone-bg-b: 9;  }
+[data-scene-zone="about"]        { --zone-bg-r: 13; --zone-bg-g: 11; --zone-bg-b: 10; }
+[data-scene-zone="testimonials"] { --zone-bg-r: 11; --zone-bg-g: 10; --zone-bg-b: 12; }
+[data-scene-zone="contact"]      { --zone-bg-r: 14; --zone-bg-g: 12; --zone-bg-b: 9;  }
+
+/* ── Section Atmospheric Overlays ─────────────────────────
+   Dark radial gradients per zone. Fade to transparent at
+   edges so the 3D canvas always breathes through.
+   ─────────────────────────────────────────────────────── */
+[data-scene-zone="services"]::before,
+[data-scene-zone="rhetoric"]::before,
+[data-scene-zone="process"]::before,
+[data-scene-zone="gallery"]::before,
+[data-scene-zone="about"]::before,
+[data-scene-zone="testimonials"]::before,
+[data-scene-zone="contact"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Container must sit above the ::before atmospheric layer */
+[data-scene-zone] > .container,
+[data-scene-zone] > .rhetoric-inner {
+  position: relative;
+  z-index: 1;
+}
+
+[data-scene-zone="services"]::before {
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(10, 12, 22, 0.55) 0%, transparent 80%);
+}
+[data-scene-zone="rhetoric"]::before {
+  background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(20, 14, 10, 0.50) 0%, transparent 80%);
+}
+[data-scene-zone="process"]::before {
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(18, 14, 10, 0.55) 0%, transparent 80%);
+}
+[data-scene-zone="gallery"]::before {
+  background: radial-gradient(ellipse 70% 60% at 50% 40%, rgba(6, 6, 8, 0.60) 0%, transparent 80%);
+}
+[data-scene-zone="about"]::before {
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(18, 14, 10, 0.50) 0%, transparent 80%);
+}
+[data-scene-zone="testimonials"]::before {
+  /* Increased opacity — globe prop means text needs more readability support */
+  background: radial-gradient(ellipse 80% 70% at 50% 50%, rgba(14, 12, 16, 0.70) 0%, transparent 85%);
+}
+[data-scene-zone="contact"]::before {
+  background: radial-gradient(ellipse 80% 70% at 50% 40%, rgba(20, 16, 10, 0.55) 0%, transparent 80%);
+}
+
+
+/* ── Zone Stage Layout ──────────────────────────────────────
+   Each zone section is a full-viewport "stage" — 3D prop
+   floats in the open half, text overlay occupies the other.
+   The 3D canvas IS the content; DOM provides text context.
+   ─────────────────────────────────────────────────────── */
+[data-scene-zone] {
+  min-height: 100vh;
+}
+
+/* Services: text left (max 52%), toolbox floats right */
+[data-scene-zone="services"] > .container {
+  max-width: calc(var(--container-max) * 0.52);
+  margin-inline-start: 0;
+  margin-inline-end: auto;
+}
+
+/* Rhetoric: text centered — hologram is pure atmosphere on the side */
+[data-scene-zone="rhetoric"] > .rhetoric-inner {
+  max-width: 780px;
+  margin-inline: auto;
+}
+
+/* Process: text right (auto left margin), spanner floats left */
+[data-scene-zone="process"] > .container {
+  max-width: calc(var(--container-max) * 0.55);
+  margin-inline-start: auto;
+  margin-inline-end: 0;
+}
+
+/* Gallery: standard container — axe floats upper-right, cards below */
+[data-scene-zone="gallery"] > .container {
+  max-width: var(--container-max);
+}
+
+/* About: text left, building silhouette floats left-back */
+[data-scene-zone="about"] > .container {
+  max-width: calc(var(--container-max) * 0.54);
+  margin-inline-start: 0;
+  margin-inline-end: auto;
+}
+
+/* Testimonials: centered — globe spins right side */
+[data-scene-zone="testimonials"] > .container {
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+/* Contact: text left, rivet gun floats right */
+[data-scene-zone="contact"] > .container {
+  max-width: calc(var(--container-max) * 0.52);
+  margin-inline-start: 0;
+  margin-inline-end: auto;
+}
+
+/* ── Glass Readability Panel for Headers Over 3D ───────────
+   Semi-transparent blur panel behind section eyebrow/title
+   so text is legible against dynamic 3D content.
+   ─────────────────────────────────────────────────────── */
+.section__header.over-3d {
+  background: rgba(8, 8, 10, 0.50);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 3vw, 2.5rem);
+  display: inline-block;
+  max-width: 100%;
+}
+
+/* Gallery header stage — full-height moment before card grid */
+.gallery__header-stage {
+  min-height: 55vh;
+  display: flex;
+  align-items: center;
+}
+
+/* Stage sections get more vertical breathing room for 3D */
+[data-scene-zone] {
+  padding-block: clamp(6rem, 14vw, 11rem);
+}
+[data-scene-zone="rhetoric"] {
+  padding-block: clamp(8rem, 16vw, 14rem);
+}
+
+/* Responsive: on small screens collapse to centered layout */
+@media (max-width: 768px) {
+  [data-scene-zone="services"] > .container,
+  [data-scene-zone="process"] > .container,
+  [data-scene-zone="about"] > .container,
+  [data-scene-zone="contact"] > .container {
+    max-width: var(--container-max);
+    margin-inline: auto;
+  }
+  [data-scene-zone] {
+    min-height: auto;
+    padding-block: clamp(4rem, 10vw, 7rem);
+  }
+}
+
 
 /* ═══════════════════════════════════════════════════════════
    FONT METRIC OVERRIDES — Prevent CLS during font swap
@@ -231,11 +390,11 @@ button {
   padding-block: var(--section-pad);
   position: relative;
   z-index: 2;
-  background-color: var(--color-bg);
+  /* background removed — 3D canvas shows through */
 }
 
 .section:nth-of-type(even) {
-  background-color: var(--color-bg-2);
+  /* background removed — 3D canvas shows through */
 }
 
 .section + .section {
@@ -787,7 +946,7 @@ button {
    ═══════════════════════════════════════════════════════════ */
 
 .services {
-  background: rgba(22, 20, 18, 0.88);
+  /* background removed — 3D canvas shows through */
 }
 
 .services__pin-wrap {
@@ -890,7 +1049,7 @@ button {
    ═══════════════════════════════════════════════════════════ */
 
 .stats-section {
-  background: rgba(13, 12, 10, 0.88);
+  background: transparent;
   position: relative;
 }
 
@@ -1013,7 +1172,7 @@ button {
    ═══════════════════════════════════════════════════════════ */
 
 .testimonials {
-  background: rgba(22, 20, 18, 0.92);
+  /* background removed — 3D canvas shows through */
   position: relative;
   overflow: hidden;
 }
@@ -1124,7 +1283,7 @@ button {
    ═══════════════════════════════════════════════════════════ */
 
 .cta-band {
-  background: rgba(13, 12, 10, 0.88);
+  background: transparent;
   position: relative;
   overflow: hidden;
   text-align: center;
@@ -1346,7 +1505,7 @@ button {
    ═══════════════════════════════════════════════════════════ */
 
 .process {
-  background: rgba(22, 20, 18, 0.88);
+  /* background removed — 3D canvas shows through */
   position: relative;
 }
 
@@ -1483,7 +1642,7 @@ button {
    ═══════════════════════════════════════════════════════════ */
 
 .gallery {
-  background: rgba(13, 12, 10, 0.88);
+  /* background removed — 3D canvas shows through */
 }
 
 .gallery__grid {
@@ -1828,7 +1987,7 @@ button {
    ═══════════════════════════════════════════════════════════ */
 
 .contact-section {
-  background: rgba(13, 12, 10, 0.88);
+  background: transparent;
 }
 
 .contact-layout {
@@ -2179,7 +2338,7 @@ a.contact-detail:hover { color: var(--color-amber-light); }
    ═══════════════════════════════════════════════════════════ */
 
 .rhetoric-section {
-  background: var(--color-bg);
+  background: transparent;
   padding: clamp(3rem, 7vw, 5rem) var(--container-pad);
   text-align: center;
   position: relative;
@@ -2905,7 +3064,7 @@ a.contact-detail:hover { color: var(--color-amber-light); }
 /* ── C2: Gallery — Evidence Room ────────────────────────── */
 /* Editorial dark tone, monospace labels, amber accent */
 .gallery {
-  background-color: #070a0f;
+  /* background removed — 3D canvas shows through */
 }
 
 .gallery .section__eyebrow {
@@ -2962,7 +3121,7 @@ a.contact-detail:hover { color: var(--color-amber-light); }
 /* ── C3: Process — Precision Workflow ───────────────────── */
 /* Amber circle counters, deliberate breathing room */
 .process {
-  background-color: var(--color-bg);
+  /* background removed — 3D canvas shows through */
 }
 
 .process-step__number {
@@ -3012,7 +3171,7 @@ a.contact-detail:hover { color: var(--color-amber-light); }
 .cta-band {
   background:
     radial-gradient(ellipse 70% 80% at 50% 50%, rgba(201, 117, 18, 0.16) 0%, rgba(13, 12, 10, 0) 70%),
-    var(--color-bg);
+    rgba(13, 12, 10, 0);
   position: relative;
   overflow: hidden;
 }

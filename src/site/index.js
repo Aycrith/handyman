@@ -1197,8 +1197,11 @@ function initGalleryTilt() {
 ───────────────────────────────────────────────────────── */
 
 function initServicesHScroll() {
-  if (prefersReducedMotion || typeof gsap === 'undefined') return;
+  // Disabled — services section now uses 3D stage layout (toolbox prop + 2×3 card grid).
+  // The horizontal pin conflicted with the full-viewport zone stage design.
+  return;
 
+  // eslint-disable-next-line no-unreachable
   const section = document.getElementById('services');
   const pinWrap = document.getElementById('servicesPin');
   const track = document.querySelector('.services__scroll-track');
