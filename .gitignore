@@ -38,3 +38,19 @@ artifacts/
 # Large binary assets (use CDN or LFS)
 assets/models/hero/pbr_rivet_gun.glb
 assets/3dmodels/
+
+# Root-level generated screenshots
+/*.png
+
+# Session/temp artifacts
+test-worlds-results.txt
+test-debug.js
+test-page-load.js
+serve-dist.js
+IMPLEMENTATION_COMPLETE.md
+SPEC_COMPLIANCE_FIXES.md
+session-*.md
+opencode-*.md
+claudeLandingPageImprovementPrompt.md
+2026-*.txt
+-p/
