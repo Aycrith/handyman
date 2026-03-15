@@ -213,15 +213,15 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     tiers: {
       desktop: {
         speciesCounts: { flowRibbon: 2, cloudMote: 420, microDust: 170, sparkFilament: 6 },
-        bloom: { strength: 0.24, radius: 0.32, threshold: 0.76 },
+        bloom: { strength: 0.18, radius: 0.26, threshold: 0.82 },
       },
       mobile: {
         speciesCounts: { flowRibbon: 0, cloudMote: 180, microDust: 70, sparkFilament: 2 },
-        bloom: { strength: 0.18, radius: 0.26, threshold: 0.80 },
+        bloom: { strength: 0.14, radius: 0.21, threshold: 0.86 },
       },
       low: {
         speciesCounts: { flowRibbon: 0, cloudMote: 120, microDust: 40, sparkFilament: 0 },
-        bloom: { strength: 0.12, radius: 0.22, threshold: 0.84 },
+        bloom: { strength: 0.09, radius: 0.18, threshold: 0.90 },
       },
     },
   };
@@ -399,11 +399,11 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     scrollTransition: { key: 0.88, fill: 0.54, rim: 0.68, heroShadow: 0.62, ground: 0.62, orbit: 0.00, sawSpot: 0.00 },
   });
   const POST_FX_PRESETS = Object.freeze({
-    preReveal: { bloomGain: 0.70, thresholdBias: 0.04, radiusBias: -0.06, gradeFloor: 0.26, copyShieldBoost: 0.03 },
-    reveal: { bloomGain: 0.86, thresholdBias: 0.03, radiusBias: -0.04, gradeFloor: 0.32, copyShieldBoost: 0.05 },
-    lockup: { bloomGain: 0.80, thresholdBias: 0.05, radiusBias: -0.06, gradeFloor: 0.36, copyShieldBoost: 0.06 },
-    interactiveIdle: { bloomGain: 0.76, thresholdBias: 0.06, radiusBias: -0.08, gradeFloor: 0.34, copyShieldBoost: 0.07 },
-    scrollTransition: { bloomGain: 0.68, thresholdBias: 0.08, radiusBias: -0.08, gradeFloor: 0.26, copyShieldBoost: 0.08 },
+    preReveal: { bloomGain: 0.62, thresholdBias: 0.04, radiusBias: -0.06, gradeFloor: 0.26, copyShieldBoost: 0.03 },
+    reveal: { bloomGain: 0.74, thresholdBias: 0.03, radiusBias: -0.04, gradeFloor: 0.32, copyShieldBoost: 0.05 },
+    lockup: { bloomGain: 0.70, thresholdBias: 0.05, radiusBias: -0.06, gradeFloor: 0.36, copyShieldBoost: 0.06 },
+    interactiveIdle: { bloomGain: 0.68, thresholdBias: 0.06, radiusBias: -0.08, gradeFloor: 0.34, copyShieldBoost: 0.07 },
+    scrollTransition: { bloomGain: 0.60, thresholdBias: 0.08, radiusBias: -0.08, gradeFloor: 0.26, copyShieldBoost: 0.08 },
   });
   const CINEMATIC_FINISH_PRESETS = Object.freeze({
     restrainedWorkshop: {
@@ -553,7 +553,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         label: 'obsidian-blueprint',
         vignetteStrength: 0.92,
         vignetteFocus: 0.82,
-        bloomDiscipline: 0.84,
+        bloomDiscipline: 0.88,
         beamDiscipline: 0.68,
         hazeScale: 0.76,
         coolShadowLift: 0.16,
@@ -564,7 +564,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         label: 'forged-arc',
         vignetteStrength: 0.80,
         vignetteFocus: 0.92,
-        bloomDiscipline: 0.92,
+        bloomDiscipline: 0.96,
         beamDiscipline: 0.84,
         hazeScale: 0.90,
         coolShadowLift: 0.22,
@@ -575,7 +575,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         label: 'hero-grade-lockup',
         vignetteStrength: 0.86,
         vignetteFocus: 1.00,
-        bloomDiscipline: 0.88,
+        bloomDiscipline: 0.92,
         beamDiscipline: 0.76,
         hazeScale: 0.82,
         coolShadowLift: 0.26,
@@ -586,7 +586,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         label: 'quiet-lens-hold',
         vignetteStrength: 0.84,
         vignetteFocus: 0.96,
-        bloomDiscipline: 0.82,
+        bloomDiscipline: 0.86,
         beamDiscipline: 0.72,
         hazeScale: 0.78,
         coolShadowLift: 0.22,
@@ -597,7 +597,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         label: 'handoff-compression',
         vignetteStrength: 0.72,
         vignetteFocus: 0.78,
-        bloomDiscipline: 0.72,
+        bloomDiscipline: 0.76,
         beamDiscipline: 0.58,
         hazeScale: 0.62,
         coolShadowLift: 0.16,
