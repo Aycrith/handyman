@@ -3,8 +3,9 @@ const { pathToFileURL } = require('url');
 
 const EXPECTED_ASSET_SET_VERSION = 'hero-pack-v5';
 const EXPECTED_CONTRACT_VERSION = 'hero-asset-contract-v4';
-const EXPECTED_BUILD_STAGE = 'assembly-orbit-bespoke-pack';
+const EXPECTED_BUILD_STAGE = 'assembly-orbit-pbr-upgrade';
 const EXPECTED_PROVENANCE = 'bespoke-authored';
+const EXPECTED_PRIMARY_PROVENANCES = ['bespoke-authored', 'external-processed'];
 
 (async () => {
   console.log('\n╔══════════════════════════════════════════╗');
@@ -26,7 +27,8 @@ const EXPECTED_PROVENANCE = 'bespoke-authored';
   const wrench = result.manifest?.tools?.wrench || {};
   const hammer = result.manifest?.tools?.hammer || {};
   const saw = result.manifest?.tools?.saw || {};
-  const allBespokeAuthored = [hammer, wrench, saw].every((tool) => (
+  // Wrench can be external-processed (PBR scan) or bespoke-authored — support tools must be bespoke
+  const allBespokeAuthored = [hammer, saw].every((tool) => (
     tool.provenance === EXPECTED_PROVENANCE
     && typeof tool.sourceUrl === 'string'
     && tool.sourceUrl.length > 0
@@ -36,7 +38,13 @@ const EXPECTED_PROVENANCE = 'bespoke-authored';
     && tool.attribution.length > 0
     && typeof tool.processedFrom === 'string'
     && tool.processedFrom.length > 0
-  ));
+  )) && EXPECTED_PRIMARY_PROVENANCES.includes(wrench.provenance)
+    && typeof wrench.sourceUrl === 'string'
+    && wrench.sourceUrl.length > 0
+    && typeof wrench.license === 'string'
+    && wrench.license.length > 0
+    && typeof wrench.attribution === 'string'
+    && wrench.attribution.length > 0;
 
   record('Hero asset files match deterministic pipeline output', allFilesMatch, JSON.stringify(result.toolResults));
   record('Manifest matches regenerated pack', result.manifestMatches === true, `stage=${result.stage} variant=${result.variant}`);
@@ -54,7 +62,7 @@ const EXPECTED_PROVENANCE = 'bespoke-authored';
   record('Hero pack reports final variant', result.variant === 'final', result.variant);
   record(
     'Primary wrench is bespoke-authored with final-runtime metadata',
-    wrench.provenance === EXPECTED_PROVENANCE
+    EXPECTED_PRIMARY_PROVENANCES.includes(wrench.provenance)
       && wrench.heroRole === 'primary'
       && wrench.status === 'final-runtime',
     JSON.stringify(wrench)

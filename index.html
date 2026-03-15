@@ -39,27 +39,13 @@
 
 <body>
 
-  <!-- Skip-to-content link (PRD 11 — Accessibility) -->
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Preloader live region for screen readers -->
-  <div id="preloader-status" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+  <!-- Preloader status live region for screen readers -->
+  <div id="preloader-status" role="status" aria-live="polite" aria-label="Loading status" class="sr-only"></div>
 
-  <!-- Ambient CSS particles — mid-page atmospheric depth (PRD 05) -->
-  <div class="ambient-particles" aria-hidden="true">
-    <div class="ambient-particle"></div>
-    <div class="ambient-particle"></div>
-    <div class="ambient-particle"></div>
-    <div class="ambient-particle"></div>
-    <div class="ambient-particle"></div>
-    <div class="ambient-particle"></div>
-    <div class="ambient-particle"></div>
-    <div class="ambient-particle"></div>
-    <div class="ambient-particle"></div>
-    <div class="ambient-particle"></div>
-    <div class="ambient-particle"></div>
-    <div class="ambient-particle"></div>
-  </div>
+  <!-- Ambient particles container for accessibility -->
+  <div class="ambient-particles" aria-hidden="true"></div>
 
   <!-- ═══════════════════════════════════════════
        GLOBAL OVERLAYS
@@ -126,10 +112,6 @@
     </div>
   </nav>
 
-
-  <!-- ═══════════════════════════════════════════
-       MAIN CONTENT
-  ═══════════════════════════════════════════ -->
   <main id="main-content">
 
   <!-- ═══════════════════════════════════════════
@@ -311,7 +293,7 @@
        RHETORIC SECTION — Confident craft statement
   ═══════════════════════════════════════════ -->
   <section class="rhetoric-section" aria-label="Our commitment">
-    <div class="rhetoric-inner section-reveal-inner">
+    <div class="rhetoric-inner">
       <p class="rhetoric-kicker">Why Springfield keeps calling ProCraft</p>
       <p class="rhetoric-line">We show up.</p>
       <p class="rhetoric-line">We do it right.</p>
@@ -401,44 +383,62 @@
       <div class="gallery__grid" role="list">
 
         <div class="gallery-card gallery-card--deck" role="listitem" aria-label="Deck construction project">
+          <div class="gallery-card__image"></div>
+          <div class="gallery-card__badge" aria-hidden="true"></div>
           <div class="gallery-card__overlay">
+            <span class="gallery-card__tick" aria-hidden="true">✦</span>
             <span class="gallery-card__label">Deck Build</span>
-            <span class="gallery-card__location">Springfield, IL</span>
+            <span class="gallery-card__location">Springfield, IL · 2024</span>
           </div>
         </div>
 
         <div class="gallery-card gallery-card--interior" role="listitem" aria-label="Interior painting project">
+          <div class="gallery-card__image"></div>
+          <div class="gallery-card__badge" aria-hidden="true"></div>
           <div class="gallery-card__overlay">
+            <span class="gallery-card__tick" aria-hidden="true">✦</span>
             <span class="gallery-card__label">Interior Paint</span>
-            <span class="gallery-card__location">Chatham, IL</span>
+            <span class="gallery-card__location">Chatham, IL · 2024</span>
           </div>
         </div>
 
         <div class="gallery-card gallery-card--flooring" role="listitem" aria-label="Hardwood flooring installation">
+          <div class="gallery-card__image"></div>
+          <div class="gallery-card__badge" aria-hidden="true"></div>
           <div class="gallery-card__overlay">
+            <span class="gallery-card__tick" aria-hidden="true">✦</span>
             <span class="gallery-card__label">Hardwood Flooring</span>
-            <span class="gallery-card__location">Auburn, IL</span>
+            <span class="gallery-card__location">Auburn, IL · 2023</span>
           </div>
         </div>
 
         <div class="gallery-card gallery-card--drywall" role="listitem" aria-label="Drywall finishing project">
+          <div class="gallery-card__image"></div>
+          <div class="gallery-card__badge" aria-hidden="true"></div>
           <div class="gallery-card__overlay">
+            <span class="gallery-card__tick" aria-hidden="true">✦</span>
             <span class="gallery-card__label">Drywall & Finish</span>
-            <span class="gallery-card__location">Sherman, IL</span>
+            <span class="gallery-card__location">Sherman, IL · 2024</span>
           </div>
         </div>
 
         <div class="gallery-card gallery-card--trim" role="listitem" aria-label="Custom trim carpentry">
+          <div class="gallery-card__image"></div>
+          <div class="gallery-card__badge" aria-hidden="true"></div>
           <div class="gallery-card__overlay">
+            <span class="gallery-card__tick" aria-hidden="true">✦</span>
             <span class="gallery-card__label">Custom Trim Work</span>
-            <span class="gallery-card__location">Rochester, IL</span>
+            <span class="gallery-card__location">Rochester, IL · 2023</span>
           </div>
         </div>
 
         <div class="gallery-card gallery-card--fence" role="listitem" aria-label="Fence installation">
+          <div class="gallery-card__image"></div>
+          <div class="gallery-card__badge" aria-hidden="true"></div>
           <div class="gallery-card__overlay">
+            <span class="gallery-card__tick" aria-hidden="true">✦</span>
             <span class="gallery-card__label">Fence Installation</span>
-            <span class="gallery-card__location">Riverton, IL</span>
+            <span class="gallery-card__location">Riverton, IL · 2024</span>
           </div>
         </div>
 
@@ -551,7 +551,7 @@
   <section class="section testimonials" id="testimonials" aria-label="Customer reviews">
     <div class="container">
 
-      <header class="section__header reveal">
+      <header class="section__header section__header--fold reveal">
         <p class="section__eyebrow">Reviews</p>
         <h2 class="section__title">What Clients Say</h2>
       </header>
@@ -835,8 +835,7 @@
   </section>
 
 
-  </main><!-- /#main-content -->
-
+  </main>
 
   <!-- ═══════════════════════════════════════════
        FOOTER

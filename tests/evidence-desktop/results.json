@@ -1,21 +1,21 @@
 {
-  "generatedAt": "2026-03-14T20:57:05.041Z",
+  "generatedAt": "2026-03-15T06:06:32.262Z",
   "bootDiag": {
     "activeTier": "desktop",
     "particleBudgetTier": "desktop",
     "defaultTier": "low",
-    "directorPhase": "lockup",
+    "directorPhase": "reveal",
     "compositionMode": "stillLifeDesktop",
     "heroFocusTool": "wrench",
-    "cameraState": "lockup",
-    "shotBeat": "hero-lockup",
-    "lightingCue": "hero-key-lock",
-    "gradePreset": "hero-grade-lockup",
-    "environmentCue": "depth-lockup-world",
+    "cameraState": "reveal",
+    "shotBeat": "reveal-sweep",
+    "lightingCue": "wrench-reveal-sweep",
+    "gradePreset": "forged-arc",
+    "environmentCue": "seam-sweep-countercue",
     "assetSetVersion": "hero-pack-v5",
     "assetContractVersion": "hero-asset-contract-v4",
     "heroAssetVariant": "final",
-    "heroAssetBuildStage": "assembly-orbit-bespoke-pack",
+    "heroAssetBuildStage": "assembly-orbit-pbr-upgrade",
     "heroAssetVerificationState": "final-ready",
     "heroAssetVerification": {
       "manifestLoaded": true,
@@ -36,46 +36,46 @@
     "materialProfile": "precisionWorkshopBespoke",
     "interactionCue": "composed-idle",
     "postFxMode": "bloom-base-grade-pulse",
-    "particleCue": "lockup-ember-orbit-pulse",
-    "signatureCue": "ember-orbit-lock-pulse",
-    "worldCue": "depth-lockup-world",
+    "particleCue": "reveal-ember-convergence-pulse",
+    "signatureCue": "ember-convergence-pulse",
+    "worldCue": "seam-sweep-countercue",
     "depthLayerMix": {
-      "total": 0.163,
-      "rearForge": 0.07,
-      "silhouettes": 0.078,
-      "occluders": 0.045,
-      "hangingDepth": 0.071
+      "total": 0.084,
+      "rearForge": 0.016,
+      "silhouettes": 0.01,
+      "occluders": 0.006,
+      "hangingDepth": 0.011
     },
-    "lensEvent": "pulse-director-lockup",
-    "magicIntensity": 0.736,
-    "releaseEnvelope": 0.048,
-    "corridorEvacuation": 0.194,
-    "heroEmberLevel": 0.389,
+    "lensEvent": "intro-prepulse",
+    "magicIntensity": 0.563,
+    "releaseEnvelope": 0.001,
+    "corridorEvacuation": 0.131,
+    "heroEmberLevel": 0.197,
     "activeForceFields": {
-      "windShear": 0.438,
-      "layeredCurl": 0.474,
-      "floorDrag": 0.212,
-      "wrenchAttractor": 0.625,
-      "vortexPair": 0.968,
-      "toolDeflectors": 0.478,
-      "copyRepeller": 0.526
+      "windShear": 0.432,
+      "layeredCurl": 0.449,
+      "floorDrag": 0.18,
+      "wrenchAttractor": 0.672,
+      "vortexPair": 0.554,
+      "toolDeflectors": 0.432,
+      "copyRepeller": 0.47
     },
-    "copyCorridorDensity": 0,
+    "copyCorridorDensity": 0.021,
     "toolInfluenceState": {
       "hammer": 0,
-      "wrench": 0.211,
-      "saw": 0.008,
-      "heroOrbit": 1.034,
-      "copyRepeller": 0.542
+      "wrench": 0.138,
+      "saw": 0,
+      "heroOrbit": 0.593,
+      "copyRepeller": 0.48
     },
     "worldReadMetrics": {
-      "backgroundSeparation": 0.385,
+      "backgroundSeparation": 0.265,
       "copyContamination": 0,
-      "heroWorldBalance": 0.897
+      "heroWorldBalance": 0.893
     },
     "scrollHandoffState": "idle",
     "perfAuthority": "software-ci",
-    "assetLicense": "Original work - workspace authored",
+    "assetLicense": "See assets/3dmodels/source/",
     "environment": {
       "lowEndGpu": true,
       "softwareRenderer": true,
@@ -106,32 +106,32 @@
       "done": false,
       "startTime": null,
       "wrenchPartOffset": [
-        0.0010653209328198576,
-        0.0005518348544309992,
-        -0.00027020519154231926
+        -0.6339738767923346,
+        -0.1503846507114499,
+        -0.15124339752501373
       ],
       "hammerPartOffset": [
         0,
-        -0.8523074210272794,
-        0.0004944473629884261
+        -1.998644795077173,
+        0.2461381703736799
       ],
       "sawPartOffset": [
-        0.0008456014341526596,
-        0.002819890666751923,
-        0.002323425841114002
+        -1.2327556395151538,
+        0.8408486119054042,
+        0.18891965434763636
       ]
     },
     "toolTransforms": {
       "hammer": {
         "position": [
-          0.8933917605404776,
-          0.15821596473313984,
-          1.371342516759257
+          0.8723871506301977,
+          0.031278139756349355,
+          1.4146143496536636
         ],
         "rotation": [
-          -0.13367083180692507,
-          -0.27287872675011,
-          0.08795964517353734
+          -0.13824347545903148,
+          -0.2771945941574184,
+          0.07752835058679802
         ],
         "scale": [
           0.19,
@@ -141,31 +141,31 @@
       },
       "wrench": {
         "position": [
-          0.939077150222694,
-          -0.12134005286330872,
-          1.1664684095685598
+          0.9240129908610328,
+          -0.1634991068049902,
+          1.1603520819200412
         ],
         "rotation": [
-          -0.12138622324883606,
-          0.19661260717833187,
-          -0.25172700775695644
+          -0.12418926278586061,
+          0.15547964063894137,
+          -0.23405692252705648
         ],
         "scale": [
-          0.92,
-          0.92,
-          0.92
+          0.7,
+          0.7,
+          0.7
         ]
       },
       "saw": {
         "position": [
-          0.8668631649058047,
-          -0.5384865754564656,
-          1.512326861287345
+          0.8495943897472715,
+          -0.4904161555210942,
+          1.5429607592031385
         ],
         "rotation": [
-          -0.09765895185717854,
-          0.030610568744282182,
-          5.318249317871306
+          -0.09918154208200444,
+          0.034337099386684194,
+          5.116628882680921
         ],
         "scale": [
           0.16,
@@ -174,7 +174,7 @@
         ]
       }
     },
-    "renderedFrameCount": 7,
+    "renderedFrameCount": 5,
     "avgFrameMs": 50,
     "approxFps": 20,
     "particleCounts": {
@@ -194,11 +194,11 @@
       "microDust"
     ],
     "layerActivity": {
-      "cloudMote": 1.782,
-      "microDust": 1.742
+      "cloudMote": 1.774,
+      "microDust": 1.72
     },
-    "avgSimMs": 2.44,
-    "avgPostMs": 55.3,
+    "avgSimMs": 1.93,
+    "avgPostMs": 271.43,
     "queryOverrides": {
       "sceneTier": "desktop",
       "forceDesktopFX": true,
@@ -221,7 +221,7 @@
       "key": "desktop",
       "compositionMode": "stillLifeDesktop",
       "heroAnchor": {
-        "x": 0.63,
+        "x": 0.62,
         "y": 0.52
       },
       "heroPlaneZ": 1.16,
@@ -244,51 +244,51 @@
       }
     },
     "orbitCenterScreen": {
-      "x": 907.2,
+      "x": 892.8,
       "y": 468
     },
     "supportAnglesDeg": {
-      "hammer": 146,
-      "saw": 208
+      "hammer": 159.478,
+      "saw": 196.448
     },
     "toolScreenPositions": {
       "hammer": {
-        "x": 907.002792986405,
-        "y": 412.05239629254146
+        "x": 897.9434592483509,
+        "y": 430.4159097681926
       },
       "wrench": {
-        "x": 907.2010483679104,
-        "y": 461.766357296659
+        "x": 897.8290709046761,
+        "y": 463.36454169990213
       },
       "saw": {
-        "x": 907.4228150600334,
-        "y": 540.9635088567461
+        "x": 898.2475570678859,
+        "y": 524.691157697986
       }
     },
     "projectedToolBounds": {
       "hammer": {
-        "left": 864.251290318848,
-        "top": 352.3271242135447,
-        "right": 951.9252679531546,
-        "bottom": 482.04656507238064,
-        "width": 87.67397763430665,
-        "height": 129.71944085883592
+        "left": 808.5074274317169,
+        "top": 332.5809943274679,
+        "right": 961.0494921688883,
+        "bottom": 529.4215574747362,
+        "width": 152.54206473717136,
+        "height": 196.8405631472683
       },
       "wrench": {
-        "left": 750.5765689868183,
-        "top": 206.14416275984686,
-        "right": 1103.4059055434439,
-        "bottom": 712.9463562732416,
-        "width": 352.82933655662555,
-        "height": 506.80219351339474
+        "left": 776.9979549543285,
+        "top": 240.2530561057335,
+        "right": 1113.7105930424723,
+        "bottom": 700.6309225755099,
+        "width": 336.71263808814376,
+        "height": 460.3778664697764
       },
       "saw": {
-        "left": 866.4922772710402,
-        "top": 490.90874020125773,
-        "right": 948.6288363511507,
-        "bottom": 582.5998382012268,
-        "width": 82.13655908011049,
-        "height": 91.69109799996909
+        "left": 858.031058925464,
+        "top": 455.6609158317157,
+        "right": 928.6498550107764,
+        "bottom": 567.6759321779,
+        "width": 70.6187960853124,
+        "height": 112.01501634618427
       }
     },
     "safeZoneViolations": {
@@ -347,18 +347,18 @@
       },
       "bodyZone": {
         "left": 354,
-        "top": 514.984375,
+        "top": 494.8653564453125,
         "right": 942,
-        "bottom": 654.625,
+        "bottom": 634.5059814453125,
         "width": 588,
         "height": 139.640625,
         "active": true
       },
       "ctaZone": {
         "left": 358,
-        "top": 655.015625,
+        "top": 653.8453369140625,
         "right": 1082,
-        "bottom": 739.96875,
+        "bottom": 738.7984619140625,
         "width": 724,
         "height": 84.953125,
         "active": true
@@ -428,30 +428,30 @@
       "active": true
     },
     "heroBacklightRect": {
-      "left": 729.4068087934207,
-      "top": 145.3278995382395,
-      "right": 1166.9151861236364,
-      "bottom": 591.3138298300269,
-      "width": 437.5083773302157,
-      "height": 445.9859302917873,
+      "left": 756.7951966690399,
+      "top": 185.00771212936033,
+      "right": 1174.318867898338,
+      "bottom": 590.1402346227635,
+      "width": 417.5236712292982,
+      "height": 405.13252249340314,
       "active": true
     },
     "heroShadowRect": {
-      "left": 736.4633955245533,
-      "top": 631.8580053110984,
-      "right": 1181.0283595859014,
-      "bottom": 763.626575624581,
-      "width": 444.56496406134806,
-      "height": 131.76857031348266,
+      "left": 763.5294494308027,
+      "top": 626.9704639403457,
+      "right": 1187.787373421864,
+      "bottom": 746.6687092224876,
+      "width": 424.25792399106126,
+      "height": 119.6982452821419,
       "active": true
     },
     "particleEmissionRect": {
-      "left": 679.5765689868183,
-      "top": 54.144162759846864,
-      "right": 1174.4059055434439,
-      "bottom": 864.9463562732416,
-      "width": 494.82933655662555,
-      "height": 810.8021935133947,
+      "left": 709.9979549543285,
+      "top": 102.25305610573349,
+      "right": 1180.7105930424723,
+      "bottom": 838.6309225755099,
+      "width": 470.71263808814376,
+      "height": 736.3778664697763,
       "active": true
     },
     "particleExclusionLane": {
@@ -510,23 +510,23 @@
       "hammer": "hidden-art-direction",
       "saw": "hidden-art-direction"
     },
-    "heroViewportHeightRatio": 0.563,
-    "heroViewportAreaRatio": 0.175,
-    "heroHeadlineOverlapRatio": 0.098,
-    "heroArtLaneOccupancy": 0.297,
+    "heroViewportHeightRatio": 0.512,
+    "heroViewportAreaRatio": 0.154,
+    "heroHeadlineOverlapRatio": 0.1,
+    "heroArtLaneOccupancy": 0.262,
     "heroClearancePx": {
-      "top": 206.1,
-      "right": 336.6,
-      "bottom": 187.1,
-      "left": 750.6
+      "top": 240.3,
+      "right": 326.3,
+      "bottom": 199.4,
+      "left": 777
     },
-    "heroRightThirdOffsetPx": -37.8,
+    "heroRightThirdOffsetPx": -19.4,
     "supportProjectedHeightRatio": {
-      "hammer": 0.256,
-      "saw": 0.181
+      "hammer": 0.428,
+      "saw": 0.243
     },
     "supportVisibleCount": 0,
-    "gridLuminanceUnderCopy": 0.012,
+    "gridLuminanceUnderCopy": 0.004,
     "particleLongStrokeCount": 0,
     "particleRodCount": 0,
     "particleOutOfHeroLaneCount": 0,
@@ -543,46 +543,46 @@
     },
     "densityMetrics": {
       "vortex": 0,
-      "titleHalo": 0.047,
-      "foreground": 0,
+      "titleHalo": 0.187,
+      "foreground": 0.178,
       "floor": 0,
-      "sawWake": 0,
+      "sawWake": 0.043,
       "copy": 0
     },
     "toolWakeState": {
       "hammer": 0,
-      "wrench": 0.068,
-      "saw": 0.008
+      "wrench": 0.001,
+      "saw": 0
     },
     "heroReadMetrics": {
-      "focalContrast": 29.771,
+      "focalContrast": 7.838,
       "supportSuppression": 1,
-      "copyCalm": 0.831,
-      "highlightSpill": 0.114
+      "copyCalm": 0.81,
+      "highlightSpill": 0.031
     },
     "toolContrast": {
       "hammer": 0,
-      "wrench": 12.405,
+      "wrench": 3.266,
       "saw": 0
     },
     "visualMetrics": {
-      "sceneGradeOpacity": 0.485947,
+      "sceneGradeOpacity": 0.43072,
       "chargeRingOpacity": 0,
-      "copyShieldOpacity": 0.121,
-      "heroShadowIntensity": 1.369,
-      "contactShadowOpacity": 0.659,
-      "vortexLightIntensity": 0.196,
+      "copyShieldOpacity": 0.102,
+      "heroShadowIntensity": 0.346,
+      "contactShadowOpacity": 0.228,
+      "vortexLightIntensity": 0.05,
       "sawGlowIntensity": 0,
-      "floorBurstIntensity": 0.28,
-      "volumetricOpacity": 0.022,
+      "floorBurstIntensity": 0.081,
+      "volumetricOpacity": 0.007,
       "blueMix": 0.84,
       "bloomLayerIntensity": 1,
       "scatterPassIntensity": 0,
       "scatterShaftStepCount": 0,
-      "densityInCopyZone": 0,
-      "magicPulseStrength": 0.074,
-      "titleHaloDensity": 0.047,
-      "foregroundDensity": 0,
+      "densityInCopyZone": 0.021,
+      "magicPulseStrength": 0,
+      "titleHaloDensity": 0.187,
+      "foregroundDensity": 0.178,
       "activeTrailNodes": 0,
       "volumetricScatterSamples": 0
     },
@@ -597,6 +597,14 @@
       "pointerTrail": true,
       "experimentalGestures": false,
       "reducedMotion": false
+    },
+    "zoneState": {
+      "activeId": "hero",
+      "nextId": null,
+      "blendProgress": 0,
+      "zoneCount": 6,
+      "zoneT": 0,
+      "active": false
     }
   },
   "revealDiag": {
@@ -614,7 +622,7 @@
     "assetSetVersion": "hero-pack-v5",
     "assetContractVersion": "hero-asset-contract-v4",
     "heroAssetVariant": "final",
-    "heroAssetBuildStage": "assembly-orbit-bespoke-pack",
+    "heroAssetBuildStage": "assembly-orbit-pbr-upgrade",
     "heroAssetVerificationState": "final-ready",
     "heroAssetVerification": {
       "manifestLoaded": true,
@@ -634,47 +642,47 @@
     },
     "materialProfile": "precisionWorkshopBespoke",
     "interactionCue": "composed-idle",
-    "postFxMode": "bloom-base-grade-pulse",
+    "postFxMode": "bloom-base-grade-steady",
     "particleCue": "reveal-ember-convergence",
     "signatureCue": "ember-convergence",
     "worldCue": "seam-sweep-countercue",
     "depthLayerMix": {
-      "total": 0.179,
-      "rearForge": 0.141,
-      "silhouettes": 0.088,
-      "occluders": 0.049,
-      "hangingDepth": 0.094
+      "total": 0.173,
+      "rearForge": 0.142,
+      "silhouettes": 0.077,
+      "occluders": 0.043,
+      "hangingDepth": 0.087
     },
-    "lensEvent": "intro-prepulse",
-    "magicIntensity": 0.605,
-    "releaseEnvelope": 0.061,
-    "corridorEvacuation": 0.284,
-    "heroEmberLevel": 0.638,
+    "lensEvent": "idle",
+    "magicIntensity": 0.604,
+    "releaseEnvelope": 0.043,
+    "corridorEvacuation": 0.279,
+    "heroEmberLevel": 0.617,
     "activeForceFields": {
       "windShear": 0.442,
-      "layeredCurl": 0.471,
+      "layeredCurl": 0.469,
       "floorDrag": 0.18,
-      "wrenchAttractor": 0.71,
+      "wrenchAttractor": 0.704,
       "vortexPair": 0.667,
-      "toolDeflectors": 0.446,
+      "toolDeflectors": 0.445,
       "copyRepeller": 0.561
     },
-    "copyCorridorDensity": 0.004,
+    "copyCorridorDensity": 0.008,
     "toolInfluenceState": {
       "hammer": 0,
-      "wrench": 0.305,
-      "saw": 0.017,
+      "wrench": 0.281,
+      "saw": 0.015,
       "heroOrbit": 0.705,
-      "copyRepeller": 0.584
+      "copyRepeller": 0.583
     },
     "worldReadMetrics": {
-      "backgroundSeparation": 0.344,
+      "backgroundSeparation": 0.336,
       "copyContamination": 0,
-      "heroWorldBalance": 0.796
+      "heroWorldBalance": 0.781
     },
     "scrollHandoffState": "idle",
     "perfAuthority": "software-ci",
-    "assetLicense": "Original work - workspace authored",
+    "assetLicense": "See assets/3dmodels/source/",
     "environment": {
       "lowEndGpu": true,
       "softwareRenderer": true,
@@ -705,9 +713,9 @@
       "done": false,
       "startTime": null,
       "wrenchPartOffset": [
-        0.042370406578940145,
-        0.021947815373140722,
-        -0.010746718169786187
+        -0.05456240799807488,
+        -0.012942723618648178,
+        -0.013016630913134486
       ],
       "hammerPartOffset": [
         0,
@@ -715,21 +723,21 @@
         0.0057081007025682196
       ],
       "sawPartOffset": [
-        0.19338515527897485,
-        0.6448960141677161,
-        0.5313567940116571
+        -1.1525856545330733,
+        0.7861655762510936,
+        0.17663361373554337
       ]
     },
     "toolTransforms": {
       "hammer": {
         "position": [
-          0.7936229332285878,
-          0.0902181339062324,
-          1.4046437784011938
+          0.6903680728289807,
+          0.07905207602841824,
+          1.4047198048160476
         ],
         "rotation": [
-          -0.13687251072690906,
-          -0.276254475822744,
+          -0.1407585826054129,
+          -0.27623081901100677,
           0.08040297995295959
         ],
         "scale": [
@@ -740,26 +748,26 @@
       },
       "wrench": {
         "position": [
-          0.8448659734109312,
-          -0.11915376856295437,
-          1.1637472429011098
+          0.7372728533143228,
+          -0.11500175852631239,
+          1.1639690633389461
         ],
         "rotation": [
-          -0.12366448849174319,
-          0.16485113314650954,
-          -0.23607168525829125
+          -0.12236261102677622,
+          0.1480167421133658,
+          -0.24976390119370262
         ],
         "scale": [
-          0.92,
-          0.92,
-          0.92
+          0.7,
+          0.7,
+          0.7
         ]
       },
       "saw": {
         "position": [
-          0.7686580748118556,
-          -0.4631366643718643,
-          1.536058278962825
+          0.6678764794349955,
+          -0.46484229081344536,
+          1.536098613243
         ],
         "rotation": [
           -0.09885282982184357,
@@ -793,11 +801,11 @@
       "microDust"
     ],
     "layerActivity": {
-      "cloudMote": 1.761,
+      "cloudMote": 1.732,
       "microDust": 1.604
     },
-    "avgSimMs": 3.12,
-    "avgPostMs": 29.98,
+    "avgSimMs": 2.33,
+    "avgPostMs": 113.2,
     "queryOverrides": {
       "sceneTier": "desktop",
       "forceDesktopFX": true,
@@ -820,7 +828,7 @@
       "key": "desktop",
       "compositionMode": "stillLifeDesktop",
       "heroAnchor": {
-        "x": 0.63,
+        "x": 0.62,
         "y": 0.52
       },
       "heroPlaneZ": 1.16,
@@ -843,7 +851,7 @@
       }
     },
     "orbitCenterScreen": {
-      "x": 907.2,
+      "x": 892.8,
       "y": 468
     },
     "supportAnglesDeg": {
@@ -852,42 +860,42 @@
     },
     "toolScreenPositions": {
       "hammer": {
-        "x": 910.0239070763632,
-        "y": 422.15258691173585
+        "x": 896.4224721775452,
+        "y": 422.14747022512756
       },
       "wrench": {
-        "x": 910.0546386390391,
-        "y": 459.9115989603667
+        "x": 896.4500973906786,
+        "y": 457.96960450758354
       },
       "saw": {
-        "x": 910.2644148996529,
-        "y": 527.0234784590708
+        "x": 896.7067098373799,
+        "y": 527.7483177142152
       }
     },
     "projectedToolBounds": {
       "hammer": {
-        "left": 816.6582961477957,
-        "top": 322.92921844541917,
-        "right": 960.9899218824942,
-        "bottom": 498.9154824893672,
-        "width": 144.3316257346985,
-        "height": 175.98626404394804
+        "left": 802.7291833782525,
+        "top": 320.99141403306584,
+        "right": 944.369835531549,
+        "bottom": 500.2317779722068,
+        "width": 141.64065215329651,
+        "height": 179.240363939141
       },
       "wrench": {
-        "left": 750.399431269717,
-        "top": 204.1909754342065,
-        "right": 1101.5347869842712,
-        "bottom": 718.8730120483139,
-        "width": 351.1353557145543,
-        "height": 514.6820366141073
+        "left": 767.3084339698972,
+        "top": 171.39362242329886,
+        "right": 1108.7580656877265,
+        "bottom": 700.8159704813895,
+        "width": 341.4496317178292,
+        "height": 529.4223480580906
       },
       "saw": {
-        "left": 869.095662817863,
-        "top": 479.43666481186,
-        "right": 951.1018441569141,
-        "bottom": 578.2771174070411,
-        "width": 82.00618133905118,
-        "height": 98.84045259518115
+        "left": 853.8533244730664,
+        "top": 458.81246924089567,
+        "right": 933.0054885417122,
+        "bottom": 576.7450016428645,
+        "width": 79.15216406864579,
+        "height": 117.93253240196884
       }
     },
     "safeZoneViolations": {
@@ -1027,30 +1035,30 @@
       "active": true
     },
     "heroBacklightRect": {
-      "left": 729.3313099268437,
-      "top": 142.42913104051362,
-      "right": 1164.739151012891,
-      "bottom": 595.349323260928,
-      "width": 435.40784108604726,
-      "height": 452.9201922204144,
+      "left": 746.8214560668275,
+      "top": 107.86294065632799,
+      "right": 1170.2189993969357,
+      "bottom": 573.7546069474478,
+      "width": 423.3975433301082,
+      "height": 465.8916662911198,
       "active": true
     },
     "heroShadowRect": {
-      "left": 736.3540170411347,
-      "top": 636.5238861900567,
-      "right": 1178.7845652414733,
-      "bottom": 770.3412157097246,
-      "width": 442.43054820033854,
-      "height": 133.81732951966785,
+      "left": 753.650448701184,
+      "top": 616.108394792095,
+      "right": 1183.876984665649,
+      "bottom": 753.7582052871986,
+      "width": 430.2265359644649,
+      "height": 137.64981049510357,
       "active": true
     },
     "particleEmissionRect": {
-      "left": 680.399431269717,
-      "top": 50.19097543420651,
-      "right": 1171.5347869842712,
-      "bottom": 872.8730120483139,
-      "width": 491.1353557145543,
-      "height": 822.6820366141073,
+      "left": 699.3084339698972,
+      "top": 12.393622423298865,
+      "right": 1176.7580656877265,
+      "bottom": 859.8159704813895,
+      "width": 477.4496317178292,
+      "height": 847.4223480580906,
       "active": true
     },
     "particleExclusionLane": {
@@ -1109,20 +1117,20 @@
       "hammer": "hidden-art-direction",
       "saw": "hidden-art-direction"
     },
-    "heroViewportHeightRatio": 0.572,
+    "heroViewportHeightRatio": 0.588,
     "heroViewportAreaRatio": 0.177,
-    "heroHeadlineOverlapRatio": 0.097,
+    "heroHeadlineOverlapRatio": 0.115,
     "heroArtLaneOccupancy": 0.3,
     "heroClearancePx": {
-      "top": 204.2,
-      "right": 338.5,
-      "bottom": 181.1,
-      "left": 750.4
+      "top": 171.4,
+      "right": 331.2,
+      "bottom": 199.2,
+      "left": 767.3
     },
-    "heroRightThirdOffsetPx": -38.8,
+    "heroRightThirdOffsetPx": -26.8,
     "supportProjectedHeightRatio": {
-      "hammer": 0.342,
-      "saw": 0.192
+      "hammer": 0.339,
+      "saw": 0.223
     },
     "supportVisibleCount": 0,
     "gridLuminanceUnderCopy": 0.009,
@@ -1142,7 +1150,7 @@
     },
     "densityMetrics": {
       "vortex": 0,
-      "titleHalo": 0.383,
+      "titleHalo": 0.356,
       "foreground": 0,
       "floor": 0,
       "sawWake": 0,
@@ -1150,37 +1158,37 @@
     },
     "toolWakeState": {
       "hammer": 0,
-      "wrench": 0.126,
-      "saw": 0.017
+      "wrench": 0.105,
+      "saw": 0.015
     },
     "heroReadMetrics": {
-      "focalContrast": 18.522,
+      "focalContrast": 18.778,
       "supportSuppression": 1,
-      "copyCalm": 0.816,
-      "highlightSpill": 0.087
+      "copyCalm": 0.807,
+      "highlightSpill": 0.092
     },
     "toolContrast": {
       "hammer": 0,
-      "wrench": 7.717,
+      "wrench": 7.824,
       "saw": 0
     },
     "visualMetrics": {
-      "sceneGradeOpacity": 0.383478,
+      "sceneGradeOpacity": 0.379755,
       "chargeRingOpacity": 0,
       "copyShieldOpacity": 0.126,
-      "heroShadowIntensity": 0.704,
-      "contactShadowOpacity": 0.387,
-      "vortexLightIntensity": 0.152,
+      "heroShadowIntensity": 0.802,
+      "contactShadowOpacity": 0.529,
+      "vortexLightIntensity": 0.144,
       "sawGlowIntensity": 0,
-      "floorBurstIntensity": 0.005,
+      "floorBurstIntensity": 0.001,
       "volumetricOpacity": 0.018,
       "blueMix": 0.84,
       "bloomLayerIntensity": 1,
       "scatterPassIntensity": 0,
       "scatterShaftStepCount": 0,
-      "densityInCopyZone": 0.004,
-      "magicPulseStrength": 0.004,
-      "titleHaloDensity": 0.383,
+      "densityInCopyZone": 0.008,
+      "magicPulseStrength": 0.001,
+      "titleHaloDensity": 0.356,
       "foregroundDensity": 0,
       "activeTrailNodes": 0,
       "volumetricScatterSamples": 0
@@ -1196,6 +1204,14 @@
       "pointerTrail": true,
       "experimentalGestures": false,
       "reducedMotion": false
+    },
+    "zoneState": {
+      "activeId": "hero",
+      "nextId": null,
+      "blendProgress": 0,
+      "zoneCount": 6,
+      "zoneT": 0,
+      "active": false
     }
   },
   "staticDiag": {
@@ -1213,7 +1229,7 @@
     "assetSetVersion": "hero-pack-v5",
     "assetContractVersion": "hero-asset-contract-v4",
     "heroAssetVariant": "final",
-    "heroAssetBuildStage": "assembly-orbit-bespoke-pack",
+    "heroAssetBuildStage": "assembly-orbit-pbr-upgrade",
     "heroAssetVerificationState": "final-ready",
     "heroAssetVerification": {
       "manifestLoaded": true,
@@ -1238,42 +1254,42 @@
     "signatureCue": "ember-orbit-lock",
     "worldCue": "depth-lockup-world",
     "depthLayerMix": {
-      "total": 0.246,
-      "rearForge": 0.132,
-      "silhouettes": 0.182,
-      "occluders": 0.096,
-      "hangingDepth": 0.147
+      "total": 0.243,
+      "rearForge": 0.133,
+      "silhouettes": 0.175,
+      "occluders": 0.092,
+      "hangingDepth": 0.143
     },
     "lensEvent": "idle",
     "magicIntensity": 0.76,
-    "releaseEnvelope": 0.072,
-    "corridorEvacuation": 0.361,
-    "heroEmberLevel": 0.802,
+    "releaseEnvelope": 0.064,
+    "corridorEvacuation": 0.358,
+    "heroEmberLevel": 0.791,
     "activeForceFields": {
       "windShear": 0.444,
-      "layeredCurl": 0.487,
+      "layeredCurl": 0.485,
       "floorDrag": 0.28,
-      "wrenchAttractor": 0.676,
+      "wrenchAttractor": 0.671,
       "vortexPair": 1,
       "toolDeflectors": 0.485,
       "copyRepeller": 0.613
     },
-    "copyCorridorDensity": 0.023,
+    "copyCorridorDensity": 0.019,
     "toolInfluenceState": {
       "hammer": 0,
-      "wrench": 0.462,
-      "saw": 0.029,
+      "wrench": 0.445,
+      "saw": 0.028,
       "heroOrbit": 1.066,
       "copyRepeller": 0.642
     },
     "worldReadMetrics": {
-      "backgroundSeparation": 0.452,
+      "backgroundSeparation": 0.449,
       "copyContamination": 0,
-      "heroWorldBalance": 0.826
+      "heroWorldBalance": 0.807
     },
     "scrollHandoffState": "idle",
     "perfAuthority": "software-ci",
-    "assetLicense": "Original work - workspace authored",
+    "assetLicense": "See assets/3dmodels/source/",
     "environment": {
       "lowEndGpu": true,
       "softwareRenderer": true,
@@ -1304,9 +1320,9 @@
       "done": false,
       "startTime": null,
       "wrenchPartOffset": [
-        0.0005988030142540235,
-        0.00031017918077425044,
-        -0.0001518788171507579
+        -0.0007711074075565927,
+        -0.00018291403225181857,
+        -0.00018395853274844054
       ],
       "hammerPartOffset": [
         0,
@@ -1314,21 +1330,21 @@
         0.000364892357138491
       ],
       "sawPartOffset": [
-        0.0002656469555421259,
-        0.0008858728714609132,
-        0.0007299077037852264
+        -0.001499410370261467,
+        0.0010227307733159385,
+        0.00022978445994897845
       ]
     },
     "toolTransforms": {
       "hammer": {
         "position": [
-          0.7613650974883152,
-          0.18790802602604956,
-          1.369868974783196
+          0.6548764288086824,
+          0.17681487739073415,
+          1.3699102424074459
         ],
         "rotation": [
-          -0.13727481968060332,
-          -0.27322728727690176,
+          -0.13949142009757629,
+          -0.2732231683949576,
           0.08795964517353734
         ],
         "scale": [
@@ -1339,26 +1355,26 @@
       },
       "wrench": {
         "position": [
-          0.8059114205714955,
-          -0.06202255323012083,
-          1.1669126686458695
+          0.6967713724631722,
+          -0.05952056843115586,
+          1.1672287821650833
         ],
         "rotation": [
-          -0.12395133047323235,
-          0.14222712470362464,
-          -0.23474882333573657
+          -0.12024927686676042,
+          0.1741019486695064,
+          -0.24908620840327206
         ],
         "scale": [
-          0.92,
-          0.92,
-          0.92
+          0.7,
+          0.7,
+          0.7
         ]
       },
       "saw": {
         "position": [
-          0.7313617643616129,
-          -0.4762881740033914,
-          1.5111106014767572
+          0.6274827415763535,
+          -0.4696795169451894,
+          1.5111429037919581
         ],
         "rotation": [
           -0.09765895185717854,
@@ -1392,11 +1408,11 @@
       "microDust"
     ],
     "layerActivity": {
-      "cloudMote": 1.722,
-      "microDust": 1.616
+      "cloudMote": 1.67,
+      "microDust": 1.585
     },
-    "avgSimMs": 2.76,
-    "avgPostMs": 18.67,
+    "avgSimMs": 2.91,
+    "avgPostMs": 69.62,
     "queryOverrides": {
       "sceneTier": "desktop",
       "forceDesktopFX": true,
@@ -1419,7 +1435,7 @@
       "key": "desktop",
       "compositionMode": "stillLifeDesktop",
       "heroAnchor": {
-        "x": 0.63,
+        "x": 0.62,
         "y": 0.52
       },
       "heroPlaneZ": 1.16,
@@ -1442,7 +1458,7 @@
       }
     },
     "orbitCenterScreen": {
-      "x": 907.2,
+      "x": 892.8,
       "y": 468
     },
     "supportAnglesDeg": {
@@ -1451,42 +1467,42 @@
     },
     "toolScreenPositions": {
       "hammer": {
-        "x": 910.4795536676164,
-        "y": 409.2398002696123
+        "x": 896.1106381127632,
+        "y": 409.3877166262292
       },
       "wrench": {
-        "x": 910.4215515034826,
-        "y": 456.26686931528496
+        "x": 896.2822141637065,
+        "y": 455.19363236648235
       },
       "saw": {
-        "x": 910.5586902684134,
-        "y": 538.1492769030572
+        "x": 896.1930592922511,
+        "y": 538.6413796618709
       }
     },
     "projectedToolBounds": {
       "hammer": {
-        "left": 862.6019325393557,
-        "top": 349.52722174767837,
-        "right": 954.1782025209465,
-        "bottom": 485.42201594273655,
-        "width": 91.57626998159071,
-        "height": 135.89479419505818
+        "left": 847.5773784942022,
+        "top": 348.03732873510023,
+        "right": 940.4884264950631,
+        "bottom": 487.52150177171166,
+        "width": 92.91104800086089,
+        "height": 139.48417303661142
       },
       "wrench": {
-        "left": 746.8293524782075,
-        "top": 193.03612750746694,
-        "right": 1104.2084603715423,
-        "bottom": 719.6560538662119,
-        "width": 357.3791078933348,
-        "height": 526.6199263587449
+        "left": 762.3401217390701,
+        "top": 141.11305109621733,
+        "right": 1110.061458176667,
+        "bottom": 698.3759199834739,
+        "width": 347.72133643759685,
+        "height": 557.2628688872566
       },
       "saw": {
-        "left": 864.6989995552769,
-        "top": 489.2634781650409,
-        "right": 950.4118813291909,
-        "bottom": 585.1329171140467,
-        "width": 85.71288177391398,
-        "height": 95.86943894900577
+        "left": 849.4107080465692,
+        "top": 488.3150944653194,
+        "right": 936.9320729963105,
+        "bottom": 586.5922030015726,
+        "width": 87.52136494974127,
+        "height": 98.27710853625314
       }
     },
     "safeZoneViolations": {
@@ -1626,30 +1642,30 @@
       "active": true
     },
     "heroBacklightRect": {
-      "left": 725.3866060046074,
-      "top": 129.84173634441754,
-      "right": 1168.5366997923425,
-      "bottom": 593.2672715401131,
-      "width": 443.15009378773505,
-      "height": 463.4255351956956,
+      "left": 741.4768415528143,
+      "top": 74.24150682974656,
+      "right": 1172.6512987354345,
+      "bottom": 564.6328314505323,
+      "width": 431.17445718262013,
+      "height": 490.3913246207858,
       "active": true
     },
     "heroShadowRect": {
-      "left": 732.5341881624742,
-      "top": 635.3968656488128,
-      "right": 1182.831864108076,
-      "bottom": 772.3180465020864,
-      "width": 450.2976759456018,
-      "height": 136.92118085327365,
+      "left": 748.4312682815663,
+      "top": 609.2138609615129,
+      "right": 1186.5601521929382,
+      "bottom": 754.1022068721995,
+      "width": 438.1288839113719,
+      "height": 144.88834591068667,
       "active": true
     },
     "particleEmissionRect": {
-      "left": 675.8293524782075,
-      "top": 35.036127507466944,
-      "right": 1175.2084603715423,
-      "bottom": 877.6560538662119,
-      "width": 499.3791078933348,
-      "height": 842.6199263587449,
+      "left": 692.3401217390701,
+      "top": 0,
+      "right": 1180.061458176667,
+      "bottom": 865.3759199834739,
+      "width": 487.72133643759685,
+      "height": 865.3759199834739,
       "active": true
     },
     "particleExclusionLane": {
@@ -1708,20 +1724,20 @@
       "hammer": "hidden-art-direction",
       "saw": "hidden-art-direction"
     },
-    "heroViewportHeightRatio": 0.585,
-    "heroViewportAreaRatio": 0.183,
-    "heroHeadlineOverlapRatio": 0.102,
-    "heroArtLaneOccupancy": 0.311,
+    "heroViewportHeightRatio": 0.619,
+    "heroViewportAreaRatio": 0.188,
+    "heroHeadlineOverlapRatio": 0.115,
+    "heroArtLaneOccupancy": 0.319,
     "heroClearancePx": {
-      "top": 193,
-      "right": 335.8,
-      "bottom": 180.3,
-      "left": 746.8
+      "top": 141.1,
+      "right": 329.9,
+      "bottom": 201.6,
+      "left": 762.3
     },
-    "heroRightThirdOffsetPx": -39.3,
+    "heroRightThirdOffsetPx": -28.6,
     "supportProjectedHeightRatio": {
-      "hammer": 0.258,
-      "saw": 0.182
+      "hammer": 0.25,
+      "saw": 0.176
     },
     "supportVisibleCount": 0,
     "gridLuminanceUnderCopy": 0.012,
@@ -1740,47 +1756,47 @@
       "insideProtectedCorridor": true
     },
     "densityMetrics": {
-      "vortex": 0.217,
-      "titleHalo": 0.387,
-      "foreground": 0.025,
+      "vortex": 0.117,
+      "titleHalo": 0.431,
+      "foreground": 0.027,
       "floor": 0,
-      "sawWake": 0.201,
-      "copy": 0.157
+      "sawWake": 0.123,
+      "copy": 0.12
     },
     "toolWakeState": {
       "hammer": 0,
-      "wrench": 0.276,
-      "saw": 0.029
+      "wrench": 0.261,
+      "saw": 0.028
     },
     "heroReadMetrics": {
-      "focalContrast": 32.427,
+      "focalContrast": 32.758,
       "supportSuppression": 1,
-      "copyCalm": 0.727,
-      "highlightSpill": 0.139
+      "copyCalm": 0.741,
+      "highlightSpill": 0.135
     },
     "toolContrast": {
       "hammer": 0,
-      "wrench": 11.07,
+      "wrench": 12.377,
       "saw": 0
     },
     "visualMetrics": {
-      "sceneGradeOpacity": 0.43915,
+      "sceneGradeOpacity": 0.439659,
       "chargeRingOpacity": 0,
-      "copyShieldOpacity": 0.159,
-      "heroShadowIntensity": 1.492,
-      "contactShadowOpacity": 0.714,
-      "vortexLightIntensity": 0.381,
+      "copyShieldOpacity": 0.156,
+      "heroShadowIntensity": 1.669,
+      "contactShadowOpacity": 0.982,
+      "vortexLightIntensity": 0.321,
       "sawGlowIntensity": 0,
       "floorBurstIntensity": 0,
-      "volumetricOpacity": 0.021,
+      "volumetricOpacity": 0.03,
       "blueMix": 0.84,
       "bloomLayerIntensity": 1,
       "scatterPassIntensity": 0,
       "scatterShaftStepCount": 0,
-      "densityInCopyZone": 0.023,
+      "densityInCopyZone": 0.019,
       "magicPulseStrength": 0,
-      "titleHaloDensity": 0.387,
-      "foregroundDensity": 0.025,
+      "titleHaloDensity": 0.431,
+      "foregroundDensity": 0.027,
       "activeTrailNodes": 0,
       "volumetricScatterSamples": 0
     },
@@ -1795,6 +1811,14 @@
       "pointerTrail": true,
       "experimentalGestures": false,
       "reducedMotion": false
+    },
+    "zoneState": {
+      "activeId": "hero",
+      "nextId": null,
+      "blendProgress": 0,
+      "zoneCount": 6,
+      "zoneT": 0,
+      "active": false
     }
   },
   "lockupDiag": {
@@ -1812,7 +1836,7 @@
     "assetSetVersion": "hero-pack-v5",
     "assetContractVersion": "hero-asset-contract-v4",
     "heroAssetVariant": "final",
-    "heroAssetBuildStage": "assembly-orbit-bespoke-pack",
+    "heroAssetBuildStage": "assembly-orbit-pbr-upgrade",
     "heroAssetVerificationState": "final-ready",
     "heroAssetVerification": {
       "manifestLoaded": true,
@@ -1837,42 +1861,42 @@
     "signatureCue": "ember-orbit-lock",
     "worldCue": "depth-lockup-world",
     "depthLayerMix": {
-      "total": 0.292,
-      "rearForge": 0.125,
-      "silhouettes": 0.267,
-      "occluders": 0.137,
-      "hangingDepth": 0.195
+      "total": 0.298,
+      "rearForge": 0.124,
+      "silhouettes": 0.278,
+      "occluders": 0.143,
+      "hangingDepth": 0.201
     },
     "lensEvent": "idle",
     "magicIntensity": 0.76,
-    "releaseEnvelope": 0.077,
-    "corridorEvacuation": 0.42,
-    "heroEmberLevel": 0.907,
+    "releaseEnvelope": 0.075,
+    "corridorEvacuation": 0.428,
+    "heroEmberLevel": 0.915,
     "activeForceFields": {
       "windShear": 0.444,
       "layeredCurl": 0.487,
       "floorDrag": 0.28,
-      "wrenchAttractor": 0.714,
+      "wrenchAttractor": 0.717,
       "vortexPair": 1,
       "toolDeflectors": 0.485,
-      "copyRepeller": 0.636
+      "copyRepeller": 0.639
     },
-    "copyCorridorDensity": 0.002,
+    "copyCorridorDensity": 0.009,
     "toolInfluenceState": {
       "hammer": 0,
-      "wrench": 0.606,
+      "wrench": 0.618,
       "saw": 0.04,
       "heroOrbit": 1.066,
-      "copyRepeller": 0.669
+      "copyRepeller": 0.673
     },
     "worldReadMetrics": {
-      "backgroundSeparation": 0.505,
+      "backgroundSeparation": 0.509,
       "copyContamination": 0,
-      "heroWorldBalance": 0.784
+      "heroWorldBalance": 0.758
     },
     "scrollHandoffState": "idle",
     "perfAuthority": "software-ci",
-    "assetLicense": "Original work - workspace authored",
+    "assetLicense": "See assets/3dmodels/source/",
     "environment": {
       "lowEndGpu": true,
       "softwareRenderer": true,
@@ -1903,9 +1927,9 @@
       "done": false,
       "startTime": null,
       "wrenchPartOffset": [
-        0.0005988030142540235,
-        0.00031017918077425044,
-        -0.0001518788171507579
+        -0.0007711074075565927,
+        -0.00018291403225181857,
+        -0.00018395853274844054
       ],
       "hammerPartOffset": [
         0,
@@ -1913,21 +1937,21 @@
         0.000364892357138491
       ],
       "sawPartOffset": [
-        0.0002656469555421259,
-        0.0008858728714609132,
-        0.0007299077037852264
+        -0.001499410370261467,
+        0.0010227307733159385,
+        0.00022978445994897845
       ]
     },
     "toolTransforms": {
       "hammer": {
         "position": [
-          0.672824999948015,
-          0.188546160516737,
-          1.3694865026488345
+          0.5510017472118782,
+          0.17818084705957796,
+          1.369509108374812
         ],
         "rotation": [
-          -0.1392563348346942,
-          -0.273332632314526,
+          -0.13742574755416756,
+          -0.27333162188957155,
           0.08795964517353734
         ],
         "scale": [
@@ -1938,26 +1962,26 @@
       },
       "wrench": {
         "position": [
-          0.7174329079735441,
-          -0.0504536816330496,
-          1.1675633806171104
+          0.593287936385396,
+          -0.0433121894135686,
+          1.1675969822138323
         ],
         "rotation": [
-          -0.12188443844916241,
-          0.14638887460301644,
-          -0.249618625034496
+          -0.12121362321049858,
+          0.19975600698388002,
+          -0.23160924691299792
         ],
         "scale": [
-          0.92,
-          0.92,
-          0.92
+          0.7,
+          0.7,
+          0.7
         ]
       },
       "saw": {
         "position": [
-          0.6421095016733981,
-          -0.4546797170875537,
-          1.5107770119116721
+          0.52298319626554,
+          -0.44079161671183775,
+          1.5108088151903565
         ],
         "rotation": [
           -0.09765895185717854,
@@ -1971,7 +1995,7 @@
         ]
       }
     },
-    "renderedFrameCount": 21,
+    "renderedFrameCount": 22,
     "avgFrameMs": 50,
     "approxFps": 20,
     "particleCounts": {
@@ -1991,11 +2015,11 @@
       "microDust"
     ],
     "layerActivity": {
-      "cloudMote": 1.586,
-      "microDust": 1.538
+      "cloudMote": 1.392,
+      "microDust": 1.445
     },
-    "avgSimMs": 1.89,
-    "avgPostMs": 10.58,
+    "avgSimMs": 2.29,
+    "avgPostMs": 34.36,
     "queryOverrides": {
       "sceneTier": "desktop",
       "forceDesktopFX": true,
@@ -2018,7 +2042,7 @@
       "key": "desktop",
       "compositionMode": "stillLifeDesktop",
       "heroAnchor": {
-        "x": 0.63,
+        "x": 0.62,
         "y": 0.52
       },
       "heroPlaneZ": 1.16,
@@ -2041,7 +2065,7 @@
       }
     },
     "orbitCenterScreen": {
-      "x": 907.2,
+      "x": 892.8,
       "y": 468
     },
     "supportAnglesDeg": {
@@ -2050,42 +2074,42 @@
     },
     "toolScreenPositions": {
       "hammer": {
-        "x": 910.6640466224453,
-        "y": 408.74948588826214
+        "x": 896.195937270303,
+        "y": 408.8437068394341
       },
       "wrench": {
-        "x": 910.699041117062,
-        "y": 455.2344725064394
+        "x": 896.5689076071787,
+        "y": 453.7449227184849
       },
       "saw": {
-        "x": 910.6200596606293,
-        "y": 537.5968300607327
+        "x": 896.144985907652,
+        "y": 537.9917261341841
       }
     },
     "projectedToolBounds": {
       "hammer": {
-        "left": 861.4118856094567,
-        "top": 347.67492233739426,
-        "right": 955.6389982794572,
-        "bottom": 487.88247201032385,
-        "width": 94.22711267000045,
-        "height": 140.2075496729296
+        "left": 845.94864488598,
+        "top": 345.52181014111784,
+        "right": 942.4229571416264,
+        "bottom": 490.99815128104905,
+        "width": 96.4743122556464,
+        "height": 145.4763411399312
       },
       "wrench": {
-        "left": 739.4897110790159,
-        "top": 182.40562059565184,
-        "right": 1114.0091424423126,
-        "bottom": 729.3429043160733,
-        "width": 374.5194313632967,
-        "height": 546.9372837204214
+        "left": 758.9465187342117,
+        "top": 123.13457758863379,
+        "right": 1117.117361420136,
+        "bottom": 708.4088649773295,
+        "width": 358.1708426859242,
+        "height": 585.2742873886957
       },
       "saw": {
-        "left": 863.4660761042772,
-        "top": 488.0977297847099,
-        "right": 951.6642554190964,
-        "bottom": 586.881979128959,
-        "width": 88.19817931481919,
-        "height": 98.78424934424908
+        "left": 847.6879420572004,
+        "top": 486.6621461125584,
+        "right": 938.6859909182676,
+        "bottom": 589.009178262992,
+        "width": 90.99804886106722,
+        "height": 102.34703215043362
       }
     },
     "safeZoneViolations": {
@@ -2225,30 +2249,30 @@
       "active": true
     },
     "heroBacklightRect": {
-      "left": 717.0185451972181,
-      "top": 116.77314654920127,
-      "right": 1181.422640087706,
-      "bottom": 598.0779562231721,
-      "width": 464.40409489048784,
-      "height": 481.30480967397085,
+      "left": 737.4562681730563,
+      "top": 52.90166310199031,
+      "right": 1181.5881131036022,
+      "bottom": 567.9430360040425,
+      "width": 444.13184493054587,
+      "height": 515.0413729020522,
       "active": true
     },
     "heroShadowRect": {
-      "left": 724.5089338244841,
-      "top": 641.8329389208059,
-      "right": 1196.4034173422378,
-      "bottom": 784.0366326881154,
-      "width": 471.89448351775377,
-      "height": 142.20369376730957,
+      "left": 744.6196850267747,
+      "top": 614.7649789951381,
+      "right": 1195.9149468110393,
+      "bottom": 766.9362937161991,
+      "width": 451.29526178426454,
+      "height": 152.17131472106098,
       "active": true
     },
     "particleEmissionRect": {
-      "left": 664.4897110790159,
-      "top": 18.40562059565184,
-      "right": 1189.0091424423126,
-      "bottom": 893.3429043160733,
-      "width": 524.5194313632967,
-      "height": 874.9372837204214,
+      "left": 686.9465187342117,
+      "top": 0,
+      "right": 1189.117361420136,
+      "bottom": 884.4088649773295,
+      "width": 502.1708426859242,
+      "height": 884.4088649773295,
       "active": true
     },
     "particleExclusionLane": {
@@ -2307,27 +2331,27 @@
       "hammer": "hidden-art-direction",
       "saw": "hidden-art-direction"
     },
-    "heroViewportHeightRatio": 0.608,
-    "heroViewportAreaRatio": 0.198,
-    "heroHeadlineOverlapRatio": 0.112,
-    "heroArtLaneOccupancy": 0.335,
+    "heroViewportHeightRatio": 0.65,
+    "heroViewportAreaRatio": 0.202,
+    "heroHeadlineOverlapRatio": 0.12,
+    "heroArtLaneOccupancy": 0.343,
     "heroClearancePx": {
-      "top": 182.4,
-      "right": 326,
-      "bottom": 170.7,
-      "left": 739.5
+      "top": 123.1,
+      "right": 322.9,
+      "bottom": 191.6,
+      "left": 758.9
     },
-    "heroRightThirdOffsetPx": -38.1,
+    "heroRightThirdOffsetPx": -26.8,
     "supportProjectedHeightRatio": {
-      "hammer": 0.256,
-      "saw": 0.181
+      "hammer": 0.249,
+      "saw": 0.175
     },
     "supportVisibleCount": 0,
     "gridLuminanceUnderCopy": 0.012,
     "particleLongStrokeCount": 0,
     "particleRodCount": 0,
     "particleOutOfHeroLaneCount": 0,
-    "heroBacklightCoverage": 1,
+    "heroBacklightCoverage": 0.98,
     "heroShadowCoverage": 1,
     "hintVisible": true,
     "readabilityWindow": {
@@ -2339,46 +2363,46 @@
       "insideProtectedCorridor": true
     },
     "densityMetrics": {
-      "vortex": 0.121,
-      "titleHalo": 0.228,
+      "vortex": 0,
+      "titleHalo": 0.216,
       "foreground": 0,
       "floor": 0,
       "sawWake": 0,
-      "copy": 0.053
+      "copy": 0
     },
     "toolWakeState": {
       "hammer": 0,
-      "wrench": 0.405,
+      "wrench": 0.415,
       "saw": 0.04
     },
     "heroReadMetrics": {
-      "focalContrast": 32.453,
+      "focalContrast": 32.79,
       "supportSuppression": 1,
-      "copyCalm": 0.779,
-      "highlightSpill": 0.116
+      "copyCalm": 0.769,
+      "highlightSpill": 0.13
     },
     "toolContrast": {
       "hammer": 0,
-      "wrench": 13.522,
+      "wrench": 13.663,
       "saw": 0
     },
     "visualMetrics": {
-      "sceneGradeOpacity": 0.437522,
+      "sceneGradeOpacity": 0.437182,
       "chargeRingOpacity": 0,
-      "copyShieldOpacity": 0.155,
-      "heroShadowIntensity": 1.492,
-      "contactShadowOpacity": 0.714,
-      "vortexLightIntensity": 0.335,
+      "copyShieldOpacity": 0.15,
+      "heroShadowIntensity": 1.669,
+      "contactShadowOpacity": 0.982,
+      "vortexLightIntensity": 0.263,
       "sawGlowIntensity": 0,
       "floorBurstIntensity": 0,
-      "volumetricOpacity": 0.019,
+      "volumetricOpacity": 0.025,
       "blueMix": 0.84,
       "bloomLayerIntensity": 1,
       "scatterPassIntensity": 0,
       "scatterShaftStepCount": 0,
-      "densityInCopyZone": 0.002,
+      "densityInCopyZone": 0.009,
       "magicPulseStrength": 0,
-      "titleHaloDensity": 0.228,
+      "titleHaloDensity": 0.216,
       "foregroundDensity": 0,
       "activeTrailNodes": 0,
       "volumetricScatterSamples": 0
@@ -2394,6 +2418,14 @@
       "pointerTrail": true,
       "experimentalGestures": false,
       "reducedMotion": false
+    },
+    "zoneState": {
+      "activeId": "hero",
+      "nextId": null,
+      "blendProgress": 0,
+      "zoneCount": 6,
+      "zoneT": 0,
+      "active": false
     }
   },
   "idleDiag": {
@@ -2411,7 +2443,7 @@
     "assetSetVersion": "hero-pack-v5",
     "assetContractVersion": "hero-asset-contract-v4",
     "heroAssetVariant": "final",
-    "heroAssetBuildStage": "assembly-orbit-bespoke-pack",
+    "heroAssetBuildStage": "assembly-orbit-pbr-upgrade",
     "heroAssetVerificationState": "final-ready",
     "heroAssetVerification": {
       "manifestLoaded": true,
@@ -2437,41 +2469,41 @@
     "worldCue": "quiet-forge-hold",
     "depthLayerMix": {
       "total": 0.261,
-      "rearForge": 0.099,
-      "silhouettes": 0.248,
-      "occluders": 0.125,
+      "rearForge": 0.094,
+      "silhouettes": 0.25,
+      "occluders": 0.126,
       "hangingDepth": 0.175
     },
     "lensEvent": "idle",
     "magicIntensity": 0.7,
-    "releaseEnvelope": 0.079,
-    "corridorEvacuation": 0.437,
-    "heroEmberLevel": 0.949,
+    "releaseEnvelope": 0.078,
+    "corridorEvacuation": 0.444,
+    "heroEmberLevel": 0.96,
     "activeForceFields": {
       "windShear": 0.394,
       "layeredCurl": 0.429,
       "floorDrag": 0.28,
-      "wrenchAttractor": 0.659,
+      "wrenchAttractor": 0.667,
       "vortexPair": 0.944,
       "toolDeflectors": 0.442,
-      "copyRepeller": 0.63
+      "copyRepeller": 0.634
     },
-    "copyCorridorDensity": 0.029,
+    "copyCorridorDensity": 0.018,
     "toolInfluenceState": {
       "hammer": 0,
-      "wrench": 0.684,
-      "saw": 0.045,
+      "wrench": 0.711,
+      "saw": 0.047,
       "heroOrbit": 0.996,
-      "copyRepeller": 0.665
+      "copyRepeller": 0.67
     },
     "worldReadMetrics": {
-      "backgroundSeparation": 0.445,
+      "backgroundSeparation": 0.449,
       "copyContamination": 0,
-      "heroWorldBalance": 0.803
+      "heroWorldBalance": 0.784
     },
     "scrollHandoffState": "idle",
     "perfAuthority": "software-ci",
-    "assetLicense": "Original work - workspace authored",
+    "assetLicense": "See assets/3dmodels/source/",
     "environment": {
       "lowEndGpu": true,
       "softwareRenderer": true,
@@ -2502,9 +2534,9 @@
       "done": false,
       "startTime": null,
       "wrenchPartOffset": [
-        0.0005988030142540235,
-        0.00031017918077425044,
-        -0.0001518788171507579
+        -0.0007711074075565927,
+        -0.00018291403225181857,
+        -0.00018395853274844054
       ],
       "hammerPartOffset": [
         0,
@@ -2512,21 +2544,21 @@
         0.000364892357138491
       ],
       "sawPartOffset": [
-        0.0002656469555421259,
-        0.0008858728714609132,
-        0.0007299077037852264
+        -0.001499410370261467,
+        0.0010227307733159385,
+        0.00022978445994897845
       ]
     },
     "toolTransforms": {
       "hammer": {
         "position": [
-          0.5904741392622717,
-          0.19717247615778336,
-          1.3695986012377228
+          0.45918443007138227,
+          0.18816468045094228,
+          1.369617263253935
         ],
         "rotation": [
-          -0.1395136058610631,
-          -0.27320737259524197,
+          -0.13515883942949308,
+          -0.27318879347516056,
           0.08795964517353734
         ],
         "scale": [
@@ -2537,26 +2569,26 @@
       },
       "wrench": {
         "position": [
-          0.6349233895347871,
-          -0.042041189434516436,
-          1.167944909253333
+          0.49947306439761296,
+          -0.038069018733373226,
+          1.1676735010194161
         ],
         "rotation": [
-          -0.12022709004628858,
-          0.16960574336848105,
-          -0.24820146084198072
+          -0.12335654055252064,
+          0.1880306355523758,
+          -0.2399272477854004
         ],
         "scale": [
-          0.92,
-          0.92,
-          0.92
+          0.7,
+          0.7,
+          0.7
         ]
       },
       "saw": {
         "position": [
-          0.5608018138826748,
-          -0.4362538440535927,
-          1.5109954275853315
+          0.43244548531631666,
+          -0.42006276660959885,
+          1.5110313702170357
         ],
         "rotation": [
           -0.09765895185717854,
@@ -2570,7 +2602,7 @@
         ]
       }
     },
-    "renderedFrameCount": 25,
+    "renderedFrameCount": 27,
     "avgFrameMs": 50,
     "approxFps": 20,
     "particleCounts": {
@@ -2590,11 +2622,11 @@
       "microDust"
     ],
     "layerActivity": {
-      "cloudMote": 1.336,
-      "microDust": 1.425
+      "cloudMote": 1.329,
+      "microDust": 1.38
     },
-    "avgSimMs": 1.49,
-    "avgPostMs": 7.06,
+    "avgSimMs": 1.61,
+    "avgPostMs": 19.72,
     "queryOverrides": {
       "sceneTier": "desktop",
       "forceDesktopFX": true,
@@ -2617,7 +2649,7 @@
       "key": "desktop",
       "compositionMode": "stillLifeDesktop",
       "heroAnchor": {
-        "x": 0.63,
+        "x": 0.62,
         "y": 0.52
       },
       "heroPlaneZ": 1.16,
@@ -2640,7 +2672,7 @@
       }
     },
     "orbitCenterScreen": {
-      "x": 907.2,
+      "x": 892.8,
       "y": 468
     },
     "supportAnglesDeg": {
@@ -2649,42 +2681,42 @@
     },
     "toolScreenPositions": {
       "hammer": {
-        "x": 910.3577770697273,
-        "y": 409.1636380053567
+        "x": 895.5151228436546,
+        "y": 409.17564760309176
       },
       "wrench": {
-        "x": 910.6796206369183,
-        "y": 456.4006044457879
+        "x": 895.8561364340467,
+        "y": 455.76846856137723
       },
       "saw": {
-        "x": 910.4004900239811,
-        "y": 537.8040420415123
+        "x": 895.5627806214046,
+        "y": 537.9797510826221
       }
     },
     "projectedToolBounds": {
       "hammer": {
-        "left": 860.8224668698201,
-        "top": 346.73935502469766,
-        "right": 956.0842901733724,
-        "bottom": 489.06661628884245,
-        "width": 95.26182330355232,
-        "height": 142.3272612641448
+        "left": 845.2807046364628,
+        "top": 344.4621426926732,
+        "right": 942.9018773841703,
+        "bottom": 492.4055090672033,
+        "width": 97.62117274770753,
+        "height": 147.94336637453011
       },
       "wrench": {
-        "left": 737.19430178192,
-        "top": 177.92423890424539,
-        "right": 1118.9325982424662,
-        "bottom": 735.7388441484087,
-        "width": 381.73829646054617,
-        "height": 557.8146052441633
+        "left": 756.0904035581557,
+        "top": 118.64148259576935,
+        "right": 1120.67516993765,
+        "bottom": 715.6087322291646,
+        "width": 364.58476637949434,
+        "height": 596.9672496333952
       },
       "saw": {
-        "left": 862.8680162578656,
-        "top": 487.5300680818299,
-        "right": 952.2838378350733,
-        "bottom": 587.7354510755649,
-        "width": 89.41582157720768,
-        "height": 100.20538299373504
+        "left": 846.9905346500387,
+        "top": 485.9594185175891,
+        "right": 939.4079477590471,
+        "bottom": 589.9719326250084,
+        "width": 92.41741310900841,
+        "height": 104.01251410741935
       }
     },
     "safeZoneViolations": {
@@ -2824,30 +2856,30 @@
       "active": true
     },
     "heroBacklightRect": {
-      "left": 714.2900039942872,
-      "top": 110.98648627494579,
-      "right": 1187.6454916053644,
-      "bottom": 601.8633388898095,
-      "width": 473.35548761107725,
-      "height": 490.8768526148637,
+      "left": 734.215317575386,
+      "top": 47.00541263976193,
+      "right": 1186.300427885959,
+      "bottom": 572.3365923171498,
+      "width": 452.0851103105729,
+      "height": 525.3311796773878,
       "active": true
     },
     "heroShadowRect": {
-      "left": 721.9247699234982,
-      "top": 646.4885073093426,
-      "right": 1202.9150234637864,
-      "bottom": 791.520304672825,
-      "width": 480.9902535402882,
-      "height": 145.03179736348238,
+      "left": 741.5070129029759,
+      "top": 620.0939722878213,
+      "right": 1200.8838185411387,
+      "bottom": 775.3054571925042,
+      "width": 459.37680563816275,
+      "height": 155.21148490468283,
       "active": true
     },
     "particleEmissionRect": {
-      "left": 661.19430178192,
-      "top": 10.924238904245385,
-      "right": 1194.9325982424662,
-      "bottom": 900,
-      "width": 533.7382964605462,
-      "height": 889.0757610957546,
+      "left": 683.0904035581557,
+      "top": 0,
+      "right": 1193.67516993765,
+      "bottom": 894.6087322291646,
+      "width": 510.58476637949434,
+      "height": 894.6087322291646,
       "active": true
     },
     "particleExclusionLane": {
@@ -2906,27 +2938,27 @@
       "hammer": "hidden-art-direction",
       "saw": "hidden-art-direction"
     },
-    "heroViewportHeightRatio": 0.62,
-    "heroViewportAreaRatio": 0.205,
-    "heroHeadlineOverlapRatio": 0.116,
-    "heroArtLaneOccupancy": 0.347,
+    "heroViewportHeightRatio": 0.663,
+    "heroViewportAreaRatio": 0.209,
+    "heroHeadlineOverlapRatio": 0.123,
+    "heroArtLaneOccupancy": 0.354,
     "heroClearancePx": {
-      "top": 177.9,
-      "right": 321.1,
-      "bottom": 164.3,
-      "left": 737.2
+      "top": 118.6,
+      "right": 319.3,
+      "bottom": 184.4,
+      "left": 756.1
     },
-    "heroRightThirdOffsetPx": -36.7,
+    "heroRightThirdOffsetPx": -26.4,
     "supportProjectedHeightRatio": {
-      "hammer": 0.255,
-      "saw": 0.18
+      "hammer": 0.248,
+      "saw": 0.174
     },
     "supportVisibleCount": 0,
     "gridLuminanceUnderCopy": 0.012,
     "particleLongStrokeCount": 0,
     "particleRodCount": 0,
     "particleOutOfHeroLaneCount": 0,
-    "heroBacklightCoverage": 1,
+    "heroBacklightCoverage": 0.97,
     "heroShadowCoverage": 1,
     "hintVisible": true,
     "readabilityWindow": {
@@ -2938,47 +2970,47 @@
       "insideProtectedCorridor": true
     },
     "densityMetrics": {
-      "vortex": 0.544,
-      "titleHalo": 0.5,
-      "foreground": 0.171,
+      "vortex": 0,
+      "titleHalo": 0.379,
+      "foreground": 0,
       "floor": 0,
-      "sawWake": 0.326,
-      "copy": 0.279
+      "sawWake": 0,
+      "copy": 0
     },
     "toolWakeState": {
       "hammer": 0,
-      "wrench": 0.49,
-      "saw": 0.045
+      "wrench": 0.514,
+      "saw": 0.047
     },
     "heroReadMetrics": {
-      "focalContrast": 31.968,
+      "focalContrast": 32.307,
       "supportSuppression": 1,
-      "copyCalm": 0.669,
-      "highlightSpill": 0.107
+      "copyCalm": 0.732,
+      "highlightSpill": 0.108
     },
     "toolContrast": {
       "hammer": 0,
-      "wrench": 8.777,
+      "wrench": 13.461,
       "saw": 0
     },
     "visualMetrics": {
-      "sceneGradeOpacity": 0.425255,
+      "sceneGradeOpacity": 0.420802,
       "chargeRingOpacity": 0,
-      "copyShieldOpacity": 0.19,
-      "heroShadowIntensity": 1.273,
-      "contactShadowOpacity": 0.684,
-      "vortexLightIntensity": 0.626,
+      "copyShieldOpacity": 0.163,
+      "heroShadowIntensity": 1.438,
+      "contactShadowOpacity": 0.944,
+      "vortexLightIntensity": 0.294,
       "sawGlowIntensity": 0,
       "floorBurstIntensity": 0,
-      "volumetricOpacity": 0.029,
+      "volumetricOpacity": 0.018,
       "blueMix": 0.84,
       "bloomLayerIntensity": 1,
       "scatterPassIntensity": 0,
       "scatterShaftStepCount": 0,
-      "densityInCopyZone": 0.029,
+      "densityInCopyZone": 0.018,
       "magicPulseStrength": 0,
-      "titleHaloDensity": 0.5,
-      "foregroundDensity": 0.171,
+      "titleHaloDensity": 0.379,
+      "foregroundDensity": 0,
       "activeTrailNodes": 0,
       "volumetricScatterSamples": 0
     },
@@ -2993,6 +3025,14 @@
       "pointerTrail": true,
       "experimentalGestures": false,
       "reducedMotion": false
+    },
+    "zoneState": {
+      "activeId": "hero",
+      "nextId": null,
+      "blendProgress": 0,
+      "zoneCount": 6,
+      "zoneT": 0,
+      "active": false
     }
   },
   "scrollDiag": {
@@ -3010,7 +3050,7 @@
     "assetSetVersion": "hero-pack-v5",
     "assetContractVersion": "hero-asset-contract-v4",
     "heroAssetVariant": "final",
-    "heroAssetBuildStage": "assembly-orbit-bespoke-pack",
+    "heroAssetBuildStage": "assembly-orbit-pbr-upgrade",
     "heroAssetVerificationState": "final-ready",
     "heroAssetVerification": {
       "manifestLoaded": true,
@@ -3035,42 +3075,42 @@
     "signatureCue": "ember-drain",
     "worldCue": "scroll-evacuation-world",
     "depthLayerMix": {
-      "total": 0.159,
+      "total": 0.16,
       "rearForge": 0.049,
-      "silhouettes": 0.143,
-      "occluders": 0.072,
-      "hangingDepth": 0.095
+      "silhouettes": 0.146,
+      "occluders": 0.074,
+      "hangingDepth": 0.097
     },
     "lensEvent": "scroll-compression",
     "magicIntensity": 0.126,
     "releaseEnvelope": 0.079,
-    "corridorEvacuation": 0.64,
-    "heroEmberLevel": 0.779,
+    "corridorEvacuation": 0.643,
+    "heroEmberLevel": 0.782,
     "activeForceFields": {
       "windShear": 0.143,
       "layeredCurl": 0.134,
       "floorDrag": 0.296,
-      "wrenchAttractor": 0.343,
+      "wrenchAttractor": 0.286,
       "vortexPair": 0.604,
       "toolDeflectors": 0.288,
-      "copyRepeller": 0.789
+      "copyRepeller": 0.79
     },
-    "copyCorridorDensity": 0.007,
+    "copyCorridorDensity": 0.009,
     "toolInfluenceState": {
       "hammer": 0,
-      "wrench": 0.647,
-      "saw": 0.05,
+      "wrench": 0.642,
+      "saw": 0.051,
       "heroOrbit": 0.622,
-      "copyRepeller": 0.84
+      "copyRepeller": 0.842
     },
     "worldReadMetrics": {
-      "backgroundSeparation": 0.255,
+      "backgroundSeparation": 0.256,
       "copyContamination": 0,
-      "heroWorldBalance": 0.873
+      "heroWorldBalance": 0.861
     },
     "scrollHandoffState": "handedOff",
     "perfAuthority": "software-ci",
-    "assetLicense": "Original work - workspace authored",
+    "assetLicense": "See assets/3dmodels/source/",
     "environment": {
       "lowEndGpu": true,
       "softwareRenderer": true,
@@ -3101,9 +3141,9 @@
       "done": false,
       "startTime": null,
       "wrenchPartOffset": [
-        0.0005988030142540235,
-        0.00031017918077425044,
-        -0.0001518788171507579
+        -0.0007711074075565927,
+        -0.00018291403225181857,
+        -0.00018395853274844054
       ],
       "hammerPartOffset": [
         0,
@@ -3111,21 +3151,21 @@
         0.000364892357138491
       ],
       "sawPartOffset": [
-        0.0002656469555421259,
-        0.0008858728714609132,
-        0.0007299077037852264
+        -0.001499410370261467,
+        0.0010227307733159385,
+        0.00022978445994897845
       ]
     },
     "toolTransforms": {
       "hammer": {
         "position": [
-          0.03829688094836331,
-          0.2292213108270571,
-          1.3749890890919725
+          -0.07574601191356592,
+          0.22539623572149448,
+          1.3744933105733725
         ],
         "rotation": [
-          -0.13805628068571263,
-          -0.2710201869505494,
+          -0.13390023668886927,
+          -0.2710207074390566,
           0.08795964517353734
         ],
         "scale": [
@@ -3136,26 +3176,26 @@
       },
       "wrench": {
         "position": [
-          0.06213571046446108,
-          -0.02491700479864093,
-          1.1678578740285117
+          -0.05985865128303107,
+          -0.020404322146599964,
+          1.167581718454197
         ],
         "rotation": [
-          -0.12054458651223354,
-          0.19719451493888265,
-          -0.23270137862612694
+          -0.12393060986490681,
+          0.16672823272532863,
+          -0.25002752524588484
         ],
         "scale": [
-          0.92,
-          0.92,
-          0.92
+          0.7,
+          0.7,
+          0.7
         ]
       },
       "saw": {
         "position": [
-          0.03372733051398394,
-          -0.41434997577174787,
-          1.5169486852417773
+          -0.07627468925114826,
+          -0.4019033373333197,
+          1.5164225127360238
         ],
         "rotation": [
           -0.09765895185717854,
@@ -3169,7 +3209,7 @@
         ]
       }
     },
-    "renderedFrameCount": 30,
+    "renderedFrameCount": 31,
     "avgFrameMs": 50,
     "approxFps": 20,
     "particleCounts": {
@@ -3189,11 +3229,11 @@
       "microDust"
     ],
     "layerActivity": {
-      "cloudMote": 1.171,
-      "microDust": 1.212
+      "cloudMote": 1.254,
+      "microDust": 1.202
     },
-    "avgSimMs": 1.17,
-    "avgPostMs": 4.44,
+    "avgSimMs": 1.42,
+    "avgPostMs": 13.05,
     "queryOverrides": {
       "sceneTier": "desktop",
       "forceDesktopFX": true,
@@ -3216,7 +3256,7 @@
       "key": "desktop",
       "compositionMode": "stillLifeDesktop",
       "heroAnchor": {
-        "x": 0.63,
+        "x": 0.62,
         "y": 0.52
       },
       "heroPlaneZ": 1.16,
@@ -3239,7 +3279,7 @@
       }
     },
     "orbitCenterScreen": {
-      "x": 907.2,
+      "x": 892.8,
       "y": 468
     },
     "supportAnglesDeg": {
@@ -3248,42 +3288,42 @@
     },
     "toolScreenPositions": {
       "hammer": {
-        "x": 912.5485700237762,
-        "y": 410.06483264356257
+        "x": 896.4651968291313,
+        "y": 410.4598746036592
       },
       "wrench": {
-        "x": 913.6298945241699,
-        "y": 459.0016818952584
+        "x": 897.2093353563756,
+        "y": 458.8889713630556
       },
       "saw": {
-        "x": 914.21501778541,
-        "y": 537.025618133205
+        "x": 898.1161149404189,
+        "y": 537.1031019256238
       }
     },
     "projectedToolBounds": {
       "hammer": {
-        "left": 862.2453287125389,
-        "top": 347.05759172340834,
-        "right": 951.3247721607845,
-        "bottom": 487.8716654965923,
-        "width": 89.07944344824557,
-        "height": 140.81407377318396
+        "left": 847.634191199498,
+        "top": 345.6439859687865,
+        "right": 937.104749881614,
+        "bottom": 489.93947183379055,
+        "width": 89.470558682116,
+        "height": 144.29548586500403
       },
       "wrench": {
-        "left": 734.5386742890316,
-        "top": 178.42992172212828,
-        "right": 1107.9419509124818,
-        "bottom": 740.4180133142588,
-        "width": 373.4032766234502,
-        "height": 561.9880915921306
+        "left": 741.4259816368954,
+        "top": 126.72039830991417,
+        "right": 1084.2794384975077,
+        "bottom": 714.40592219127,
+        "width": 342.85345686061237,
+        "height": 587.6855238813557
       },
       "saw": {
-        "left": 863.9769342775535,
-        "top": 487.8968733594042,
-        "right": 951.5075919940028,
-        "bottom": 587.5149805568042,
-        "width": 87.53065771644935,
-        "height": 99.61810719739998
+        "left": 848.9008491186999,
+        "top": 486.89583823197756,
+        "right": 937.8459680903053,
+        "bottom": 588.9151523271479,
+        "width": 88.94511897160544,
+        "height": 102.01931409517033
       }
     },
     "safeZoneViolations": {
@@ -3423,30 +3463,30 @@
       "active": true
     },
     "heroBacklightRect": {
-      "left": 712.1344776916246,
-      "top": 110.99135073107261,
-      "right": 1175.1545407047029,
-      "bottom": 605.5408713321475,
-      "width": 463.02006301307824,
-      "height": 494.5495206010749,
+      "left": 720.8547742252587,
+      "top": 56.19813544415149,
+      "right": 1145.993060732418,
+      "bottom": 573.3613964597446,
+      "width": 425.13828650715925,
+      "height": 517.1632610155931,
       "active": true
     },
     "heroShadowRect": {
-      "left": 719.6025432240937,
-      "top": 650.4999186595179,
-      "right": 1190.090671769641,
-      "bottom": 796.6168224734719,
-      "width": 470.4881285455473,
-      "height": 146.11690381395397,
+      "left": 727.7118433624709,
+      "top": 620.3762383702531,
+      "right": 1159.7071990068425,
+      "bottom": 773.1744745794056,
+      "width": 431.99535564437167,
+      "height": 152.7982362091525,
       "active": true
     },
     "particleEmissionRect": {
-      "left": 659.5386742890316,
-      "top": 9.429921722128285,
-      "right": 1182.9419509124818,
-      "bottom": 900,
-      "width": 523.4032766234502,
-      "height": 890.5700782778717,
+      "left": 672.4259816368954,
+      "top": 0,
+      "right": 1153.2794384975077,
+      "bottom": 890.40592219127,
+      "width": 480.85345686061237,
+      "height": 890.40592219127,
       "active": true
     },
     "particleExclusionLane": {
@@ -3505,27 +3545,27 @@
       "hammer": "hidden-art-direction",
       "saw": "hidden-art-direction"
     },
-    "heroViewportHeightRatio": 0.624,
-    "heroViewportAreaRatio": 0.202,
-    "heroHeadlineOverlapRatio": 0.105,
-    "heroArtLaneOccupancy": 0.343,
+    "heroViewportHeightRatio": 0.653,
+    "heroViewportAreaRatio": 0.195,
+    "heroHeadlineOverlapRatio": 0.085,
+    "heroArtLaneOccupancy": 0.331,
     "heroClearancePx": {
-      "top": 178.4,
-      "right": 332.1,
-      "bottom": 159.6,
-      "left": 734.5
+      "top": 126.7,
+      "right": 355.7,
+      "bottom": 185.6,
+      "left": 741.4
     },
-    "heroRightThirdOffsetPx": -43.6,
+    "heroRightThirdOffsetPx": -51.9,
     "supportProjectedHeightRatio": {
-      "hammer": 0.251,
-      "saw": 0.177
+      "hammer": 0.246,
+      "saw": 0.174
     },
     "supportVisibleCount": 0,
     "gridLuminanceUnderCopy": 0.009,
     "particleLongStrokeCount": 0,
     "particleRodCount": 0,
     "particleOutOfHeroLaneCount": 0,
-    "heroBacklightCoverage": 1,
+    "heroBacklightCoverage": 0.987,
     "heroShadowCoverage": 1,
     "hintVisible": true,
     "readabilityWindow": {
@@ -3537,47 +3577,47 @@
       "insideProtectedCorridor": true
     },
     "densityMetrics": {
-      "vortex": 0.004,
-      "titleHalo": 0.326,
-      "foreground": 0.049,
+      "vortex": 0,
+      "titleHalo": 0.438,
+      "foreground": 0,
       "floor": 0,
       "sawWake": 0,
-      "copy": 0.131
+      "copy": 0.004
     },
     "toolWakeState": {
       "hammer": 0,
-      "wrench": 0.523,
-      "saw": 0.05
+      "wrench": 0.528,
+      "saw": 0.051
     },
     "heroReadMetrics": {
-      "focalContrast": 28.923,
+      "focalContrast": 29.147,
       "supportSuppression": 1,
-      "copyCalm": 0.424,
+      "copyCalm": 0.419,
       "highlightSpill": 0
     },
     "toolContrast": {
       "hammer": 0,
-      "wrench": 12.051,
+      "wrench": 12.145,
       "saw": 0
     },
     "visualMetrics": {
       "sceneGradeOpacity": 0.179434,
       "chargeRingOpacity": 0,
       "copyShieldOpacity": 0.4,
-      "heroShadowIntensity": 0.625,
-      "contactShadowOpacity": 0.546,
-      "vortexLightIntensity": 0.294,
+      "heroShadowIntensity": 0.725,
+      "contactShadowOpacity": 0.754,
+      "vortexLightIntensity": 0.302,
       "sawGlowIntensity": 0,
       "floorBurstIntensity": 0,
-      "volumetricOpacity": 0.011,
+      "volumetricOpacity": 0.003,
       "blueMix": 0.84,
       "bloomLayerIntensity": 1,
       "scatterPassIntensity": 0,
       "scatterShaftStepCount": 0,
-      "densityInCopyZone": 0.007,
+      "densityInCopyZone": 0.009,
       "magicPulseStrength": 0,
-      "titleHaloDensity": 0.326,
-      "foregroundDensity": 0.049,
+      "titleHaloDensity": 0.438,
+      "foregroundDensity": 0,
       "activeTrailNodes": 0,
       "volumetricScatterSamples": 0
     },
@@ -3592,6 +3632,14 @@
       "pointerTrail": true,
       "experimentalGestures": false,
       "reducedMotion": false
+    },
+    "zoneState": {
+      "activeId": "services",
+      "nextId": "process",
+      "blendProgress": 1,
+      "zoneCount": 6,
+      "zoneT": 1,
+      "active": true
     }
   },
   "dragDiag": {
@@ -3609,7 +3657,7 @@
     "assetSetVersion": "hero-pack-v5",
     "assetContractVersion": "hero-asset-contract-v4",
     "heroAssetVariant": "final",
-    "heroAssetBuildStage": "assembly-orbit-bespoke-pack",
+    "heroAssetBuildStage": "assembly-orbit-pbr-upgrade",
     "heroAssetVerificationState": "final-ready",
     "heroAssetVerification": {
       "manifestLoaded": true,
@@ -3628,48 +3676,48 @@
       }
     },
     "materialProfile": "precisionWorkshopBespoke",
-    "interactionCue": "click-premium-pulse",
-    "postFxMode": "bloom-base-grade-pulse",
-    "particleCue": "interactive-ember-eddy-pulse",
-    "signatureCue": "ember-local-eddy-pulse",
+    "interactionCue": "composed-idle",
+    "postFxMode": "bloom-base-grade-steady",
+    "particleCue": "interactive-ember-eddy",
+    "signatureCue": "ember-local-eddy",
     "worldCue": "quiet-forge-hold",
     "depthLayerMix": {
-      "total": 0.231,
-      "rearForge": 0.062,
-      "silhouettes": 0.222,
-      "occluders": 0.109,
-      "hangingDepth": 0.149
+      "total": 0.228,
+      "rearForge": 0.061,
+      "silhouettes": 0.218,
+      "occluders": 0.107,
+      "hangingDepth": 0.146
     },
-    "lensEvent": "pulse-canvas-click",
-    "magicIntensity": 0.725,
-    "releaseEnvelope": 0.081,
-    "corridorEvacuation": 0.471,
+    "lensEvent": "idle",
+    "magicIntensity": 0.708,
+    "releaseEnvelope": 0.08,
+    "corridorEvacuation": 0.473,
     "heroEmberLevel": 0.998,
     "activeForceFields": {
-      "windShear": 0.456,
-      "layeredCurl": 0.442,
+      "windShear": 0.45,
+      "layeredCurl": 0.431,
       "floorDrag": 0.281,
-      "wrenchAttractor": 0.766,
+      "wrenchAttractor": 0.746,
       "vortexPair": 0.944,
-      "toolDeflectors": 0.495,
-      "copyRepeller": 0.622
+      "toolDeflectors": 0.46,
+      "copyRepeller": 0.651
     },
-    "copyCorridorDensity": 0.01,
+    "copyCorridorDensity": 0.021,
     "toolInfluenceState": {
-      "hammer": 0.008,
-      "wrench": 1.06,
+      "hammer": 0,
+      "wrench": 0.993,
       "saw": 0.059,
       "heroOrbit": 0.996,
-      "copyRepeller": 0.659
+      "copyRepeller": 0.689
     },
     "worldReadMetrics": {
-      "backgroundSeparation": 0.427,
+      "backgroundSeparation": 0.421,
       "copyContamination": 0,
-      "heroWorldBalance": 0.827
+      "heroWorldBalance": 0.811
     },
     "scrollHandoffState": "idle",
     "perfAuthority": "software-ci",
-    "assetLicense": "Original work - workspace authored",
+    "assetLicense": "See assets/3dmodels/source/",
     "environment": {
       "lowEndGpu": true,
       "softwareRenderer": true,
@@ -3678,9 +3726,9 @@
       "mobileViewport": false,
       "canRunDesktopPost": true
     },
-    "energyState": "charged",
-    "chargeLevel": 0.646,
-    "interactionState": "focus",
+    "energyState": "idle",
+    "chargeLevel": 0.096,
+    "interactionState": "idle",
     "focusTarget": null,
     "hoverTarget": null,
     "dragTarget": null,
@@ -3700,9 +3748,9 @@
       "done": false,
       "startTime": null,
       "wrenchPartOffset": [
-        0.0005988030142540235,
-        0.00031017918077425044,
-        -0.0001518788171507579
+        -0.0007711074075565927,
+        -0.00018291403225181857,
+        -0.00018395853274844054
       ],
       "hammerPartOffset": [
         0,
@@ -3710,22 +3758,22 @@
         0.000364892357138491
       ],
       "sawPartOffset": [
-        0.0002656469555421259,
-        0.0008858728714609132,
-        0.0007299077037852264
+        -0.001499410370261467,
+        0.0010227307733159385,
+        0.00022978445994897845
       ]
     },
     "toolTransforms": {
       "hammer": {
         "position": [
-          0.3779348001221103,
-          0.20048749703420043,
-          1.369713803813759
+          0.2860787740693897,
+          0.19510279095667438,
+          1.369699891588407
         ],
         "rotation": [
-          -0.13925384890445636,
-          -0.2730431868827393,
-          0.08643372301615278
+          -0.13584134961361888,
+          -0.27312909513941175,
+          0.08655131184020401
         ],
         "scale": [
           0.19,
@@ -3735,26 +3783,26 @@
       },
       "wrench": {
         "position": [
-          0.42259722657315624,
-          -0.027746220966464792,
-          1.1687979121773577
+          0.3231694383332542,
+          -0.024080890964721192,
+          1.1686098750508798
         ],
         "rotation": [
-          -0.12399405796198777,
-          0.1887085303466008,
-          -0.23588262328886012
+          -0.12126967372727716,
+          0.14256364842283908,
+          -0.23663479464712708
         ],
         "scale": [
-          0.92,
-          0.92,
-          0.92
+          0.7,
+          0.7,
+          0.7
         ]
       },
       "saw": {
         "position": [
-          0.34950931566677,
-          -0.41423055069252857,
-          1.5111534987495776
+          0.2603937326282601,
+          -0.4006465032054275,
+          1.5111407483852883
         ],
         "rotation": [
           -0.09765895185717854,
@@ -3768,7 +3816,7 @@
         ]
       }
     },
-    "renderedFrameCount": 63,
+    "renderedFrameCount": 66,
     "avgFrameMs": 50,
     "approxFps": 20,
     "particleCounts": {
@@ -3788,11 +3836,11 @@
       "microDust"
     ],
     "layerActivity": {
-      "cloudMote": 1.522,
-      "microDust": 1.653
+      "cloudMote": 1.46,
+      "microDust": 1.566
     },
-    "avgSimMs": 1.45,
-    "avgPostMs": 1.47,
+    "avgSimMs": 0.88,
+    "avgPostMs": 3.22,
     "queryOverrides": {
       "sceneTier": "desktop",
       "forceDesktopFX": true,
@@ -3815,7 +3863,7 @@
       "key": "desktop",
       "compositionMode": "stillLifeDesktop",
       "heroAnchor": {
-        "x": 0.63,
+        "x": 0.62,
         "y": 0.52
       },
       "heroPlaneZ": 1.16,
@@ -3838,7 +3886,7 @@
       }
     },
     "orbitCenterScreen": {
-      "x": 907.2,
+      "x": 892.8,
       "y": 468
     },
     "supportAnglesDeg": {
@@ -3847,42 +3895,42 @@
     },
     "toolScreenPositions": {
       "hammer": {
-        "x": 907.710031690704,
-        "y": 408.9525733409665
+        "x": 893.3680181374729,
+        "y": 408.98515306009966
       },
       "wrench": {
-        "x": 908.485756773531,
-        "y": 455.3849940536233
+        "x": 893.4259271074567,
+        "y": 455.04106790379245
       },
       "saw": {
-        "x": 907.7576150302996,
-        "y": 537.405206092068
+        "x": 893.4132354246234,
+        "y": 537.5568019852484
       }
     },
     "projectedToolBounds": {
       "hammer": {
-        "left": 859.7569073229364,
-        "top": 345.0452979377341,
-        "right": 957.0980467314697,
-        "bottom": 491.44590429441894,
-        "width": 97.34113940853331,
-        "height": 146.40060635668482
+        "left": 844.5802907835601,
+        "top": 343.27010976433934,
+        "right": 943.5446168660314,
+        "bottom": 494.0381321872044,
+        "width": 98.9643260824713,
+        "height": 150.76802242286504
       },
       "wrench": {
-        "left": 734.7727513392597,
-        "top": 167.6439388838427,
-        "right": 1124.6893799152283,
-        "bottom": 744.5159372480582,
-        "width": 389.9166285759686,
-        "height": 576.8719983642155
+        "left": 754.9442508285133,
+        "top": 109.1148567560435,
+        "right": 1122.9139953760448,
+        "bottom": 720.8803580745563,
+        "width": 367.9697445475315,
+        "height": 611.7655013185127
       },
       "saw": {
-        "left": 861.7105464053216,
-        "top": 486.3153928544434,
-        "right": 953.4768595293897,
-        "bottom": 589.2706572745402,
-        "width": 91.76631312406812,
-        "height": 102.9552644200968
+        "left": 846.2020523648632,
+        "top": 485.009363289984,
+        "right": 940.2160189464665,
+        "bottom": 590.9120538225845,
+        "width": 94.01396658160331,
+        "height": 105.90269053260056
       }
     },
     "safeZoneViolations": {
@@ -4022,29 +4070,29 @@
       "active": true
     },
     "heroBacklightRect": {
-      "left": 711.3777536247015,
-      "top": 98.41929908013685,
-      "right": 1194.8743730589026,
-      "bottom": 606.0666576406466,
-      "width": 483.4966194342011,
-      "height": 507.6473585605097,
+      "left": 732.8660661556614,
+      "top": 35.702996597821965,
+      "right": 1189.1485493946004,
+      "bottom": 574.0566377581132,
+      "width": 456.282483238939,
+      "height": 538.3536411602912,
       "active": true
     },
     "heroShadowRect": {
-      "left": 719.1760861962209,
-      "top": 652.2164175097837,
-      "right": 1210.4710382019414,
-      "bottom": 802.2031370844797,
-      "width": 491.29495200572046,
-      "height": 149.98671957469605,
+      "left": 740.225461046612,
+      "top": 622.9978778635942,
+      "right": 1203.8673391765017,
+      "bottom": 782.0569082064076,
+      "width": 463.6418781298896,
+      "height": 159.05903034281334,
       "active": true
     },
     "particleEmissionRect": {
-      "left": 656.7727513392597,
+      "left": 680.9442508285133,
       "top": 0,
-      "right": 1202.6893799152283,
+      "right": 1196.9139953760448,
       "bottom": 900,
-      "width": 545.9166285759686,
+      "width": 515.9697445475315,
       "height": 900,
       "active": true
     },
@@ -4104,28 +4152,28 @@
       "hammer": "hidden-art-direction",
       "saw": "hidden-art-direction"
     },
-    "heroViewportHeightRatio": 0.641,
-    "heroViewportAreaRatio": 0.215,
-    "heroHeadlineOverlapRatio": 0.121,
+    "heroViewportHeightRatio": 0.68,
+    "heroViewportAreaRatio": 0.216,
+    "heroHeadlineOverlapRatio": 0.125,
     "heroArtLaneOccupancy": 0.365,
     "heroClearancePx": {
-      "top": 167.6,
-      "right": 315.3,
-      "bottom": 155.5,
-      "left": 734.8
+      "top": 109.1,
+      "right": 317.1,
+      "bottom": 179.1,
+      "left": 754.9
     },
-    "heroRightThirdOffsetPx": -35.1,
+    "heroRightThirdOffsetPx": -25.9,
     "supportProjectedHeightRatio": {
-      "hammer": 0.254,
-      "saw": 0.178
+      "hammer": 0.246,
+      "saw": 0.173
     },
     "supportVisibleCount": 0,
     "gridLuminanceUnderCopy": 0.012,
     "particleLongStrokeCount": 0,
     "particleRodCount": 0,
     "particleOutOfHeroLaneCount": 0,
-    "heroBacklightCoverage": 1,
-    "heroShadowCoverage": 0.992,
+    "heroBacklightCoverage": 0.949,
+    "heroShadowCoverage": 1,
     "hintVisible": false,
     "readabilityWindow": {
       "left": 354,
@@ -4133,50 +4181,50 @@
       "width": 732,
       "height": 630,
       "active": true,
-      "insideProtectedCorridor": false
+      "insideProtectedCorridor": true
     },
     "densityMetrics": {
-      "vortex": 0.047,
-      "titleHalo": 0.224,
-      "foreground": 0.066,
+      "vortex": 0.311,
+      "titleHalo": 0.359,
+      "foreground": 0,
       "floor": 0,
       "sawWake": 0,
-      "copy": 0.02
+      "copy": 0.215
     },
     "toolWakeState": {
-      "hammer": 0.008,
-      "wrench": 0.843,
+      "hammer": 0,
+      "wrench": 0.779,
       "saw": 0.059
     },
     "heroReadMetrics": {
-      "focalContrast": 32.029,
+      "focalContrast": 32.331,
       "supportSuppression": 1,
-      "copyCalm": 0.751,
-      "highlightSpill": 0.158
+      "copyCalm": 0.688,
+      "highlightSpill": 0.099
     },
     "toolContrast": {
       "hammer": 0,
-      "wrench": 13.345,
+      "wrench": 10.277,
       "saw": 0
     },
     "visualMetrics": {
-      "sceneGradeOpacity": 0.53824,
-      "chargeRingOpacity": 0.96,
-      "copyShieldOpacity": 0.162,
-      "heroShadowIntensity": 1.306,
-      "contactShadowOpacity": 0.684,
-      "vortexLightIntensity": 0.691,
+      "sceneGradeOpacity": 0.433149,
+      "chargeRingOpacity": 0,
+      "copyShieldOpacity": 0.189,
+      "heroShadowIntensity": 1.475,
+      "contactShadowOpacity": 0.944,
+      "vortexLightIntensity": 0.644,
       "sawGlowIntensity": 0,
-      "floorBurstIntensity": 1.24,
-      "volumetricOpacity": 0.045,
-      "blueMix": 0.88,
+      "floorBurstIntensity": 0,
+      "volumetricOpacity": 0.02,
+      "blueMix": 0.84,
       "bloomLayerIntensity": 1,
       "scatterPassIntensity": 0,
       "scatterShaftStepCount": 0,
-      "densityInCopyZone": 0.01,
-      "magicPulseStrength": 0.006,
-      "titleHaloDensity": 0.224,
-      "foregroundDensity": 0.066,
+      "densityInCopyZone": 0.021,
+      "magicPulseStrength": 0,
+      "titleHaloDensity": 0.359,
+      "foregroundDensity": 0,
       "activeTrailNodes": 7,
       "volumetricScatterSamples": 0
     },
@@ -4191,15 +4239,23 @@
       "pointerTrail": true,
       "experimentalGestures": false,
       "reducedMotion": false
+    },
+    "zoneState": {
+      "activeId": "services",
+      "nextId": "process",
+      "blendProgress": 1,
+      "zoneCount": 6,
+      "zoneT": 0,
+      "active": false
     }
   },
   "panelState": {
     "visible": true,
     "panelRect": {
       "left": 1136,
-      "top": 125.125,
+      "top": 291.671875,
       "right": 1428,
-      "bottom": 555.546875,
+      "bottom": 722.09375,
       "width": 292,
       "height": 430.421875
     },
@@ -4207,12 +4263,12 @@
     "readabilityOverlap": false,
     "wrenchOverlap": false,
     "wrench": {
-      "left": 735.7104887698257,
-      "top": 168.13305549747412,
-      "right": 1122.5988028331933,
-      "bottom": 744.0047392766729,
-      "width": 386.8883140633676,
-      "height": 575.8716837791987
+      "left": 754.0873333511291,
+      "top": 108.71419431200185,
+      "right": 1124.2090693850391,
+      "bottom": 721.6725406534837,
+      "width": 370.12173603391,
+      "height": 612.9583463414818
     },
     "readability": {
       "left": 354,
@@ -4236,7 +4292,7 @@
     "assetSetVersion": "hero-pack-v5",
     "assetContractVersion": "hero-asset-contract-v4",
     "heroAssetVariant": "final",
-    "heroAssetBuildStage": "assembly-orbit-bespoke-pack",
+    "heroAssetBuildStage": "assembly-orbit-pbr-upgrade",
     "heroAssetVerificationState": "final-ready",
     "heroAssetVerification": {
       "manifestLoaded": true,
@@ -4261,42 +4317,42 @@
     "signatureCue": "ember-local-eddy",
     "worldCue": "quiet-forge-hold",
     "depthLayerMix": {
-      "total": 0.245,
-      "rearForge": 0.068,
-      "silhouettes": 0.243,
-      "occluders": 0.119,
-      "hangingDepth": 0.162
+      "total": 0.229,
+      "rearForge": 0.061,
+      "silhouettes": 0.219,
+      "occluders": 0.107,
+      "hangingDepth": 0.146
     },
     "lensEvent": "idle",
-    "magicIntensity": 0.725,
-    "releaseEnvelope": 0.098,
-    "corridorEvacuation": 0.436,
+    "magicIntensity": 0.714,
+    "releaseEnvelope": 0.08,
+    "corridorEvacuation": 0.471,
     "heroEmberLevel": 1,
     "activeForceFields": {
-      "windShear": 0.442,
-      "layeredCurl": 0.44,
+      "windShear": 0.435,
+      "layeredCurl": 0.433,
       "floorDrag": 0.281,
-      "wrenchAttractor": 0.777,
+      "wrenchAttractor": 0.766,
       "vortexPair": 0.944,
-      "toolDeflectors": 0.499,
-      "copyRepeller": 0.47
+      "toolDeflectors": 0.474,
+      "copyRepeller": 0.651
     },
-    "copyCorridorDensity": 0,
+    "copyCorridorDensity": 0.007,
     "toolInfluenceState": {
-      "hammer": 0.004,
-      "wrench": 1.102,
+      "hammer": 0,
+      "wrench": 1.063,
       "saw": 0.06,
       "heroOrbit": 0.996,
-      "copyRepeller": 0.505
+      "copyRepeller": 0.689
     },
     "worldReadMetrics": {
-      "backgroundSeparation": 0.443,
+      "backgroundSeparation": 0.426,
       "copyContamination": 0,
-      "heroWorldBalance": 0.815
+      "heroWorldBalance": 0.811
     },
     "scrollHandoffState": "idle",
     "perfAuthority": "software-ci",
-    "assetLicense": "Original work - workspace authored",
+    "assetLicense": "See assets/3dmodels/source/",
     "environment": {
       "lowEndGpu": true,
       "softwareRenderer": true,
@@ -4306,7 +4362,7 @@
       "canRunDesktopPost": true
     },
     "energyState": "focus",
-    "chargeLevel": 0.458,
+    "chargeLevel": 0.056,
     "interactionState": "focus",
     "focusTarget": "wrench",
     "hoverTarget": null,
@@ -4327,9 +4383,9 @@
       "done": false,
       "startTime": null,
       "wrenchPartOffset": [
-        0.0005988030142540235,
-        0.00031017918077425044,
-        -0.0001518788171507579
+        -0.0007711074075565927,
+        -0.00018291403225181857,
+        -0.00018395853274844054
       ],
       "hammerPartOffset": [
         0,
@@ -4337,22 +4393,22 @@
         0.000364892357138491
       ],
       "sawPartOffset": [
-        0.0002656469555421259,
-        0.0008858728714609132,
-        0.0007299077037852264
+        -0.001499410370261467,
+        0.0010227307733159385,
+        0.00022978445994897845
       ]
     },
     "toolTransforms": {
       "hammer": {
         "position": [
-          0.3608754842700994,
-          0.1999553683510178,
-          1.3697203344039046
+          0.2660386130869229,
+          0.19366193415583094,
+          1.3697043612714925
         ],
         "rotation": [
-          -0.1357738243358051,
-          -0.273079020327115,
-          0.08646662398008774
+          -0.13358385316079738,
+          -0.2731275634262688,
+          0.08655131184020401
         ],
         "scale": [
           0.19,
@@ -4362,26 +4418,26 @@
       },
       "wrench": {
         "position": [
-          0.40179382283578663,
-          -0.02705039262353038,
-          1.1689758485127193
+          0.30228617008742387,
+          -0.024367419799730637,
+          1.169167986838464
         ],
         "rotation": [
-          -0.12120480371869806,
-          0.14045843643275824,
-          -0.2364506557159585
+          -0.1206852770047837,
+          0.14530550492253927,
+          -0.24230005320124398
         ],
         "scale": [
-          0.92,
-          0.92,
-          0.92
+          0.7,
+          0.7,
+          0.7
         ]
       },
       "saw": {
         "position": [
-          0.33248834339620364,
-          -0.41233443865070685,
-          1.5111632689217973
+          0.24040257715082938,
+          -0.3991162223757171,
+          1.5111446867460394
         ],
         "rotation": [
           -0.09765895185717854,
@@ -4395,7 +4451,7 @@
         ]
       }
     },
-    "renderedFrameCount": 71,
+    "renderedFrameCount": 75,
     "avgFrameMs": 50,
     "approxFps": 20,
     "particleCounts": {
@@ -4415,11 +4471,11 @@
       "microDust"
     ],
     "layerActivity": {
-      "cloudMote": 1.587,
-      "microDust": 1.696
+      "cloudMote": 1.521,
+      "microDust": 1.47
     },
-    "avgSimMs": 1.21,
-    "avgPostMs": 1.41,
+    "avgSimMs": 0.86,
+    "avgPostMs": 3.06,
     "queryOverrides": {
       "sceneTier": "desktop",
       "forceDesktopFX": true,
@@ -4442,7 +4498,7 @@
       "key": "desktop",
       "compositionMode": "stillLifeDesktop",
       "heroAnchor": {
-        "x": 0.63,
+        "x": 0.62,
         "y": 0.52
       },
       "heroPlaneZ": 1.16,
@@ -4465,7 +4521,7 @@
       }
     },
     "orbitCenterScreen": {
-      "x": 907.2,
+      "x": 892.8,
       "y": 468
     },
     "supportAnglesDeg": {
@@ -4474,42 +4530,42 @@
     },
     "toolScreenPositions": {
       "hammer": {
-        "x": 907.4893426649406,
-        "y": 408.9868797214822
+        "x": 893.1237419544008,
+        "y": 409.00485022571286
       },
       "wrench": {
-        "x": 907.5608597157549,
-        "y": 455.3527351934456
+        "x": 893.0516169907685,
+        "y": 455.0413074796689
       },
       "saw": {
-        "x": 907.5311931601386,
-        "y": 537.4374218267234
+        "x": 893.1634544065842,
+        "y": 537.574814051718
       }
     },
     "projectedToolBounds": {
       "hammer": {
-        "left": 859.6193211108946,
-        "top": 344.8672960996005,
-        "right": 957.2404912312475,
-        "bottom": 491.80771158100646,
-        "width": 97.62117012035287,
-        "height": 146.94041548140598
+        "left": 844.3838061992981,
+        "top": 343.0042946363859,
+        "right": 943.7508203369387,
+        "bottom": 494.4939078993527,
+        "width": 99.36701413764058,
+        "height": 151.48961326296677
       },
       "wrench": {
-        "left": 734.7834893817022,
-        "top": 169.22869499464326,
-        "right": 1119.78600995513,
-        "bottom": 742.7318998035089,
-        "width": 385.0025205734279,
-        "height": 573.5032048088656
+        "left": 753.3291889360986,
+        "top": 107.50129081751783,
+        "right": 1125.2166429114584,
+        "bottom": 722.7898782011882,
+        "width": 371.8874539753598,
+        "height": 615.2885873836703
       },
       "saw": {
-        "left": 861.5449015709268,
-        "top": 486.17249190258786,
-        "right": 953.6492257579547,
-        "bottom": 589.5167759905297,
-        "width": 92.10432418702794,
-        "height": 103.34428408794184
+        "left": 845.9879212089938,
+        "top": 484.81902493128837,
+        "right": 940.4379570789889,
+        "bottom": 591.2262152627864,
+        "width": 94.45003586999508,
+        "height": 106.40719033149799
       }
     },
     "safeZoneViolations": {
@@ -4649,29 +4705,29 @@
       "active": true
     },
     "heroBacklightRect": {
-      "left": 711.6833381472966,
-      "top": 100.4083104175794,
-      "right": 1189.0864636583472,
-      "bottom": 605.0911306493812,
-      "width": 477.4031255110506,
-      "height": 504.68282023180177,
+      "left": 731.015941697577,
+      "top": 33.66666033147739,
+      "right": 1192.1563846270233,
+      "bottom": 575.1206172291073,
+      "width": 461.1404429294463,
+      "height": 541.45395689763,
       "active": true
     },
     "heroShadowRect": {
-      "left": 719.3833885587651,
-      "top": 650.9713870340904,
-      "right": 1204.4865644812842,
-      "bottom": 800.0822202843955,
-      "width": 485.1031759225191,
-      "height": 149.11083325030506,
+      "left": 738.4536907770843,
+      "top": 624.343704219801,
+      "right": 1207.0318827860376,
+      "bottom": 784.3187369395553,
+      "width": 468.57819200895335,
+      "height": 159.97503271975427,
       "active": true
     },
     "particleEmissionRect": {
-      "left": 657.7834893817022,
+      "left": 679.3291889360986,
       "top": 0,
-      "right": 1196.78600995513,
+      "right": 1199.2166429114584,
       "bottom": 900,
-      "width": 539.0025205734279,
+      "width": 519.8874539753598,
       "height": 900,
       "active": true
     },
@@ -4731,27 +4787,27 @@
       "hammer": "hidden-art-direction",
       "saw": "hidden-art-direction"
     },
-    "heroViewportHeightRatio": 0.637,
-    "heroViewportAreaRatio": 0.212,
-    "heroHeadlineOverlapRatio": 0.116,
-    "heroArtLaneOccupancy": 0.359,
+    "heroViewportHeightRatio": 0.684,
+    "heroViewportAreaRatio": 0.219,
+    "heroHeadlineOverlapRatio": 0.127,
+    "heroArtLaneOccupancy": 0.371,
     "heroClearancePx": {
-      "top": 169.2,
-      "right": 320.2,
-      "bottom": 157.3,
-      "left": 734.8
+      "top": 107.5,
+      "right": 314.8,
+      "bottom": 177.2,
+      "left": 753.3
     },
-    "heroRightThirdOffsetPx": -37.5,
+    "heroRightThirdOffsetPx": -25.5,
     "supportProjectedHeightRatio": {
-      "hammer": 0.256,
-      "saw": 0.18
+      "hammer": 0.246,
+      "saw": 0.173
     },
     "supportVisibleCount": 0,
     "gridLuminanceUnderCopy": 0.012,
     "particleLongStrokeCount": 0,
     "particleRodCount": 0,
     "particleOutOfHeroLaneCount": 0,
-    "heroBacklightCoverage": 1,
+    "heroBacklightCoverage": 0.946,
     "heroShadowCoverage": 1,
     "hintVisible": true,
     "readabilityWindow": {
@@ -4760,50 +4816,50 @@
       "width": 732,
       "height": 630,
       "active": true,
-      "insideProtectedCorridor": false
+      "insideProtectedCorridor": true
     },
     "densityMetrics": {
-      "vortex": 0.169,
-      "titleHalo": 0.204,
-      "foreground": 0.025,
+      "vortex": 0.144,
+      "titleHalo": 0.437,
+      "foreground": 0,
       "floor": 0,
       "sawWake": 0,
-      "copy": 0.165
+      "copy": 0.184
     },
     "toolWakeState": {
-      "hammer": 0.004,
-      "wrench": 0.882,
+      "hammer": 0,
+      "wrench": 0.846,
       "saw": 0.06
     },
     "heroReadMetrics": {
-      "focalContrast": 32.356,
+      "focalContrast": 32.344,
       "supportSuppression": 1,
-      "copyCalm": 0.809,
-      "highlightSpill": 0.16
+      "copyCalm": 0.723,
+      "highlightSpill": 0.081
     },
     "toolContrast": {
       "hammer": 0,
-      "wrench": 13.482,
+      "wrench": 12.388,
       "saw": 0
     },
     "visualMetrics": {
-      "sceneGradeOpacity": 0.462852,
-      "chargeRingOpacity": 0.5238,
-      "copyShieldOpacity": 0.137,
-      "heroShadowIntensity": 1.306,
-      "contactShadowOpacity": 0.684,
-      "vortexLightIntensity": 0.597,
+      "sceneGradeOpacity": 0.436493,
+      "chargeRingOpacity": 0,
+      "copyShieldOpacity": 0.186,
+      "heroShadowIntensity": 1.475,
+      "contactShadowOpacity": 0.944,
+      "vortexLightIntensity": 0.567,
       "sawGlowIntensity": 0,
-      "floorBurstIntensity": 0.001,
-      "volumetricOpacity": 0.032,
+      "floorBurstIntensity": 0,
+      "volumetricOpacity": 0.034,
       "blueMix": 0.84,
       "bloomLayerIntensity": 1,
       "scatterPassIntensity": 0,
       "scatterShaftStepCount": 0,
-      "densityInCopyZone": 0,
-      "magicPulseStrength": 0.001,
-      "titleHaloDensity": 0.204,
-      "foregroundDensity": 0.025,
+      "densityInCopyZone": 0.007,
+      "magicPulseStrength": 0,
+      "titleHaloDensity": 0.437,
+      "foregroundDensity": 0,
       "activeTrailNodes": 7,
       "volumetricScatterSamples": 0
     },
@@ -4818,11 +4874,19 @@
       "pointerTrail": true,
       "experimentalGestures": false,
       "reducedMotion": false
+    },
+    "zoneState": {
+      "activeId": "services",
+      "nextId": "process",
+      "blendProgress": 1,
+      "zoneCount": 6,
+      "zoneT": 0,
+      "active": false
     }
   },
   "snapshot": {
     "label": "validate-effects-desktop",
-    "capturedAt": "2026-03-14T20:57:05.035Z",
+    "capturedAt": "2026-03-15T06:06:32.256Z",
     "imageDataUrl": null,
     "diagnostics": {
       "activeTier": "desktop",
@@ -4839,7 +4903,7 @@
       "assetSetVersion": "hero-pack-v5",
       "assetContractVersion": "hero-asset-contract-v4",
       "heroAssetVariant": "final",
-      "heroAssetBuildStage": "assembly-orbit-bespoke-pack",
+      "heroAssetBuildStage": "assembly-orbit-pbr-upgrade",
       "heroAssetVerificationState": "final-ready",
       "heroAssetVerification": {
         "manifestLoaded": true,
@@ -4864,42 +4928,42 @@
       "signatureCue": "ember-local-eddy",
       "worldCue": "quiet-forge-hold",
       "depthLayerMix": {
-        "total": 0.245,
-        "rearForge": 0.068,
-        "silhouettes": 0.243,
-        "occluders": 0.119,
-        "hangingDepth": 0.162
+        "total": 0.229,
+        "rearForge": 0.061,
+        "silhouettes": 0.219,
+        "occluders": 0.107,
+        "hangingDepth": 0.146
       },
       "lensEvent": "idle",
-      "magicIntensity": 0.725,
-      "releaseEnvelope": 0.098,
-      "corridorEvacuation": 0.436,
+      "magicIntensity": 0.714,
+      "releaseEnvelope": 0.08,
+      "corridorEvacuation": 0.471,
       "heroEmberLevel": 1,
       "activeForceFields": {
-        "windShear": 0.442,
-        "layeredCurl": 0.44,
-        "floorDrag": 0.281,
-        "wrenchAttractor": 0.777,
+        "windShear": 0.433,
+        "layeredCurl": 0.433,
+        "floorDrag": 0.28,
+        "wrenchAttractor": 0.768,
         "vortexPair": 0.944,
-        "toolDeflectors": 0.499,
-        "copyRepeller": 0.47
+        "toolDeflectors": 0.475,
+        "copyRepeller": 0.652
       },
-      "copyCorridorDensity": 0,
+      "copyCorridorDensity": 0.006,
       "toolInfluenceState": {
-        "hammer": 0.004,
-        "wrench": 1.102,
+        "hammer": 0,
+        "wrench": 1.07,
         "saw": 0.06,
         "heroOrbit": 0.996,
-        "copyRepeller": 0.505
+        "copyRepeller": 0.689
       },
       "worldReadMetrics": {
-        "backgroundSeparation": 0.443,
+        "backgroundSeparation": 0.426,
         "copyContamination": 0,
-        "heroWorldBalance": 0.815
+        "heroWorldBalance": 0.811
       },
       "scrollHandoffState": "idle",
       "perfAuthority": "software-ci",
-      "assetLicense": "Original work - workspace authored",
+      "assetLicense": "See assets/3dmodels/source/",
       "environment": {
         "lowEndGpu": true,
         "softwareRenderer": true,
@@ -4909,7 +4973,7 @@
         "canRunDesktopPost": true
       },
       "energyState": "focus",
-      "chargeLevel": 0.458,
+      "chargeLevel": 0.052,
       "interactionState": "focus",
       "focusTarget": "wrench",
       "hoverTarget": null,
@@ -4930,9 +4994,9 @@
         "done": false,
         "startTime": null,
         "wrenchPartOffset": [
-          0.0005988030142540235,
-          0.00031017918077425044,
-          -0.0001518788171507579
+          -0.0007711074075565927,
+          -0.00018291403225181857,
+          -0.00018395853274844054
         ],
         "hammerPartOffset": [
           0,
@@ -4940,22 +5004,22 @@
           0.000364892357138491
         ],
         "sawPartOffset": [
-          0.0002656469555421259,
-          0.0008858728714609132,
-          0.0007299077037852264
+          -0.001499410370261467,
+          0.0010227307733159385,
+          0.00022978445994897845
         ]
       },
       "toolTransforms": {
         "hammer": {
           "position": [
-            0.3608754842700994,
-            0.1999553683510178,
-            1.3697203344039046
+            0.26437721275695353,
+            0.1935222518866349,
+            1.369704926379718
           ],
           "rotation": [
-            -0.1357738243358051,
-            -0.273079020327115,
-            0.08646662398008774
+            -0.1336430693539559,
+            -0.2731275405327839,
+            0.08655131184020401
           ],
           "scale": [
             0.19,
@@ -4965,26 +5029,26 @@
         },
         "wrench": {
           "position": [
-            0.40179382283578663,
-            -0.02705039262353038,
-            1.1689758485127193
+            0.3009344679670652,
+            -0.024438725210179625,
+            1.1691979850586478
           ],
           "rotation": [
-            -0.12120480371869806,
-            0.14045843643275824,
-            -0.2364506557159585
+            -0.12107789720087093,
+            0.1507193104002254,
+            -0.2391378541392911
           ],
           "scale": [
-            0.92,
-            0.92,
-            0.92
+            0.7,
+            0.7,
+            0.7
           ]
         },
         "saw": {
           "position": [
-            0.33248834339620364,
-            -0.41233443865070685,
-            1.5111632689217973
+            0.2387445312137454,
+            -0.3990230476396753,
+            1.511144997550741
           ],
           "rotation": [
             -0.09765895185717854,
@@ -4998,7 +5062,7 @@
           ]
         }
       },
-      "renderedFrameCount": 71,
+      "renderedFrameCount": 76,
       "avgFrameMs": 50,
       "approxFps": 20,
       "particleCounts": {
@@ -5018,11 +5082,11 @@
         "microDust"
       ],
       "layerActivity": {
-        "cloudMote": 1.587,
-        "microDust": 1.696
+        "cloudMote": 1.5,
+        "microDust": 1.476
       },
-      "avgSimMs": 1.21,
-      "avgPostMs": 1.41,
+      "avgSimMs": 0.85,
+      "avgPostMs": 3.09,
       "queryOverrides": {
         "sceneTier": "desktop",
         "forceDesktopFX": true,
@@ -5045,7 +5109,7 @@
         "key": "desktop",
         "compositionMode": "stillLifeDesktop",
         "heroAnchor": {
-          "x": 0.63,
+          "x": 0.62,
           "y": 0.52
         },
         "heroPlaneZ": 1.16,
@@ -5068,7 +5132,7 @@
         }
       },
       "orbitCenterScreen": {
-        "x": 907.2,
+        "x": 892.8,
         "y": 468
       },
       "supportAnglesDeg": {
@@ -5077,42 +5141,42 @@
       },
       "toolScreenPositions": {
         "hammer": {
-          "x": 907.4893426649406,
-          "y": 408.9868797214822
+          "x": 893.105204733154,
+          "y": 409.0081000290465
         },
         "wrench": {
-          "x": 907.5608597157549,
-          "y": 455.3527351934456
+          "x": 893.0984687434134,
+          "y": 455.0472398727182
         },
         "saw": {
-          "x": 907.5311931601386,
-          "y": 537.4374218267234
+          "x": 893.1443913081279,
+          "y": 537.5780101344976
         }
       },
       "projectedToolBounds": {
         "hammer": {
-          "left": 859.6193211108946,
-          "top": 344.8672960996005,
-          "right": 957.2404912312475,
-          "bottom": 491.80771158100646,
-          "width": 97.62117012035287,
-          "height": 146.94041548140598
+          "left": 844.3669366582141,
+          "top": 342.9795525908229,
+          "right": 943.7697202077549,
+          "bottom": 494.52847133929987,
+          "width": 99.4027835495408,
+          "height": 151.54891874847698
         },
         "wrench": {
-          "left": 734.7834893817022,
-          "top": 169.22869499464326,
-          "right": 1119.78600995513,
-          "bottom": 742.7318998035089,
-          "width": 385.0025205734279,
-          "height": 573.5032048088656
+          "left": 753.635450142912,
+          "top": 107.27739743004847,
+          "right": 1124.7719720588432,
+          "bottom": 722.6980435468513,
+          "width": 371.1365219159312,
+          "height": 615.4206461168028
         },
         "saw": {
-          "left": 861.5449015709268,
-          "top": 486.17249190258786,
-          "right": 953.6492257579547,
-          "bottom": 589.5167759905297,
-          "width": 92.10432418702794,
-          "height": 103.34428408794184
+          "left": 845.9711179829287,
+          "top": 484.80409499308143,
+          "right": 940.4553474135101,
+          "bottom": 591.2509544459502,
+          "width": 94.48422943058142,
+          "height": 106.44685945286881
         }
       },
       "safeZoneViolations": {
@@ -5252,29 +5316,29 @@
         "active": true
       },
       "heroBacklightRect": {
-        "left": 711.6833381472966,
-        "top": 100.4083104175794,
-        "right": 1189.0864636583472,
-        "bottom": 605.0911306493812,
-        "width": 477.4031255110506,
-        "height": 504.68282023180177,
+        "left": 731.3672588279561,
+        "top": 33.42691989603213,
+        "right": 1191.5765460037107,
+        "bottom": 574.9970884788186,
+        "width": 460.20928717575464,
+        "height": 541.5701685827864,
         "active": true
       },
       "heroShadowRect": {
-        "left": 719.3833885587651,
-        "top": 650.9713870340904,
-        "right": 1204.4865644812842,
-        "bottom": 800.0822202843955,
-        "width": 485.1031759225191,
-        "height": 149.11083325030506,
+        "left": 738.7899892662747,
+        "top": 624.2307401681628,
+        "right": 1206.4220068803481,
+        "bottom": 784.2401081585316,
+        "width": 467.63201761407345,
+        "height": 160.0093679903688,
         "active": true
       },
       "particleEmissionRect": {
-        "left": 657.7834893817022,
+        "left": 679.635450142912,
         "top": 0,
-        "right": 1196.78600995513,
+        "right": 1198.7719720588432,
         "bottom": 900,
-        "width": 539.0025205734279,
+        "width": 519.1365219159312,
         "height": 900,
         "active": true
       },
@@ -5334,27 +5398,27 @@
         "hammer": "hidden-art-direction",
         "saw": "hidden-art-direction"
       },
-      "heroViewportHeightRatio": 0.637,
-      "heroViewportAreaRatio": 0.212,
-      "heroHeadlineOverlapRatio": 0.116,
-      "heroArtLaneOccupancy": 0.359,
+      "heroViewportHeightRatio": 0.684,
+      "heroViewportAreaRatio": 0.218,
+      "heroHeadlineOverlapRatio": 0.126,
+      "heroArtLaneOccupancy": 0.37,
       "heroClearancePx": {
-        "top": 169.2,
-        "right": 320.2,
-        "bottom": 157.3,
-        "left": 734.8
+        "top": 107.3,
+        "right": 315.2,
+        "bottom": 177.3,
+        "left": 753.6
       },
-      "heroRightThirdOffsetPx": -37.5,
+      "heroRightThirdOffsetPx": -25.6,
       "supportProjectedHeightRatio": {
-        "hammer": 0.256,
-        "saw": 0.18
+        "hammer": 0.246,
+        "saw": 0.173
       },
       "supportVisibleCount": 0,
       "gridLuminanceUnderCopy": 0.012,
       "particleLongStrokeCount": 0,
       "particleRodCount": 0,
       "particleOutOfHeroLaneCount": 0,
-      "heroBacklightCoverage": 1,
+      "heroBacklightCoverage": 0.945,
       "heroShadowCoverage": 1,
       "hintVisible": true,
       "readabilityWindow": {
@@ -5363,50 +5427,50 @@
         "width": 732,
         "height": 630,
         "active": true,
-        "insideProtectedCorridor": false
+        "insideProtectedCorridor": true
       },
       "densityMetrics": {
-        "vortex": 0.169,
-        "titleHalo": 0.204,
-        "foreground": 0.025,
+        "vortex": 0,
+        "titleHalo": 0.362,
+        "foreground": 0.261,
         "floor": 0,
         "sawWake": 0,
-        "copy": 0.165
+        "copy": 0.044
       },
       "toolWakeState": {
-        "hammer": 0.004,
-        "wrench": 0.882,
+        "hammer": 0,
+        "wrench": 0.852,
         "saw": 0.06
       },
       "heroReadMetrics": {
-        "focalContrast": 32.356,
+        "focalContrast": 32.345,
         "supportSuppression": 1,
-        "copyCalm": 0.809,
-        "highlightSpill": 0.16
+        "copyCalm": 0.745,
+        "highlightSpill": 0.088
       },
       "toolContrast": {
         "hammer": 0,
-        "wrench": 13.482,
+        "wrench": 13.477,
         "saw": 0
       },
       "visualMetrics": {
-        "sceneGradeOpacity": 0.462852,
-        "chargeRingOpacity": 0.5238,
-        "copyShieldOpacity": 0.137,
-        "heroShadowIntensity": 1.306,
-        "contactShadowOpacity": 0.684,
-        "vortexLightIntensity": 0.597,
+        "sceneGradeOpacity": 0.433512,
+        "chargeRingOpacity": 0,
+        "copyShieldOpacity": 0.172,
+        "heroShadowIntensity": 1.475,
+        "contactShadowOpacity": 0.944,
+        "vortexLightIntensity": 0.475,
         "sawGlowIntensity": 0,
-        "floorBurstIntensity": 0.001,
-        "volumetricOpacity": 0.032,
+        "floorBurstIntensity": 0,
+        "volumetricOpacity": 0.033,
         "blueMix": 0.84,
         "bloomLayerIntensity": 1,
         "scatterPassIntensity": 0,
         "scatterShaftStepCount": 0,
-        "densityInCopyZone": 0,
-        "magicPulseStrength": 0.001,
-        "titleHaloDensity": 0.204,
-        "foregroundDensity": 0.025,
+        "densityInCopyZone": 0.006,
+        "magicPulseStrength": 0,
+        "titleHaloDensity": 0.362,
+        "foregroundDensity": 0.261,
         "activeTrailNodes": 7,
         "volumetricScatterSamples": 0
       },
@@ -5421,6 +5485,14 @@
         "pointerTrail": true,
         "experimentalGestures": false,
         "reducedMotion": false
+      },
+      "zoneState": {
+        "activeId": "services",
+        "nextId": "process",
+        "blendProgress": 1,
+        "zoneCount": 6,
+        "zoneT": 0,
+        "active": false
       }
     }
   },
@@ -5433,7 +5505,7 @@
     {
       "name": "Desktop diagnostics report the bespoke assembly orbit hero pack",
       "pass": true,
-      "detail": "assetSet=hero-pack-v5 contract=hero-asset-contract-v4 stage=assembly-orbit-bespoke-pack verify=final-ready sources={\"hammer\":\"hero-glb\",\"wrench\":\"hero-glb\",\"saw\":\"hero-glb\"}"
+      "detail": "assetSet=hero-pack-v5 contract=hero-asset-contract-v4 stage=assembly-orbit-pbr-upgrade verify=final-ready sources={\"hammer\":\"hero-glb\",\"wrench\":\"hero-glb\",\"saw\":\"hero-glb\"}"
     },
     {
       "name": "Desktop post stack stays bloom-first with optional scatter configuration",
@@ -5443,7 +5515,7 @@
     {
       "name": "Desktop diagnostics expose material, environment, interaction, and post cues",
       "pass": true,
-      "detail": "material=precisionWorkshopBespoke env=depth-lockup-world interaction=composed-idle post=bloom-base-grade-steady"
+      "detail": "material=precisionWorkshopBespoke env=seam-sweep-countercue interaction=composed-idle post=bloom-base-grade-steady"
     },
     {
       "name": "Desktop lockup resolves to the dedicated desktop preset",
@@ -5453,12 +5525,12 @@
     {
       "name": "Desktop wrench fills the authored hero height and framing margins",
       "pass": true,
-      "detail": "ratio=0.585 area=0.183 overlap=0.102 artLane=0.311 offset=-39.3 clearance={\"top\":193,\"right\":335.8,\"bottom\":180.3,\"left\":746.8}"
+      "detail": "ratio=0.619 area=0.188 overlap=0.115 artLane=0.319 offset=-28.6 clearance={\"top\":141.1,\"right\":329.9,\"bottom\":201.6,\"left\":762.3}"
     },
     {
       "name": "Reveal-to-lockup phases keep strong hero and world separation",
       "pass": true,
-      "detail": "reveal=18.522 lockup=32.453 separation=0.505 contamination=0"
+      "detail": "reveal=18.778 lockup=32.79 separation=0.509 contamination=0"
     },
     {
       "name": "Desktop staging elements stay inside the authored hero lane",
@@ -5473,7 +5545,7 @@
     {
       "name": "Interactive idle preserves safe zones and clean hero framing",
       "pass": true,
-      "detail": "safe={\"nav\":{\"hammer\":false,\"wrench\":false,\"saw\":false},\"readability\":{\"hammer\":false,\"wrench\":false,\"saw\":false},\"viewport\":{\"hammer\":false,\"wrench\":false,\"saw\":false}} cta={\"hammer\":false,\"wrench\":false,\"saw\":false} focal=31.968 particles={\"total\":0,\"eyebrowZone\":0,\"headlineZone\":0,\"bodyZone\":0,\"ctaZone\":0,\"ctaStackZone\":0,\"trustRowZone\":0,\"scrollCueZone\":0} long=0 rod=0 out=0 grid=0.012"
+      "detail": "safe={\"nav\":{\"hammer\":false,\"wrench\":false,\"saw\":false},\"readability\":{\"hammer\":false,\"wrench\":false,\"saw\":false},\"viewport\":{\"hammer\":false,\"wrench\":false,\"saw\":false}} cta={\"hammer\":false,\"wrench\":false,\"saw\":false} focal=32.307 particles={\"total\":0,\"eyebrowZone\":0,\"headlineZone\":0,\"bodyZone\":0,\"ctaZone\":0,\"ctaStackZone\":0,\"trustRowZone\":0,\"scrollCueZone\":0} long=0 rod=0 out=0 grid=0.012"
     },
     {
       "name": "Interactive idle keeps support props intentionally absent",
@@ -5483,17 +5555,17 @@
     {
       "name": "Dragging the wrench produces localized hero response",
       "pass": true,
-      "detail": "wrench=1.06 release=0.081 interaction=click-premium-pulse @ 920,457"
+      "detail": "wrench=0.993 release=0.08 interaction=composed-idle @ 908,419"
     },
     {
       "name": "Anchored callout avoids the nav and active object",
       "pass": true,
-      "detail": "{\"visible\":true,\"panelRect\":{\"left\":1136,\"top\":125.125,\"right\":1428,\"bottom\":555.546875,\"width\":292,\"height\":430.421875},\"navOverlap\":false,\"readabilityOverlap\":false,\"wrenchOverlap\":false,\"wrench\":{\"left\":735.7104887698257,\"top\":168.13305549747412,\"right\":1122.5988028331933,\"bottom\":744.0047392766729,\"width\":386.8883140633676,\"height\":575.8716837791987},\"readability\":{\"left\":354,\"top\":152,\"right\":1086,\"bottom\":782}}"
+      "detail": "{\"visible\":true,\"panelRect\":{\"left\":1136,\"top\":291.671875,\"right\":1428,\"bottom\":722.09375,\"width\":292,\"height\":430.421875},\"navOverlap\":false,\"readabilityOverlap\":false,\"wrenchOverlap\":false,\"wrench\":{\"left\":754.0873333511291,\"top\":108.71419431200185,\"right\":1124.2090693850391,\"bottom\":721.6725406534837,\"width\":370.12173603391,\"height\":612.9583463414818},\"readability\":{\"left\":354,\"top\":152,\"right\":1086,\"bottom\":782}}"
     },
     {
       "name": "Performance reporting respects local-hardware versus software-ci authority",
       "pass": true,
-      "detail": "informational software-ci fps=20 frame=50 post=1.41"
+      "detail": "informational software-ci fps=20 frame=50 post=3.06"
     }
   ]
 }

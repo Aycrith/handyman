@@ -210,6 +210,11 @@ button {
   .scroll-cue__dot { animation: none; }
 }
 
+/* No-JS fallback: ensure hero content is visible without JavaScript */
+.no-js .hero__title,
+.no-js .hero__sub,
+.no-js .hero__ctas { opacity: 1; transform: none; }
+
 
 /* ═══════════════════════════════════════════════════════════
    LAYOUT UTILITIES
@@ -1511,13 +1516,19 @@ button {
   }
 }
 
-/* Placeholder gradient backgrounds per card type — lifted for readability */
-.gallery-card--deck    { background: linear-gradient(135deg, #2a1e0e 0%, #3d2c12 50%, #4d3818 100%); }
-.gallery-card--interior { background: linear-gradient(135deg, #0e1a28 0%, #162538 50%, #1e3248 100%); }
-.gallery-card--flooring { background: linear-gradient(135deg, #221508 0%, #352210 50%, #452e18 100%); }
-.gallery-card--drywall  { background: linear-gradient(135deg, #1c1c1c 0%, #282828 50%, #363636 100%); }
-.gallery-card--trim     { background: linear-gradient(135deg, #1c1408 0%, #2a200e 50%, #382c16 100%); }
-.gallery-card--fence    { background: linear-gradient(135deg, #0e1c0c 0%, #162a18 50%, #1e3820 100%); }
+/* Gallery card image backgrounds per card type */
+.gallery-card__image {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.gallery-card--deck .gallery-card__image    { background: linear-gradient(135deg, #2a1e0e 0%, #3d2c12 50%, #4d3818 100%); }
+.gallery-card--interior .gallery-card__image { background: linear-gradient(135deg, #0e1a28 0%, #162538 50%, #1e3248 100%); }
+.gallery-card--flooring .gallery-card__image { background: linear-gradient(135deg, #221508 0%, #352210 50%, #452e18 100%); }
+.gallery-card--drywall .gallery-card__image  { background: linear-gradient(135deg, #1c1c1c 0%, #282828 50%, #363636 100%); }
+.gallery-card--trim .gallery-card__image     { background: linear-gradient(135deg, #1c1408 0%, #2a200e 50%, #382c16 100%); }
+.gallery-card--fence .gallery-card__image    { background: linear-gradient(135deg, #0e1c0c 0%, #162a18 50%, #1e3820 100%); }
 
 /* Faint texture pattern on each card */
 .gallery-card::before {
@@ -1566,6 +1577,7 @@ button {
   opacity: 0.85;
   transform: translateY(4px);
   transition: opacity var(--transition-base), transform var(--transition-base);
+  z-index: 3;
 }
 
 .gallery-card__label {
@@ -2914,6 +2926,28 @@ a.contact-detail:hover { color: var(--color-amber-light); }
   content: '→ ';
   color: var(--color-amber-light);
   font-family: var(--font-mono);
+}
+
+/* Amber ✦ tick icon in overlay */
+.gallery-card__tick {
+  color: var(--color-amber);
+  font-size: 0.75rem;
+  margin-bottom: 0.15rem;
+  display: block;
+  line-height: 1;
+}
+
+/* Amber diagonal corner badge (top-right triangle) */
+.gallery-card__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 48px 48px 0;
+  border-color: transparent var(--color-amber) transparent transparent;
+  z-index: 2;
 }
 
 /* High-contrast card edges in evidence room */

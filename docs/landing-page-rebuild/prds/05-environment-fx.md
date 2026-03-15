@@ -93,3 +93,21 @@ body {
 - CSS particles visible in services/gallery/about sections
 - Background color breathes continuously with scroll (not snapping)
 - `--section-depth-blur` intensifies during fast scroll
+
+---
+
+## Update: Phase E Workshop Journey (2026-03-15)
+
+PRD 13 (Workshop Journey) supersedes the CSS-only ambient approach with a WebGL zone system:
+
+**What changes:**
+- Background color breathing (`--bg-breathe-r/g`) is replaced by the `SCROLL_ZONES.bgColor` 3D scene system, which drives `scene.background.setRGB()` directly. The CSS fallback can remain for non-3D sessions.
+- CSS ambient particles remain as fallback for `quality=low` devices where the 3D zone particle system is reduced.
+- The `--section-particle-density` CSS var is still useful as a signal for CSS-only particle animation density.
+
+**What remains from this PRD:**
+- `--section-depth-blur` CSS var for fast-scroll motion blur on images
+- CSS ambient particle keyframes (fallback layer)
+- `--scene-warmth` variable (still used by hero section for overlays)
+
+See PRD 13 for the WebGL zone implementation that handles the primary atmospheric threading.
