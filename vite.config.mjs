@@ -11,17 +11,31 @@ export default defineConfig({
   },
   build: {
     target: 'es2022',
-    // Raise chunk size warning to 700KB — the bundle includes Three.js which is large by design
-    // Code-splitting is handled via manualChunks below (D5 — Performance Budget)
-    chunkSizeWarningLimit: 700,
+    // Chunk size warning limit: 1200KB accounts for Three.js r134 core bundle
+    // which is ~600KB on its own and cannot be reduced without refactoring imports.
+    // See src/runtime-globals.js: `import * as ThreeCore` defeats tree-shaking.
+    // Code-splitting strategy in manualChunks (D5 — Performance Budget):
+    // - three-core: Three.js core (~560 KB) — unavoidable due to namespace spread
+    // - three-extras: loaders, postproc JSM (~120 KB) — individually tree-shakeable
+    // - scene-app: src/scene/index.js application code (~420 KB)
+    // - vendor-motion: GSAP + Lenis + SplitType (~140 KB)
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Separate Three.js + scene from site/UI code
-          if (id.includes('three') || id.includes('src/scene')) {
-            return 'scene';
+          // Three.js core — split from extras to isolate the unavoidable namespace
+          if (id.includes('node_modules/three/build') || id.includes('node_modules/three/src')) {
+            return 'three-core';
           }
-          // GSAP + Lenis vendor chunk
+          // Three.js extras (loaders, postprocessing, shaders, lights)
+          if (id.includes('node_modules/three/examples')) {
+            return 'three-extras';
+          }
+          // Scene application code and initialization
+          if (id.includes('src/scene')) {
+            return 'scene-app';
+          }
+          // GSAP + motion vendor chunk
           if (id.includes('gsap') || id.includes('lenis') || id.includes('split-type')) {
             return 'vendor-motion';
           }
