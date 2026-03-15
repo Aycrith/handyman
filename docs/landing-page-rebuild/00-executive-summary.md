@@ -14,8 +14,9 @@
 | D — Polish & Finish | ✅ DONE | 2026-03-15 |
 | E — Workshop Journey (backend) | ✅ DONE | 2026-03-15 |
 | E★ — Canvas Visibility Fix | ✅ DONE | 2026-03-15 |
+| F — Cinematic World System | 🔧 IN PROGRESS | Code complete, asset pipeline + polish remaining |
 
-**Current state:** All zone system, scroll zones, particle stories, camera spline, and environment geometry loading is implemented. Section backgrounds have been made transparent so the 3D canvas is now visible beneath all page sections (the critical bug that was blocking visual progress).
+**Current state:** The cinematic 10-act world system architecture is fully implemented — 9 worlds, 8 authored transitions (fog flythrough, particle dissolve, wireframe morph, point cloud morph, bloom crossfade), 4 custom shaders, progressive asset loading, mobile tier filtering, and full diagnostic overlay. Build passes, runtime has zero errors, tests pass across all viewports. Remaining: asset pipeline execution (optimized GLBs), post-processing extensions (DoF, chromatic aberration), integration cleanup, and timing calibration.
 
 ## Quality Bar
 
@@ -23,7 +24,7 @@ Benchmarked against: activetheory.net, dogstudio.co, henryheffernan.com, dragonf
 
 ## Architecture (Unchanged)
 
-Vanilla JS + Three.js r134 + GSAP 3 + Lenis + SplitType + Vite. Single HTML, monolithic `src/scene/index.js`, `src/site/index.js` (1,285 lines), `styles.css` (2,300 lines). All enhancements are additive.
+Vanilla JS + Three.js r134 + GSAP 3 + Lenis + SplitType + Vite. Single HTML, monolithic `src/scene/index.js`, `src/site/index.js` (1,285 lines), `styles.css` (2,300 lines). Phase F adds modular world system alongside: `src/scene/world-manager.js`, `src/scene/transition-techniques.js`, `src/scene/world-orchestrator-setup.js`, `src/scene/worlds/` (9 modules), `src/scene/shaders/` (4 files).
 
 ## Core Problem
 
@@ -38,6 +39,7 @@ The 3D hero quality ceiling is world-class, but everything below the fold is gen
 | C | Sectional Worlds | Blueprint/Evidence/Precision/Statement visual rooms |
 | D | Polish & Finish | Loading choreography, mobile tier, accessibility, performance |
 | E | Workshop Journey | Continuous 3D world — SCROLL_ZONES, environment geometry, camera spline, per-zone particles (PRD 13) |
+| F | Cinematic World System | 10-act scroll journey — 9 worlds, 8 transition techniques, 4 shaders, progressive loading, mobile tier filtering |
 
 ## Phase E★: Canvas Visibility Fix (Critical — 2026-03-15)
 
@@ -93,3 +95,28 @@ The landing page evolves beyond a 3D hero + 2D sections into a **continuous 3D w
 | Mobile on low-end | Static page served, no broken animations |
 | 3D hero timing | First 3 seconds staged; tool reveal has weight and ceremony |
 | Font loading | No visible layout jump when fonts swap from fallback |
+
+## Phase F: Cinematic World System (Active Theory-Inspired) — IN PROGRESS
+
+**Master plan:** 660-line session plan covering 10 acts, 8 transitions, 20 implementation steps across 6 sub-phases. Inspired by activetheory.net's scroll-driven environmental storytelling.
+
+**Concept:** Rearchitect the 3D experience from a static background into a continuous camera journey through interconnected visual worlds. Each page section owns a distinct 3D world. Transitions between worlds are authored cinematic moments (fog flythrough, wireframe morph, particle dissolve, point cloud morph, bloom crossfade). The hero-to-services handoff is the signature ★ moment.
+
+**Completed (code architecture):**
+- `src/scene/world-manager.js` (771 lines) — SceneWorld base, TransitionSeq, WorldOrchestrator singleton
+- `src/scene/transition-techniques.js` (798 lines) — 5 technique factories
+- `src/scene/world-orchestrator-setup.js` (430 lines) — Bridge wiring all 9 worlds + 8 transitions
+- 9 world modules in `src/scene/worlds/` (forge through workshop-return)
+- 4 custom GLSL shaders (fog-plane, point-cloud)
+- Camera blending, lighting/particle/fog override integration into scene/index.js
+- Mobile tier: 4-world simplified path (ACT 3-7 skipped)
+- Debug overlay with `?sceneDebug=1`
+- Build: 41 modules, 0 errors. Runtime: 0 errors, 0 warnings.
+
+**Remaining:**
+- Asset pipeline execution (produces optimized GLBs from raw 3D models)
+- Post-processing extensions (DoF, chromatic aberration)
+- Integration cleanup (event rename, CSS tokens, test wiring)
+- Timing/easing calibration and quality tier validation
+
+See `docs/landing-page-rebuild/04-prioritized-roadmap.md` Phase F for detailed checklist.

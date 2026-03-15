@@ -1,7 +1,7 @@
 # PRD 13 — Workshop Journey: Continuous Scroll 3D World
 
 **Date:** 2026-03-15
-**Status:** Planned — pending Phase A/B completion
+**Status:** ✅ COMPLETE — Implemented as Phase E. Superseded by Phase F (Cinematic World System) which extends zone-based workshop journey into a full 10-act world system.
 **Depends on:** PRD 01 (scene), PRD 03 (camera), PRD 05 (env FX), PRD 07 (materials)
 
 ---

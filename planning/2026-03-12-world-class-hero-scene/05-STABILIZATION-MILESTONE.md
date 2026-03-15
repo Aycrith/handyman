@@ -78,6 +78,18 @@ Date: `2026-03-14`
 
 ## Automated coverage now in place
 - Hero asset pipeline verification with manifest fingerprint checks and provenance assertions
+
+## Post-Stabilization: Phase F — Cinematic World System (2026-03-15)
+
+After stabilization, a full cinematic 10-act world system was built on top of the stabilized baseline:
+- 9 worlds, 8 authored transitions, 5 transition techniques, 4 custom shaders
+- World manager (`src/scene/world-manager.js`), orchestrator bridge, debug overlay
+- Integrated into scene/index.js via 7 edits (camera, lighting, particles, diagnostics)
+- Mobile tier filtering (4-world simplified path)
+- Build passes, runtime zero errors, tests pass across all viewports
+- Asset pipeline script exists but not yet run (optimized GLBs pending)
+
+**Note:** The world system is additive — it does not modify the hero stabilization baseline. The existing director phases, hero pack, and diagnostics globals continue to function unchanged.
 - UI smoke checks for scene boot, hero copy visibility, composition diagnostics, and core page behavior
 - Multi-viewport layout and readability gates across desktop, tablet, mobile, and narrow viewports
 - Desktop lockup/interactivity validation for reveal, lockup, idle, drag response, and callout safety

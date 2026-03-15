@@ -83,4 +83,23 @@ Reference sites: activetheory.net, dogstudio.co, henryheffernan.com, dragonfly.x
 - [ ] Contact zone: warmest, most inviting color temperature on the page
 - [ ] Hero intro choreography unaffected — zone system invisible at scrollProgress < 0.12
 - [ ] Low-end devices: workshop geometry not loaded, no broken state, no console errors
+
+## Cinematic World System (Phase F)
+
+- [ ] All 9 worlds boot and activate at their correct scroll ranges
+- [ ] 8 transitions fire at correct scroll ranges with distinct cinematic character
+- [ ] Signature transition (Hero→Services fog flythrough) is the most dramatic moment on the page
+- [ ] No geometry "pops" in — every transition is visually continuous
+- [ ] No more than 2 world groups visible simultaneously (current + transition target)
+- [ ] World camera targets blend smoothly with existing spring physics
+- [ ] World particle stories visibly change atmosphere per section
+- [ ] Lighting overrides produce distinct color temperatures per world
+- [ ] `?sceneDebug=1` overlay shows live world state, scroll progress, transition info
+- [ ] `__sceneDiagnostics().worldState` returns accurate `activeWorld`, `transitionProgress`, `loadedWorlds`
+- [ ] Mobile: 4-world simplified path (forge → workshop → ember → return), no ACT 3-7 geometry
+- [ ] Low-tier: world system disabled entirely, existing zone behavior preserved
+- [ ] Optimized GLBs load within performance budget (<350MB GPU, <16.7ms/frame desktop)
+- [ ] `prefers-reduced-motion`: no transitions, static world states, page fully functional
+- [ ] DoF active in ACT 3 (Statement Room) and ACT 7 (Testimony Space) only
+- [ ] Chromatic aberration burst fires only during transitions
 - [ ] Reduced-motion: page fully readable, zone color shifts still occur (not motion), no zone driver side effects

@@ -183,3 +183,80 @@
 - [x] Remove solid `var(--color-bg)` fallback from `.cta-band` gradient
 - [x] Add per-zone atmospheric `::before` radial gradient overlays (50–60% opacity, fading to transparent)
 - [x] Add `[data-scene-zone] > .container { position: relative; z-index: 1 }` stacking context fix
+
+---
+
+## Phase F — Cinematic World System (Active Theory-Inspired) 🔧 IN PROGRESS
+
+*10-act cinematic scroll journey with 9 worlds and 8 authored transitions. Code architecture complete; asset pipeline and polish remaining.*
+
+**Master plan:** `/memories/session/plan.md` (session) — 20 steps across 6 sub-phases.
+
+### F1 — Core Architecture ✅ COMPLETE
+- [x] Create `src/scene/world-manager.js` (771 lines) — SceneWorld, TransitionSeq, WorldOrchestrator
+- [x] Create `src/scene/transition-techniques.js` (798 lines) — 5 technique factories
+- [x] Create 4 custom shaders (`fog-plane.frag/vert`, `point-cloud.frag/vert`)
+- [x] Create `scripts/process-all-environment-assets.mjs` — batch GLB optimizer (not yet run)
+
+### F2 — World Modules (9/9) ✅ COMPLETE
+- [x] `src/scene/worlds/forge.js` — ACT 1: Wraps hero, auto-rotation, exit scale-down
+- [x] `src/scene/worlds/blueprint-workshop.js` — ACT 2: Industrial toolbox + fence
+- [x] `src/scene/worlds/statement-room.js` — ACT 3: Holographic forms, emissive cycling
+- [x] `src/scene/worlds/precision-line.js` — ACT 4: Wireframe map conveyor-belt
+- [x] `src/scene/worlds/evidence-room.js` — ACT 5: Globe rotation, camera orbit
+- [x] `src/scene/worlds/origin-story.js` — ACT 6: Point cloud, body traces (desktop-only)
+- [x] `src/scene/worlds/testimony-space.js` — ACT 7: XR point cloud, additive blending
+- [x] `src/scene/worlds/ember-threshold.js` — ACT 8: Pure atmospheric, no geometry
+- [x] `src/scene/worlds/workshop-return.js` — ACT 9: Reuses ACT 2 geometry, warm re-lighting
+
+### F3 — Orchestrator Bridge + Integration ✅ COMPLETE
+- [x] Create `src/scene/world-orchestrator-setup.js` (430 lines) — all worlds + transitions wired
+- [x] Add 7 `data-scene-world` attributes to `index.html`
+- [x] Wire into `src/scene/index.js`: imports, init, render loop, camera blending, lighting, particles, diagnostics, cleanup (7 integration edits)
+- [x] Camera target blending into spring physics (K=180, C=18)
+- [x] Particle story override — world stories lerp into zone stories via `_zoneT`
+- [x] Lighting override expansion — thresholdBias, bgColor, fogDensity, exposureBias
+- [x] Workshop return geometry link via `_onWorldLoadedCallbacks`
+
+### F4 — Mobile Tier Filtering ✅ COMPLETE
+- [x] ACT 3-7 worlds skipped on mobile (4-world simplified path)
+- [x] Mobile-specific transitions: bloom-crossfade [0.55–0.65], fog-flythrough [0.85–0.95]
+- [x] Mobile scroll range overrides for remaining worlds
+
+### F5 — Bug Fixes ✅ COMPLETE
+- [x] baseY TDZ error fixed (camera variable declaration order)
+- [x] Forge hero position reset on scroll-back (enter() restores scale/position)
+- [x] World group visibility guard (loaded check in enter())
+
+### F6 — Debug & Diagnostics ✅ COMPLETE
+- [x] Create `src/scene/world-debug-overlay.js` — `?sceneDebug=1` live HUD
+- [x] Extend `__sceneDiagnostics().worldState` with world/transition/loading data
+
+### F7 — Build & Runtime Verification ✅ COMPLETE
+- [x] Build: 41 modules, 0 errors, scene-app 262KB gzip 82KB
+- [x] Runtime: 0 errors, 0 warnings. 9 worlds, 8 transitions, progressive loading working
+- [x] Layout gate tests: All PASS across 4 viewports
+- [x] UI smoke tests: 15/16 pass (1 pre-existing build-stage mismatch)
+
+### F8 — Asset Pipeline Execution ❌ NOT STARTED
+- [ ] Install `@gltf-transform/core`, `@gltf-transform/functions`, `meshopt-decoder` as dev deps
+- [ ] Run `scripts/process-all-environment-assets.mjs` to produce optimized GLBs
+- [ ] Validate output sizes match target budgets
+- [ ] Add `assets/models/environment/` to Vite asset copy config
+
+### F9 — Post-Processing Extensions ❌ NOT STARTED
+- [ ] DoF/bokeh pass (active in ACT 3 and ACT 7 only)
+- [ ] Chromatic aberration burst on transitions
+- [ ] Fog plane integration with EffectComposer pipeline
+
+### F10 — Integration Cleanup ⚠️ PARTIAL
+- [ ] Rename `scene:zone-change` → `scene:world-change` event in `src/site/index.js`
+- [ ] Add `--world-*` CSS custom properties to `styles.css`
+- [ ] Wire `tests/validate-worlds.js` into `tests/run-all.js`
+- [ ] Fix `EXPECTED_BUILD_STAGE` constant in `tests/validate-ui.js`
+- [ ] `prefers-reduced-motion` world-specific handling
+
+### F11 — Polish & Calibration ❌ NOT STARTED
+- [ ] Timing/easing calibration pass (all 8 transitions, frame-by-frame via debug overlay)
+- [ ] Full quality tier validation (`?sceneTier=mobile`, `?sceneTier=low`)
+- [ ] Performance profiling (16.7ms frame budget, <350MB GPU)
