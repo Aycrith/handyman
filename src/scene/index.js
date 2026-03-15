@@ -1116,7 +1116,9 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     hybridEmberSignature: {
       preReveal: {
         cue: 'pre-reveal-ember-whisper',
-        speciesBias: { flowRibbon: 0.20, cloudMote: 0.46, microDust: 0.34, sparkFilament: 0.04 },
+        speciesBias: { flowRibbon: 0.62, cloudMote: 1.18, microDust: 0.48, sparkFilament: 0.04 },
+        hoverSparkGate: [0, 0, 0.12, 0.42, 0],
+        dragWakeSpecies: ['flowRibbon', 'flowRibbon', null, 'microDust', null],
         forceScale: 0.44,
         copyCalm: 1.34,
         ribbonOrbit: 0.28,
@@ -1129,7 +1131,9 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       },
       reveal: {
         cue: 'reveal-ember-convergence',
-        speciesBias: { flowRibbon: 1.18, cloudMote: 0.92, microDust: 0.58, sparkFilament: 0.18 },
+        speciesBias: { flowRibbon: 1.42, cloudMote: 0.72, microDust: 0.44, sparkFilament: 0.08 },
+        hoverSparkGate: [0, 0, 0.12, 0.42, 0],
+        dragWakeSpecies: ['flowRibbon', 'flowRibbon', null, 'microDust', null],
         forceScale: 1.04,
         copyCalm: 1.22,
         ribbonOrbit: 1.10,
@@ -1142,7 +1146,9 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       },
       lockup: {
         cue: 'lockup-ember-orbit',
-        speciesBias: { flowRibbon: 1.04, cloudMote: 0.86, microDust: 0.62, sparkFilament: 0.12 },
+        speciesBias: { flowRibbon: 0.96, cloudMote: 0.94, microDust: 0.82, sparkFilament: 0.14 },
+        hoverSparkGate: [0, 0, 0.12, 0.42, 0],
+        dragWakeSpecies: ['flowRibbon', 'flowRibbon', null, 'microDust', null],
         forceScale: 0.96,
         copyCalm: 1.18,
         ribbonOrbit: 1.24,
@@ -1155,7 +1161,9 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       },
       interactiveIdle: {
         cue: 'interactive-ember-eddy',
-        speciesBias: { flowRibbon: 0.96, cloudMote: 0.82, microDust: 0.66, sparkFilament: 0.10 },
+        speciesBias: { flowRibbon: 0.82, cloudMote: 0.88, microDust: 0.78, sparkFilament: 0.22 },
+        hoverSparkGate: [0, 0, 0.12, 0.42, 0],
+        dragWakeSpecies: ['flowRibbon', 'flowRibbon', null, 'microDust', null],
         forceScale: 0.88,
         copyCalm: 1.16,
         ribbonOrbit: 0.98,
@@ -1168,7 +1176,9 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       },
       scrollTransition: {
         cue: 'scroll-ember-drain',
-        speciesBias: { flowRibbon: 0.42, cloudMote: 0.48, microDust: 0.30, sparkFilament: 0.03 },
+        speciesBias: { flowRibbon: 0.46, cloudMote: 0.76, microDust: 0.52, sparkFilament: 0.03 },
+        hoverSparkGate: [0, 0, 0.12, 0.42, 0],
+        dragWakeSpecies: ['flowRibbon', 'flowRibbon', null, 'microDust', null],
         forceScale: 0.46,
         copyCalm: 1.46,
         ribbonOrbit: 0.38,
@@ -1595,6 +1605,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   let particleOutOfHeroLaneCount = 0;
   let ctaWakeActive = false;
   let ctaWakeStrength = 0;
+  let ctaWakeEmissivePulse = 0;
   const LIGHT_CUES = {
     idle: { warm: 0.18, cool: 0.08, release: 0.0 },
     focus: { warm: 0.32, cool: 0.10, release: 0.0 },
@@ -1726,6 +1737,8 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     ctaWakeActive = active;
     if (active) {
       ctaWakeStrength = Math.max(ctaWakeStrength, 0.24);
+      ctaWakeEmissivePulse = 0.62;
+      queueMagicPulse({ strength: 0.14, durationMs: 940, source: 'cta-wake-material', anchorTool: 'wrench', sparkCount: 3 });
       markInteraction(0.03);
     }
   });
@@ -1830,6 +1843,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   vignetteStyle.textContent = `
     #scene-vignette {
       position:fixed; inset:0; pointer-events:none; z-index:1;
+      will-change: filter;
       background:
         radial-gradient(ellipse 90% 70% at 50% 45%, transparent 40%, rgba(3,4,8,0.45) 72%, rgba(0,0,0,0.92) 100%),
         linear-gradient(to top, rgba(0,0,0,0.90) 0%, transparent 38%),
@@ -1966,6 +1980,11 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   const sceneLensAccent = document.createElement('div');
   sceneLensAccent.id = 'scene-lens-accent';
   document.body.insertBefore(sceneLensAccent, sceneGrade.nextSibling);
+
+  const sceneCAAccent = document.createElement('div');
+  sceneCAAccent.id = 'scene-ca-accent';
+  sceneCAAccent.style.cssText = 'position: fixed; inset: 0; pointer-events: none; z-index: 1; mix-blend-mode: overlay; opacity: 0; background: linear-gradient(to right, rgba(255, 140, 50, 0.15) 0%, transparent 50%, rgba(50, 120, 255, 0.15) 100%);';
+  document.body.insertBefore(sceneCAAccent, sceneLensAccent.nextSibling);
 
   const copyShield = document.createElement('div');
   copyShield.id = 'scene-copy-shield';
@@ -4070,17 +4089,12 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
           ring: species.id === 'microDust' ? 0.34 : 0.48,
         });
       } else {
-        material = new THREE.PointsMaterial({
-          map: particleTex,
-          color: 0xffe7c1,
-          size: species.baseSize,
-          sizeAttenuation: true,
-          transparent: true,
-          opacity: 0.54,
-          depthWrite: false,
-          depthTest: true,
-          alphaTest: 0.01,
-          blending: THREE.AdditiveBlending,
+        material = createParticleShaderMaterial(species, {
+          opacity: 0.14,
+          scale: 0.42,
+          stretch: 2.2,
+          depthFade: 0.04,
+          ring: 0.62,
         });
       }
 
@@ -4807,6 +4821,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     flowStrength: 0.00078,
     floorSkimStrength: 0.00072,
     floorHeight: -2.55,
+    dragSpeciesBoost: null,         // Per-tool species multiplier table on drag
     // ── Directional wind (mouse-velocity aligned force) ──
     windStrength: 0.007,                    // ambient directional wind — drag can still boost it
     baseWindStrength: 0.007,               // reset target for windStrength after drag boost
@@ -5344,7 +5359,8 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     const proxTool = VORTEX_PARAMS.proximityTool;
     const proxStr = VORTEX_PARAMS.proximityStrength;
 
-    const speciesStoryBias = storyPreset.speciesBias[speciesId] || 1;
+    const dragBoost = VORTEX_PARAMS.dragSpeciesBoost?.[speciesId] ?? 1;
+    const speciesStoryBias = (storyPreset.speciesBias[speciesId] || 1) * dragBoost;
     const speciesForce = (speciesId === 'microDust' ? 0.88 : (speciesId === 'sparkFilament' ? 1.26 : (speciesId === 'flowRibbon' ? 1.18 : 1.0)))
       * stateEnvelope
       * speciesStoryBias
@@ -7818,6 +7834,7 @@ scene.add(particulateStreamCard);
   const mouseVec  = new THREE.Vector2();
   let hoveredTool = null;
   const hoverEmissive = { hammer: 0, wrench: 0, saw: 0 };
+  const hoverEnvBoost = { hammer: 0, wrench: 0, saw: 0 };
 
   function getToolGroup(id) {
     if (id === 'hammer') return hammerGroup;
@@ -8179,18 +8196,17 @@ scene.add(particulateStreamCard);
     canvasLastClickTime = now;
     {
       closePanel();
-      // Spark burst at click world position
-      const clickX = ((e.clientX / window.innerWidth)  * 2 - 1) * 5.5;
-      const clickY = -((e.clientY / window.innerHeight) * 2 - 1) * 3.0;
-      emitSparks(clickX, clickY);
+      // Seam-anchored click pulse — focus energy at wrench anchor
+      const anchor = getWrenchStoryAnchor();
+      emitSparks(anchor.x, anchor.y);
       // Apply vortex shockwave + implosion pull-back
-      clickWorldPos = { x: clickX, y: clickY, z: 0 };
-      focusVortexAt(clickWorldPos);
-      applyPulseShockwave(clickWorldPos);
+      clickWorldPos = anchor;
+      focusVortexAt(anchor);
+      applyPulseShockwave(anchor);
       implosionActive = true;
       implosionStart = performance.now();
       triggerReleasePulse(0.62, 920);
-      queueMagicPulse({ strength: 0.22, durationMs: 820, source: 'canvas-click', sparkCount: 0 });
+      queueMagicPulse({ strength: 0.34, durationMs: 1100, source: 'canvas-click', anchorTool: 'wrench', sparkCount: 8 });
     }
   });
 
@@ -8206,6 +8222,12 @@ scene.add(particulateStreamCard);
       dragBaseRotY = getToolGroup(hoveredTool).rotation.y;
       dragVel = 0; dragLastX = e.clientX; dragLastT = performance.now();
       canvas.style.cursor = 'grabbing';
+      // Tool-specific drag species boost
+      VORTEX_PARAMS.dragSpeciesBoost = {
+        wrench: { flowRibbon: 1.44, cloudMote: 0.88, microDust: 0.72, sparkFilament: 0.62 },
+        hammer: { flowRibbon: 0.72, cloudMote: 1.22, microDust: 1.34, sparkFilament: 0.44 },
+        saw:    { flowRibbon: 0.62, cloudMote: 0.72, microDust: 0.88, sparkFilament: 1.62 },
+      }[dragTool] || null;
       // Drag-grab burst: localized wake instead of a full-scene hit.
       const grp = getToolGroup(dragTool);
       emitSparks(grp.position.x, grp.position.y, 0xffcc66, 6);
@@ -8261,6 +8283,7 @@ scene.add(particulateStreamCard);
     }
     // Reset wind boost back to base after drag ends
     VORTEX_PARAMS.windStrength = VORTEX_PARAMS.baseWindStrength;
+    VORTEX_PARAMS.dragSpeciesBoost = null;
     triggerReleasePulse(0.72, 980);
     dragTool = null;
   });
@@ -8295,6 +8318,17 @@ scene.add(particulateStreamCard);
   // Double-click: Detonation burst — particles explode outward then snap back via implosion
   canvas.addEventListener('dblclick', (e) => {
     e.preventDefault();
+    if (!isDirectorInteractive() || prefersReduced) return;
+    const anchor = getWrenchStoryAnchor();
+    triggerReleasePulse(0.88, 1400);
+    [flowRibbonSystem, cloudMoteSystem, microDustSystem, sparkFilamentSystem].forEach(s =>
+      applyVortexShockwave(s, { x: anchor.x, y: anchor.y, z: anchor.z })
+    );
+    queueMagicPulse({ strength: 0.56, durationMs: 1600, source: 'canvas-dblclick', anchorTool: 'wrench', sparkCount: 16 });
+    implosionActive = true;
+    implosionStart = performance.now() + 280;  // delayed gather-then-explode beat
+    clickWorldPos = { x: anchor.x, y: anchor.y, z: anchor.z };
+    canvasLastClickTime = performance.now();  // absorb the preceding single-click
   });
 
   // Middle-click: Freeze + Slingshot — particles decelerate to near-stop, then blast outward
@@ -8597,6 +8631,7 @@ scene.add(particulateStreamCard);
     );
 
     ctaWakeStrength += (((ctaWakeActive && isDirectorInteractive()) ? 1 : 0) - ctaWakeStrength) * 0.18;
+    ctaWakeEmissivePulse *= 0.94;
     SCENE_STATE.focus += (focusProgress - SCENE_STATE.focus) * 0.12;
     SCENE_STATE.gather += (gatherProgress - SCENE_STATE.gather) * 0.18;
     SCENE_STATE.release += (releaseProgress - SCENE_STATE.release) * 0.22;
@@ -8848,9 +8883,15 @@ scene.add(particulateStreamCard);
                         : THREE.MathUtils.lerp(0.82, 0.98, SCENE_STATE.release + SCENE_STATE.focus * 0.12);
         const sb = revG ? THREE.MathUtils.lerp(1.0, 1.0, VORTEX_PARAMS.proximityStrength || turb)
                         : THREE.MathUtils.lerp(0.90, 1.0, SCENE_STATE.release * 0.48 + implPct * 0.18);
-        sparkMat.color.setRGB(sr, sg, sb);
-        sparkMat.size = 0.012 + SCENE_STATE.focus * 0.001 + SCENE_STATE.release * 0.006 + implPct * 0.005 + magicPulseStrength * 0.003;
-        sparkMat.opacity = Math.min(0.12, (0.02 + SCENE_STATE.release * 0.04 + implPct * 0.05 + scatterCoupling * 0.01 + magicPulseStrength * 0.02) * storyPreset.sparkGate);
+        if (sparkMat.uniforms) {
+          sparkMat.uniforms.uCool.value.setRGB(sr, sg, sb);
+          sparkMat.uniforms.uWarm.value.setRGB(sr, sg, sb);
+          sparkMat.uniforms.uOpacity.value = Math.min(0.12, (0.02 + SCENE_STATE.release * 0.04 + implPct * 0.05 + scatterCoupling * 0.01 + magicPulseStrength * 0.02) * storyPreset.sparkGate);
+        } else {
+          sparkMat.color.setRGB(sr, sg, sb);
+          sparkMat.size = 0.012 + SCENE_STATE.focus * 0.001 + SCENE_STATE.release * 0.006 + implPct * 0.005 + magicPulseStrength * 0.003;
+          sparkMat.opacity = Math.min(0.12, (0.02 + SCENE_STATE.release * 0.04 + implPct * 0.05 + scatterCoupling * 0.01 + magicPulseStrength * 0.02) * storyPreset.sparkGate);
+        }
       }
       if (flowRibbonSystem && flowRibbonSystem.material) {
         const ribbonPhaseGate = DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.reveal ? 1 : 0;
@@ -9034,19 +9075,33 @@ scene.add(particulateStreamCard);
         : (DIRECTOR_STATE.revealMix * 0.03 * shotBeatPreset.supportSceneEnergyScale);
       const supportSceneScale = id === HERO_FOCUS_TOOL ? 1 : shotBeatPreset.supportSceneEnergyScale;
       const particleTarget = particleEnergyBase * supportSceneScale + directorFocusBoost + (id === 'saw' ? sawEnergyBoost * supportSceneScale : 0);
-      const target = Math.max(hoverTarget, particleTarget);
+      const target = Math.max(hoverTarget, particleTarget) + (id === 'wrench' ? ctaWakeEmissivePulse * 0.24 : 0);
       hoverEmissive[id] += (target - hoverEmissive[id]) * lerpE;
       const ev = hoverEmissive[id];
+      // Per-tool emissive color lookup
+      const hoverColors = {
+        wrench: { r: 0.95, g: 0.52, b: 0.05 },  // Amber
+        hammer: { r: 0.72, g: 0.78, b: 0.96 },  // Steel blue
+        saw: { r: 0.96, g: 0.96, b: 0.88 },     // Cool highlight white
+      };
+      const toolColor = hoverColors[id] || hoverColors.wrench;
       getToolGroup(id).traverse(obj => {
         if (obj.isMesh && obj.material && obj.material.emissive) {
           // Don't override bubble's own emissive — only change non-emissive parts
           if (obj.material.emissiveIntensity < 0.5) {
-            // Amber-orange at rest/turbulence; shifts blue on implosion
-            const rC = impl ? THREE.MathUtils.lerp(0.95, 0.2, implPct) : 0.95;
-            const gC = impl ? THREE.MathUtils.lerp(0.52, 0.4, implPct) : 0.52;
-            const bC = impl ? THREE.MathUtils.lerp(0.05, 1.0, implPct) : 0.05;
+            // Tool-specific color; shifts blue on implosion
+            const rC = impl ? THREE.MathUtils.lerp(toolColor.r, 0.2, implPct) : toolColor.r;
+            const gC = impl ? THREE.MathUtils.lerp(toolColor.g, 0.4, implPct) : toolColor.g;
+            const bC = impl ? THREE.MathUtils.lerp(toolColor.b, 1.0, implPct) : toolColor.b;
             obj.material.emissive.setRGB(ev * rC, ev * gC, ev * bC);
           }
+        }
+      });
+      // envMapIntensity boost for specular awakening
+      hoverEnvBoost[id] += (hoverTarget * 0.48 - hoverEnvBoost[id]) * lerpE * 1.4;
+      getToolGroup(id).traverse(obj => {
+        if (obj.isMesh && obj.material && typeof obj.material.envMapIntensity === 'number') {
+          obj.material.envMapIntensity = Math.max(0, obj.material.envMapIntensity + hoverEnvBoost[id] * 0.5);
         }
       });
     });
@@ -9546,9 +9601,19 @@ scene.add(particulateStreamCard);
     vignette.style.visibility  = heroVisible ? 'visible' : 'hidden';
     vignette.style.opacity = heroVisible ? String(Math.min(1, lensFinishPreset.vignetteStrength + readabilityClamp * 0.08)) : '0';
     vignette.style.background = `radial-gradient(ellipse ${(86 + lensFinishPreset.vignetteFocus * 8).toFixed(1)}% ${(68 + lensFinishPreset.vignetteFocus * 6).toFixed(1)}% at ${(50 + shotBeatPreset.cameraXBias * -44).toFixed(1)}% ${(45 + shotBeatPreset.cameraYBias * -38).toFixed(1)}%, transparent ${(38 + lensFinishPreset.vignetteFocus * 4).toFixed(1)}%, rgba(3,4,8, ${(0.42 + finishPreset.negativeFill * 0.18).toFixed(3)}) ${(70 + lensFinishPreset.vignetteStrength * 3).toFixed(1)}%, rgba(0,0,0, ${(0.88 + lensFinishPreset.vignetteStrength * 0.08).toFixed(3)}) 100%), linear-gradient(to top, rgba(0,0,0, ${(0.84 + finishPreset.negativeFill * 0.10).toFixed(3)}) 0%, transparent 38%), linear-gradient(to bottom, rgba(1,2,5, ${(0.48 + lensFinishPreset.coolShadowLift * 0.26).toFixed(3)}) 0%, transparent 22%)`;
+    // CSS-layer depth of field: blur during reveal phases only
+    const dofPhaseActive = DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.preReveal
+      || (DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.reveal && DIRECTOR_STATE.revealMix < 0.7);
+    const dofStrength = (dofPhaseActive && !prefersReduced && SCENE_CONFIG.qualityTier === 'desktop')
+      ? THREE.MathUtils.lerp(4.2, 0.0, DIRECTOR_STATE.revealMix * 1.4)
+      : 0;
+    vignette.style.backdropFilter = dofStrength > 0.3 ? `blur(${dofStrength.toFixed(1)}px)` : '';
     sceneGrade.style.visibility = heroVisible ? 'visible' : 'hidden';
     sceneGrade.style.opacity = heroVisible ? String(Math.max(postFxPreset.gradeFloor * handoffPreset.gradeLift * (1 - scrollCopyCompression * 0.12), postFxPreset.gradeFloor * handoffPreset.gradeLift + activeCue.warm * 0.08 + atmosphereMetrics.titleHalo * 0.04 + scatterCoupling * 0.04 + magicIntensity * 0.03 + heroEmberLevel * 0.04 + releaseEnvelope * 0.10 + pulseWindow * 0.08 * lensPulseScale + lensFinishPreset.coolShadowLift * 0.08 - readabilityClamp * 0.08 - scrollCopyCompression * 0.18)) : '0';
-    sceneGrade.style.background = `radial-gradient(circle at 66% 42%, rgba(242, 182, 86, ${(0.016 + shaftPreset.warmSeam * 0.030 + heroEmberLevel * 0.040 + releaseEnvelope * 0.060 + DIRECTOR_STATE.lockupMix * 0.020 - handoffPreset.emberDrain * 0.030 - scrollCopyCompression * 0.042).toFixed(3)}), transparent 30%), radial-gradient(circle at 24% 24%, rgba(92, 132, 196, ${(0.018 + shaftPreset.coolBackscatter * 0.040 + SCENE_STATE.release * 0.050 + magicPulseStrength * 0.060 + pulseWindow * 0.16 * lensPulseScale + lensFinishPreset.coolShadowLift * 0.08 - scrollCopyCompression * 0.052).toFixed(3)}), transparent 28%), linear-gradient(180deg, rgba(18, 32, 60, ${(0.028 + shaftPreset.coolBackscatter * 0.040 + SCENE_STATE.release * 0.060 + magicPulseStrength * 0.050 + lensFinishPreset.coolShadowLift * 0.10 - scrollCopyCompression * 0.062).toFixed(3)}) 0%, rgba(9, 11, 16, 0) 34%, rgba(255, 156, 68, ${(0.016 + shaftPreset.warmSeam * 0.024 + atmosphereMetrics.floor * 0.02 + heroEmberLevel * 0.026 + releaseEnvelope * 0.034 - handoffPreset.emberDrain * 0.02 - scrollCopyCompression * 0.030).toFixed(3)}) 100%)`;
+    // Grade warm spot tracks wrench position for dynamic parallax
+    const gradeWarmX = (clamp01((wrenchGroup.position.x + 5.5) / 11) * 100).toFixed(1);
+    const gradeWarmY = (clamp01(1 - (wrenchGroup.position.y + 4.5) / 9) * 100).toFixed(1);
+    sceneGrade.style.background = `radial-gradient(circle at ${gradeWarmX}% ${gradeWarmY}%, rgba(242, 182, 86, ${(0.016 + shaftPreset.warmSeam * 0.030 + heroEmberLevel * 0.040 + releaseEnvelope * 0.060 + DIRECTOR_STATE.lockupMix * 0.020 - handoffPreset.emberDrain * 0.030 - scrollCopyCompression * 0.042).toFixed(3)}), transparent 30%), radial-gradient(circle at 24% 24%, rgba(92, 132, 196, ${(0.018 + shaftPreset.coolBackscatter * 0.040 + SCENE_STATE.release * 0.050 + magicPulseStrength * 0.060 + pulseWindow * 0.16 * lensPulseScale + lensFinishPreset.coolShadowLift * 0.08 - scrollCopyCompression * 0.052).toFixed(3)}), transparent 28%), linear-gradient(180deg, rgba(18, 32, 60, ${(0.028 + shaftPreset.coolBackscatter * 0.040 + SCENE_STATE.release * 0.060 + magicPulseStrength * 0.050 + lensFinishPreset.coolShadowLift * 0.10 - scrollCopyCompression * 0.062).toFixed(3)}) 0%, rgba(9, 11, 16, 0) 34%, rgba(255, 156, 68, ${(0.016 + shaftPreset.warmSeam * 0.024 + atmosphereMetrics.floor * 0.02 + heroEmberLevel * 0.026 + releaseEnvelope * 0.034 - handoffPreset.emberDrain * 0.02 - scrollCopyCompression * 0.030).toFixed(3)}) 100%)`;
     sceneLensAccent.style.visibility = heroVisible ? 'visible' : 'hidden';
     sceneLensAccent.style.opacity = heroVisible
       ? String(
@@ -9569,6 +9634,7 @@ scene.add(particulateStreamCard);
       ? `scale(${(1.008 + Math.max(0, lensEventPreset.chromaSplit * 0.20 + burstPulseWindow * 0.02)).toFixed(4)})`
       : 'scale(1.0)';
     sceneLensAccent.style.background = `radial-gradient(circle at ${(62 + shotBeatPreset.cameraXBias * -16).toFixed(1)}% ${(42 + shotBeatPreset.cameraYBias * -12).toFixed(1)}%, rgba(248, 176, 92, ${(0.012 + pulseWindow * 0.10 * lensPulseScale + lensEventPreset.accentGain * 0.08 + depthLayerMix.rearForge * 0.04).toFixed(3)}), transparent 28%), radial-gradient(circle at ${(34 + lensEventPreset.chromaSplit * 20 + burstPulseWindow * 10).toFixed(1)}% ${(28 + lensEventPreset.chromaSplit * 10).toFixed(1)}%, rgba(102, 152, 236, ${(0.008 + pulseWindow * 0.08 * lensPulseScale + lensEventPreset.chromaSplit * 0.06 + coolBackscatterCard.material.opacity * 0.18).toFixed(3)}), transparent 22%), linear-gradient(115deg, rgba(255, 180, 90, ${(0.004 + burstPulseWindow * 0.05 * lensPulseScale).toFixed(3)}), rgba(255, 180, 90, 0) 22%), linear-gradient(102deg, rgba(92, 144, 228, ${(0.004 + burstPulseWindow * 0.04 * lensPulseScale + lensEventPreset.chromaSplit * 0.04).toFixed(3)}), rgba(92, 144, 228, 0) 16%)`;
+    sceneCAAccent.style.opacity = (burstPulseWindow * 0.28 * (CAN_RUN_DESKTOP_POST ? 1 : 0)).toFixed(3);
     copyShield.style.opacity = heroVisible ? String(copyShieldStrength.toFixed(3)) : '0';
     copyShield.style.transform = heroVisible ? 'scale(1)' : 'scale(0.98)';
     if (readabilityWindow.active) {
