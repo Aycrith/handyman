@@ -8577,8 +8577,8 @@ scene.add(hangingDepthCard);
     edgeFade = Math.min(scanFrac, 1 - scanFrac) * 2; // 0 at edges, 1 in middle
 
     /* ── Hero-only fade — viewport-relative, works on any page length ── */
-    const heroFadeStart = window.innerHeight * 0.15; // start fading at 15vh scroll
-    const heroFadeEnd   = window.innerHeight * 0.55; // fully gone at 55vh scroll
+    const heroFadeStart = window.innerHeight * 0.12; // start fading at 12vh scroll
+    const heroFadeEnd   = window.innerHeight * 0.50; // fully gone at 50vh scroll
     const scrollToolAlpha = Math.max(0, 1 - Math.max(0, currentScrollY - heroFadeStart) / (heroFadeEnd - heroFadeStart));
     const directorToolAlpha = prefersReduced
       ? 1
@@ -9243,8 +9243,8 @@ scene.add(hangingDepthCard);
     const scrollHandoffMix = DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition
       ? Math.max(getEffectiveScrollProgress(), externalSectionTransition.progress)
       : 0;
-    const scrollZ = shotPreset.z + shotBeatPreset.cameraZBias + (DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition ? scrollHandoffMix * 2.1 : 0);
-    const scrollRotY = DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition ? scrollHandoffMix * 0.18 : 0;
+    const scrollZ = shotPreset.z + shotBeatPreset.cameraZBias + (DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition ? scrollHandoffMix * 2.4 : 0);
+    const scrollRotY = DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition ? scrollHandoffMix * 0.22 : 0;
     camera.position.x += (((DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition ? -0.30 : -0.34 - DIRECTOR_STATE.revealMix * 0.10 - DIRECTOR_STATE.lockupMix * 0.14) + shotBeatPreset.cameraXBias + shotPreset.targetRotY * 0.18) - camera.position.x) * 0.05;
     camera.position.y += ((shotPreset.targetRotX * -0.24 + shotBeatPreset.cameraYBias) - camera.position.y) * 0.05;
     camera.position.z += (scrollZ - camera.position.z) * 0.06;
