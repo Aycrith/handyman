@@ -45,6 +45,12 @@ const SECTIONS = [
   { name: 'contact',       selector: '#contact',      title: '.section-title' }
 ];
 
+const fs = require('fs');
+const path = require('path');
+
+const EVIDENCE_DIR = path.join(__dirname, 'evidence-desktop');
+fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
+
 async function runSectionTests() {
   const browser = await chromium.launch();
   let failures = 0;
@@ -113,8 +119,12 @@ async function runSectionTests() {
       }
 
       // Screenshot evidence
+      const screenshotPath = path.join(
+        EVIDENCE_DIR,
+        `${viewport.name}-section-${section.name}.png`
+      );
       await page.screenshot({
-        path: `tests/evidence-desktop/${viewport.name}-section-${section.name}.png`,
+        path: screenshotPath,
         clip: await sectionEl.boundingBox()
       });
 
