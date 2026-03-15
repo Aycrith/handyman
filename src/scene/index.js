@@ -5,6 +5,23 @@
  * Runtime globals are prepared by src/runtime-globals.js before this module runs.
  */
 
+import {
+  initWorldOrchestrator,
+  updateWorldOrchestrator,
+  getWorldLightingOverride,
+  getWorldCameraTarget,
+  getWorldParticleStory,
+  getWorldDiagnostics,
+  linkWorkshopReturn,
+  disposeWorldOrchestrator,
+} from './world-orchestrator-setup.js';
+
+import {
+  initWorldDebugOverlay,
+  updateWorldDebugOverlay,
+  disposeWorldDebugOverlay,
+} from './world-debug-overlay.js';
+
 const THREE = window.THREE;
 const HERO_RUNTIME_ASSETS = Object.freeze({
   manifest: new URL('../../assets/models/hero/HERO-ASSET-MANIFEST.json', import.meta.url).href,
@@ -1898,6 +1915,8 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   const _isMobilePost = SCENE_CONFIG.qualityTier !== 'desktop';
   let composer = null;
   let bloomPass = null;
+  let bokehPass = null;
+  let chromaticPass = null;
   let copyPass = null;
   let scatterPass = null;
   let densityRenderTarget = null;
@@ -2445,6 +2464,48 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       SCENE_CONFIG.tiers[SCENE_CONFIG.qualityTier].bloom.threshold
     );
     composer.addPass(bloomPass);
+
+    /* ── Depth-of-Field (BokehPass) ── */
+    if (typeof THREE.BokehPass !== 'undefined') {
+      bokehPass = new THREE.BokehPass(scene, camera, {
+        focus: 8.0,
+        aperture: 0.0008,
+        maxblur: 0.006,
+      });
+      composer.addPass(bokehPass);
+    }
+
+    /* ── Chromatic Aberration (custom ShaderPass) ── */
+    chromaticPass = new THREE.ShaderPass({
+      uniforms: {
+        tDiffuse: { value: null },
+        uIntensity: { value: 0.0012 },
+        uDirection: { value: new THREE.Vector2(1.0, 0.0) },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform float uIntensity;
+        uniform vec2 uDirection;
+        varying vec2 vUv;
+        void main() {
+          vec2 offset = uIntensity * uDirection * (vUv - 0.5);
+          float r = texture2D(tDiffuse, vUv + offset).r;
+          float g = texture2D(tDiffuse, vUv).g;
+          float b = texture2D(tDiffuse, vUv - offset).b;
+          float a = texture2D(tDiffuse, vUv).a;
+          gl_FragColor = vec4(r, g, b, a);
+        }
+      `,
+    });
+    composer.addPass(chromaticPass);
+
     copyPass = new THREE.ShaderPass(THREE.CopyShader);
     copyPass.renderToScreen = true; // direct canvas blit — eliminates extra FBO read-back that causes stripe artifacts
     composer.addPass(copyPass);
@@ -5424,6 +5485,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       zoneT:         Number(_zoneT.toFixed(3)),
       active:        _zoneActive,
     },
+    worldState: getWorldDiagnostics(),
   };
   };
 
@@ -8975,6 +9037,21 @@ scene.add(particulateStreamCard);
       }
     }
 
+    // ── World Orchestrator: Per-World Particle Story Override ─────────────
+    // Override zone particle stories with world-specific values when a world is active.
+    if (_zoneActive && SCENE_CONFIG.qualityTier !== 'low') {
+      const worldParticleId = getWorldParticleStory();
+      const worldStory = worldParticleId && SCROLL_ZONE_PARTICLE_STORIES[worldParticleId];
+      if (worldStory) {
+        storyPreset = { ...storyPreset };
+        Object.keys(worldStory).forEach(key => {
+          if (typeof storyPreset[key] === 'number') {
+            storyPreset[key] = THREE.MathUtils.lerp(storyPreset[key], worldStory[key], _zoneT);
+          }
+        });
+      }
+    }
+
     const signaturePreset = getParticleSignaturePreset();
     const intensityPreset = getMagicIntensityPreset();
     const releasePreset = getReleaseEnvelopePreset();
@@ -9173,6 +9250,36 @@ scene.add(particulateStreamCard);
       && vortexScreen.y <= readabilityWindow.top + readabilityWindow.height;
     const readabilityClamp = insideProtectedCorridor ? SCENE_CONFIG.readability.energyClamp : 0;
     updateSceneState(nowMs, readabilityClamp);
+
+    // ── World Orchestrator per-frame update ──────────────────────────────
+    if (!prefersReduced) {
+      const worldScrollProg = getEffectiveScrollProgress();
+      const worldDelta = delta * 0.001; // Convert ms → seconds
+      updateWorldOrchestrator(worldScrollProg, worldDelta);
+      updateWorldDebugOverlay(getWorldDiagnostics());
+    }
+
+    // Apply world-level lighting override if active
+    const worldLight = getWorldLightingOverride();
+    if (worldLight && _zoneActive) {
+      const wt = _zoneT; // Blend using existing zone fade-in
+      if (worldLight.key !== undefined) _zoneLightTarget.key = THREE.MathUtils.lerp(_zoneLightTarget.key, worldLight.key, wt);
+      if (worldLight.fill !== undefined) _zoneLightTarget.fill = THREE.MathUtils.lerp(_zoneLightTarget.fill, worldLight.fill, wt);
+      if (worldLight.rim !== undefined) _zoneLightTarget.rim = THREE.MathUtils.lerp(_zoneLightTarget.rim, worldLight.rim, wt);
+      if (worldLight.ground !== undefined) _zoneLightTarget.ground = THREE.MathUtils.lerp(_zoneLightTarget.ground, worldLight.ground, wt);
+      if (worldLight.bloomGain !== undefined) _zoneBloomGain = THREE.MathUtils.lerp(_zoneBloomGain, worldLight.bloomGain, wt);
+      if (worldLight.thresholdBias !== undefined) _zoneThresholdBias = THREE.MathUtils.lerp(_zoneThresholdBias, worldLight.thresholdBias, wt);
+      // Blend world-level background color
+      if (worldLight.bgColor) {
+        _zoneBgTarget.r = THREE.MathUtils.lerp(_zoneBgTarget.r, worldLight.bgColor.r, wt);
+        _zoneBgTarget.g = THREE.MathUtils.lerp(_zoneBgTarget.g, worldLight.bgColor.g, wt);
+        _zoneBgTarget.b = THREE.MathUtils.lerp(_zoneBgTarget.b, worldLight.bgColor.b, wt);
+      }
+      // Blend world-level fog density and exposure
+      if (worldLight.fogDensity !== undefined) _zoneFogTarget = THREE.MathUtils.lerp(_zoneFogTarget, worldLight.fogDensity, wt);
+      if (worldLight.exposureBias !== undefined) _zoneExposureTarget = THREE.MathUtils.lerp(_zoneExposureTarget, worldLight.exposureBias, wt);
+    }
+
     const handoffPreset = SCROLL_HANDOFF_PRESETS[scrollHandoffState] || SCROLL_HANDOFF_PRESETS.idle;
     const magicPreset = ACTIVE_ENVIRONMENT_MAGIC;
     const storyPreset = getParticleStoryPreset();
@@ -9377,6 +9484,10 @@ scene.add(particulateStreamCard);
           ? (0.26 + DIRECTOR_STATE.revealMix * 0.74)
           : 1));
     const toolAlpha = scrollToolAlpha * directorToolAlpha;
+    // environmentAlpha: atmospheric elements persist below the hero with a non-zero floor.
+    // Fades from 1.0 to a floor (0.35) during scroll transition, never reaches zero.
+    const envAlphaFloor = 0.35;
+    const environmentAlpha = Math.max(envAlphaFloor, scrollToolAlpha) * directorToolAlpha;
     const compositionPreset = getCompositionPreset();
     const orbitSnapshot = resolveOrbitLayoutSnapshot(time);
     const shotPreset = getShotPreset();
@@ -9391,9 +9502,9 @@ scene.add(particulateStreamCard);
     const parallaxPreset = getParallaxLayerPreset();
     const lensEventPreset = getLensEventPreset();
     shotBeat = shotBeatPreset.label;
-    lightingCue = lightingCuePreset.label;
+    lightingCue = _zoneActive ? ('zone-' + ZONE_STATE.activeId) : lightingCuePreset.label;
     gradePreset = lensFinishPreset.label;
-    worldCue = worldCuePreset.label;
+    worldCue = _zoneActive ? ('zone-' + ZONE_STATE.activeId + '-world') : worldCuePreset.label;
 
     /* ── Hover emissive lerp — also driven by shared scene state ── */
     const scatterCoupling = scatterPass ? clamp01(volumetricScatterIntensity * 1.8 + (desktopFxState.active ? 0.06 : 0)) : 0;
@@ -9646,15 +9757,15 @@ scene.add(particulateStreamCard);
     const wallGridScale = mobileComposition ? 0.10 : (orbitLayoutState.compositionMode === 'tabletCluster' ? 0.18 : 0.22);
     const horizonGridScale = mobileComposition ? 0.08 : (orbitLayoutState.compositionMode === 'tabletCluster' ? 0.14 : 0.18);
     const gridCopySuppression = mobileComposition ? 0.20 : 0.36;
-    floorGrid.material.opacity = toolAlpha * (0.10 + SCENE_STATE.gather * 0.03 + SCENE_STATE.release * 0.04) * lensFinishPreset.hazeScale * floorGridScale * gridCopySuppression;
-    wallGrid.material.opacity = toolAlpha * (0.03 + SCENE_STATE.focus * 0.01 + SCENE_STATE.release * 0.02) * wallGridScale * gridCopySuppression;
-    horizonGrid.material.opacity = toolAlpha * (0.02 + SCENE_STATE.release * 0.02 + SCENE_STATE.focus * 0.008) * lensFinishPreset.hazeScale * horizonGridScale * gridCopySuppression;
+    floorGrid.material.opacity = environmentAlpha * (0.10 + SCENE_STATE.gather * 0.03 + SCENE_STATE.release * 0.04) * lensFinishPreset.hazeScale * floorGridScale * gridCopySuppression;
+    wallGrid.material.opacity = environmentAlpha * (0.03 + SCENE_STATE.focus * 0.01 + SCENE_STATE.release * 0.02) * wallGridScale * gridCopySuppression;
+    horizonGrid.material.opacity = environmentAlpha * (0.02 + SCENE_STATE.release * 0.02 + SCENE_STATE.focus * 0.008) * lensFinishPreset.hazeScale * horizonGridScale * gridCopySuppression;
     gridLuminanceUnderCopy = Math.max(floorGrid.material.opacity, wallGrid.material.opacity, horizonGrid.material.opacity);
-    orbitLight.intensity = toolAlpha * lightRig.orbit * lightingCuePreset.supportLightScale * (0.02 + activeCue.warm * 0.06 + magicIntensity * 0.02);
+    orbitLight.intensity = environmentAlpha * lightRig.orbit * lightingCuePreset.supportLightScale * (0.02 + activeCue.warm * 0.06 + magicIntensity * 0.02);
     // Floor glow breathes with particle pulse + flares on gather/release
     const breathPhaseGlow = (time % 4000) / 4000;
     const glowPulse = 0.04 + Math.sin(breathPhaseGlow * Math.PI * 2) * 0.014 + SCENE_STATE.gather * 0.03 + SCENE_STATE.release * 0.06;
-    floorGlow.material.opacity  = toolAlpha * glowPulse;
+    floorGlow.material.opacity  = environmentAlpha * glowPulse;
     wrenchContactShadow.position.set(wrenchGroup.position.x + 0.04, -2.50, wrenchGroup.position.z + 0.04);
     hammerContactShadow.position.set(hammerGroup.position.x - 0.12, -2.50, hammerGroup.position.z - 0.06);
     wrenchContactShadow.material.opacity = wrenchOpacity * (0.36 + lightRig.heroShadow * 0.38 + DIRECTOR_STATE.lockupMix * 0.12);
@@ -9672,9 +9783,12 @@ scene.add(particulateStreamCard);
     // ── PARTICLE LIGHT UPDATES: dynamic illumination from vortex + saw + floor burst ──
 
     // Ambient flash on implosion — subtle tint only, not a flood
-    const targetExposure = orbitLayoutState.compositionMode === 'tabletCluster'
+    const heroExposure = orbitLayoutState.compositionMode === 'tabletCluster'
       ? 1.30
       : (mobileComposition ? 1.26 : 1.34);
+    const targetExposure = _zoneActive
+      ? THREE.MathUtils.lerp(heroExposure, heroExposure + _zoneExposureTarget, _zoneT)
+      : heroExposure;
     renderer.toneMappingExposure += (targetExposure - renderer.toneMappingExposure) * 0.05;
     ambientLight.intensity = 0.05 + activeCue.warm * 0.02 * scatterPreset.warmBias + implPct * 0.015 + scatterCoupling * 0.008 + magicIntensity * 0.008 + shaftPreset.coolBackscatter * 0.006;
     ambientLight.color.setRGB(
@@ -9683,9 +9797,12 @@ scene.add(particulateStreamCard);
       impl ? THREE.MathUtils.lerp(0.042, 0.08, implPct) : 0.042
     );
     const lightTighten = mobileComposition ? 0.86 : 0.96;
-    keyLight.intensity = 1.26 * lightRig.key * lightingCuePreset.keyScale * finishPreset.heroPriority * (1 + activeCue.warm * 0.03 * scatterPreset.warmBias + DIRECTOR_STATE.revealMix * 0.04 + heroEmberLevel * 0.02 + shaftPreset.warmSeam * 0.05) * lightTighten;
-    fillLight.intensity = 0.54 * lightRig.fill * lightingCuePreset.fillScale * (1 - finishPreset.negativeFill * 0.05) * (1 + activeCue.cool * 0.02 + shaftPreset.coolBackscatter * 0.03) * (mobileComposition ? 0.90 : 0.96);
-    rimAreaLight.intensity = 0.52 * lightRig.rim * scatterPreset.rimTightness * lightingCuePreset.rimScale * (1 + SCENE_STATE.release * 0.04 + magicIntensity * 0.015 + shaftPreset.coolBackscatter * 0.03) * (mobileComposition ? 0.98 : 1.02);
+    const heroKeyIntensity = 1.26 * lightRig.key * lightingCuePreset.keyScale * finishPreset.heroPriority * (1 + activeCue.warm * 0.03 * scatterPreset.warmBias + DIRECTOR_STATE.revealMix * 0.04 + heroEmberLevel * 0.02 + shaftPreset.warmSeam * 0.05) * lightTighten;
+    keyLight.intensity = _zoneActive ? THREE.MathUtils.lerp(heroKeyIntensity, 1.26 * _zoneLightTarget.key * lightTighten, _zoneT) : heroKeyIntensity;
+    const heroFillIntensity = 0.54 * lightRig.fill * lightingCuePreset.fillScale * (1 - finishPreset.negativeFill * 0.05) * (1 + activeCue.cool * 0.02 + shaftPreset.coolBackscatter * 0.03) * (mobileComposition ? 0.90 : 0.96);
+    fillLight.intensity = _zoneActive ? THREE.MathUtils.lerp(heroFillIntensity, 0.54 * _zoneLightTarget.fill * (mobileComposition ? 0.90 : 0.96), _zoneT) : heroFillIntensity;
+    const heroRimIntensity = 0.52 * lightRig.rim * scatterPreset.rimTightness * lightingCuePreset.rimScale * (1 + SCENE_STATE.release * 0.04 + magicIntensity * 0.015 + shaftPreset.coolBackscatter * 0.03) * (mobileComposition ? 0.98 : 1.02);
+    rimAreaLight.intensity = _zoneActive ? THREE.MathUtils.lerp(heroRimIntensity, 0.52 * _zoneLightTarget.rim * (mobileComposition ? 0.98 : 1.02), _zoneT) : heroRimIntensity;
     heroShadowLight.position.x += ((wrenchGroup.position.x + 0.86) - heroShadowLight.position.x) * 0.08;
     heroShadowLight.position.y += ((4.7 + DIRECTOR_STATE.revealMix * 0.3) - heroShadowLight.position.y) * 0.08;
     heroShadowLight.position.z += ((wrenchGroup.position.z + 3.4) - heroShadowLight.position.z) * 0.08;
@@ -9698,7 +9815,7 @@ scene.add(particulateStreamCard);
     // Vortex light tracks cursor center — warm core with transient cool release accent
     vortexLight.position.set(VORTEX_PARAMS.centerX, VORTEX_PARAMS.centerY, 1.5);
     const vBase = impl ? 0.65 * implPct : 0;
-    const vTurb = toolAlpha * (0.06 + activeCue.warm * 0.54 + SCENE_STATE.focus * 0.20 + SCENE_STATE.release * 0.22 + SCENE_STATE.pointerWake * 0.14 + atmosphereMetrics.vortex * 0.60 + atmosphereMetrics.titleHalo * 0.08 + toolWakeState.wrench * 0.18 + scatterCoupling * 0.14 + magicPulseStrength * 0.18 + burstPulseWindow * 0.18 + (dragTool ? 0.08 : 0));
+    const vTurb = environmentAlpha * (0.06 + activeCue.warm * 0.54 + SCENE_STATE.focus * 0.20 + SCENE_STATE.release * 0.22 + SCENE_STATE.pointerWake * 0.14 + atmosphereMetrics.vortex * 0.60 + atmosphereMetrics.titleHalo * 0.08 + toolWakeState.wrench * 0.18 + scatterCoupling * 0.14 + magicPulseStrength * 0.18 + burstPulseWindow * 0.18 + (dragTool ? 0.08 : 0));
     vortexLight.intensity = Math.min(1.85, Math.max(vBase, vTurb + ctaWakeStrength * 0.08 + releaseEnvelope * 0.18));
     vortexLight.color.setRGB(
       impl ? THREE.MathUtils.lerp(0.84, 0.56, implPct) : 0.80 + atmosphereMetrics.vortex * 0.08,
@@ -9707,7 +9824,8 @@ scene.add(particulateStreamCard);
     );
 
     // Ground glow: subtle forge bounce with brief gather/release flare
-    groundGlow.intensity = toolAlpha * lightRig.ground * (0.05 + activeCue.warm * 0.14 + atmosphereMetrics.floor * 0.24 + SCENE_STATE.release * 0.14 + implPct * 0.18 + scatterCoupling * 0.08 + shaftPreset.warmSeam * 0.04);
+    const heroGroundIntensity = environmentAlpha * lightRig.ground * (0.05 + activeCue.warm * 0.14 + atmosphereMetrics.floor * 0.24 + SCENE_STATE.release * 0.14 + implPct * 0.18 + scatterCoupling * 0.08 + shaftPreset.warmSeam * 0.04);
+    groundGlow.intensity = _zoneActive ? THREE.MathUtils.lerp(heroGroundIntensity, environmentAlpha * _zoneLightTarget.ground * 0.20, _zoneT) : heroGroundIntensity;
     groundGlow.color.setRGB(
       impl ? THREE.MathUtils.lerp(0.66, 0.34, implPct) : 0.66,
       impl ? THREE.MathUtils.lerp(0.32, 0.36, implPct) : 0.32,
@@ -9716,11 +9834,11 @@ scene.add(particulateStreamCard);
 
     // Saw particle glow: orange light from sparks + hub, scales with blade speed
     sawParticleGlow.position.set(sawGroup.position.x, sawGroup.position.y, sawGroup.position.z + 0.5);
-    sawParticleGlow.intensity = toolAlpha * lightingCuePreset.supportLightScale * (0.06 + speedRatio * 0.82 + atmosphereMetrics.sawWake * 0.42 + SCENE_STATE.focus * 0.08 + SCENE_STATE.release * 0.14 + scatterCoupling * 0.05);
+    sawParticleGlow.intensity = environmentAlpha * lightingCuePreset.supportLightScale * (0.06 + speedRatio * 0.82 + atmosphereMetrics.sawWake * 0.42 + SCENE_STATE.focus * 0.08 + SCENE_STATE.release * 0.14 + scatterCoupling * 0.05);
 
     // Floor rim light: fires on release/implosion for a readable cool under-light pulse
     floorRimLight.position.set(VORTEX_PARAMS.centerX * 0.3, -2.0, 1.5);
-    floorRimLight.intensity = toolAlpha * Math.max(
+    floorRimLight.intensity = environmentAlpha * Math.max(
       SCENE_STATE.release * 1.12 + implPct * 0.74 + releaseAtmosphericLift * 0.30,
       magicPulseStrength * 1.8,
       pulseWindow * 0.28 + burstPulseWindow * 1.02
@@ -9739,7 +9857,7 @@ scene.add(particulateStreamCard);
       wrenchGroup.position.z + 0.10
     );
     sparkAuraCard.quaternion.copy(camera.quaternion);
-    sparkAuraCard.material.opacity = toolAlpha * volumetricGuard * handoffPreset.hazeScale * (0.001 + atmosphereMetrics.vortex * 0.014 + SCENE_STATE.release * 0.05 + SCENE_STATE.focus * 0.012 + implPct * 0.05 + scatterCoupling * 0.015 + magicPulseStrength * 0.028 + releaseEnvelope * 0.06 + releaseAtmosphericLift * 0.08) * storyPreset.sparkGate;
+    sparkAuraCard.material.opacity = environmentAlpha * volumetricGuard * handoffPreset.hazeScale * (0.001 + atmosphereMetrics.vortex * 0.014 + SCENE_STATE.release * 0.05 + SCENE_STATE.focus * 0.012 + implPct * 0.05 + scatterCoupling * 0.015 + magicPulseStrength * 0.028 + releaseEnvelope * 0.06 + releaseAtmosphericLift * 0.08) * storyPreset.sparkGate;
     sparkAuraCard.material.color.setRGB(
       THREE.MathUtils.lerp(0.28, 0.12, implPct + releaseProgress * 0.28),
       THREE.MathUtils.lerp(0.46, 0.72, SCENE_STATE.release + implPct * 0.20),
@@ -9752,22 +9870,22 @@ scene.add(particulateStreamCard);
       wrenchGroup.position.z - 0.18
     );
     cloudAuraCard.quaternion.copy(camera.quaternion);
-    cloudAuraCard.material.opacity = toolAlpha * volumetricGuard * handoffPreset.hazeScale * storyPreset.hazeScale * lensFinishPreset.hazeScale * (1 - scrollCopyCompression * 0.56) * (0.010 + atmosphereMetrics.titleHalo * 0.024 + atmosphereMetrics.foreground * 0.012 + SCENE_STATE.gather * 0.016 + SCENE_STATE.release * 0.014 + magicIntensity * 0.014 + shaftPreset.hazeClamp * 0.016);
+    cloudAuraCard.material.opacity = environmentAlpha * volumetricGuard * handoffPreset.hazeScale * storyPreset.hazeScale * lensFinishPreset.hazeScale * (1 - scrollCopyCompression * 0.56) * (0.010 + atmosphereMetrics.titleHalo * 0.024 + atmosphereMetrics.foreground * 0.012 + SCENE_STATE.gather * 0.016 + SCENE_STATE.release * 0.014 + magicIntensity * 0.014 + shaftPreset.hazeClamp * 0.016);
     cloudAuraCard.material.color.setRGB(0.98, 0.46 + heroEmberLevel * 0.06, 0.20 + atmosphereMetrics.foreground * 0.03);
 
     keyBeamCard.position.x = wrenchGroup.position.x + (mobileComposition ? 0.04 : 0.08) + Math.sin(time * 0.00019) * 0.03;
     keyBeamCard.position.y = wrenchGroup.position.y + (mobileComposition ? 0.74 : 0.94);
     keyBeamCard.position.z = wrenchGroup.position.z - 0.26;
-    keyBeamCard.material.opacity = toolAlpha * (SCENE_CONFIG.featureFlags.volumetricCards ? (0.044 + shaftPreset.warmSeam * 0.10 + heroEmberLevel * 0.03 + releaseEnvelope * 0.03) * volumetricGuard * handoffPreset.hazeScale * lensFinishPreset.beamDiscipline * (1 - scrollCopyCompression * 0.76) : 0);
+    keyBeamCard.material.opacity = environmentAlpha * (SCENE_CONFIG.featureFlags.volumetricCards ? (0.044 + shaftPreset.warmSeam * 0.10 + heroEmberLevel * 0.03 + releaseEnvelope * 0.03) * volumetricGuard * handoffPreset.hazeScale * lensFinishPreset.beamDiscipline * (1 - scrollCopyCompression * 0.76) : 0);
     sawBeamCard.position.x = sawGroup.position.x + 0.18;
     sawBeamCard.position.y = sawGroup.position.y + 1.2;
-    sawBeamCard.material.opacity = toolAlpha * lightingCuePreset.supportLightScale * (SCENE_CONFIG.featureFlags.volumetricCards ? (speedRatio * 0.04 + atmosphereMetrics.sawWake * 0.09 * magicPreset.sawSparkBias + SCENE_STATE.release * 0.06 + scatterCoupling * 0.04) * volumetricGuard * handoffPreset.hazeScale * lensFinishPreset.beamDiscipline : 0);
+    sawBeamCard.material.opacity = environmentAlpha * lightingCuePreset.supportLightScale * (SCENE_CONFIG.featureFlags.volumetricCards ? (speedRatio * 0.04 + atmosphereMetrics.sawWake * 0.09 * magicPreset.sawSparkBias + SCENE_STATE.release * 0.06 + scatterCoupling * 0.04) * volumetricGuard * handoffPreset.hazeScale * lensFinishPreset.beamDiscipline : 0);
 
     const worldHandoffMix = DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition
       ? Math.max(getEffectiveScrollProgress(), externalSectionTransition.progress)
       : 0;
     const worldCopyGuard = 1 - (readabilityClamp * (0.30 + worldCuePreset.copyBias * 0.40));
-    const rearForgeTarget = toolAlpha
+    const rearForgeTarget = environmentAlpha
       * depthPreset.total
       * depthPreset.rearForgeMix
       * worldCuePreset.rearForge
@@ -9776,7 +9894,7 @@ scene.add(particulateStreamCard);
       * worldCopyGuard
       * (1 - scrollCopyCompression * 0.62)
       * 1.42;
-    const silhouetteTarget = toolAlpha
+    const silhouetteTarget = environmentAlpha
       * depthPreset.total
       * depthPreset.silhouetteMix
       * worldCuePreset.silhouette
@@ -9784,14 +9902,14 @@ scene.add(particulateStreamCard);
       * (0.82 + DIRECTOR_STATE.lockupMix * 0.16)
       * (1 - scrollCopyCompression * 0.32)
       * 1.26;
-    const occluderTarget = toolAlpha
+    const occluderTarget = environmentAlpha
       * depthPreset.total
       * depthPreset.occluderMix
       * worldCuePreset.benchOcclusion
       * worldCopyGuard
       * (1 - scrollCopyCompression * 0.26)
       * 1.12;
-    const hangingTarget = toolAlpha
+    const hangingTarget = environmentAlpha
       * depthPreset.total
       * depthPreset.hangingMix
       * worldCuePreset.hangingDepth
@@ -9799,7 +9917,7 @@ scene.add(particulateStreamCard);
       * (1 - scrollCopyCompression * 0.30)
       * 1.20;
     // Step 9.3 — Haze lane target
-    const hazeLaneTarget = toolAlpha
+    const hazeLaneTarget = environmentAlpha
       * depthPreset.total
       * (depthPreset.hazeLaneMix || 0.30)
       * worldCuePreset.rearForge  // borrow rearForge cue since it's the same light source
@@ -9838,7 +9956,7 @@ scene.add(particulateStreamCard);
       wrenchGroup.position.z - 3.3
     );
     coolBackscatterCard.quaternion.copy(camera.quaternion);
-    coolBackscatterCard.material.opacity = toolAlpha
+    coolBackscatterCard.material.opacity = environmentAlpha
       * depthPreset.total
       * worldCuePreset.backscatter
       * (0.08 + shaftPreset.coolBackscatter * 0.14 + worldCuePreset.backscatter * 0.05)
@@ -9875,7 +9993,7 @@ scene.add(particulateStreamCard);
 
     // Workshop Journey — fade workshop env in as zone system activates
     if (_workshopEnv) {
-      const targetOpacity = _zoneActive ? 0.35 * _zoneT : 0;
+      const targetOpacity = _zoneActive ? 0.60 * _zoneT : 0;
       _workshopEnv.traverse(child => {
         if (child.isMesh && child.material?.transparent) {
           child.material.opacity += (targetOpacity - child.material.opacity) * 0.04;
@@ -9904,7 +10022,7 @@ scene.add(particulateStreamCard);
     // Step 9.1 & 9.2 — Haze lanes and particulate stream opacity + drift
     hazeLaneLeft.material.opacity = depthLayerMix.hazeLanes * 0.32;
     hazeLaneRight.material.opacity = depthLayerMix.hazeLanes * 0.24;
-    particulateStreamCard.material.opacity = toolAlpha
+    particulateStreamCard.material.opacity = environmentAlpha
       * (depthPreset.hazeLaneMix || 0.30)
       * 0.18
       * handoffPreset.hazeScale
@@ -9946,8 +10064,8 @@ scene.add(particulateStreamCard);
       : 0;
     updateOrbitDebugOverlay();
 
-    scanLineMat.opacity  = Math.min(edgeFade, 1) * (0.48 + energyValue * 0.14) * toolAlpha;
-    scanGlowMat.opacity  = Math.min(edgeFade, 1) * (0.18 + energyValue * 0.12) * toolAlpha;
+    scanLineMat.opacity  = Math.min(edgeFade, 1) * (0.48 + energyValue * 0.14) * environmentAlpha;
+    scanGlowMat.opacity  = Math.min(edgeFade, 1) * (0.18 + energyValue * 0.12) * environmentAlpha;
     // Saw spotlight: intensity scales with spin speed and gently follows the saw, not the cursor
     const spotIntensity = (0.20 + (speedRatio * 0.72) + SCENE_STATE.focus * 0.10 + SCENE_STATE.release * 0.06) * lightRig.sawSpot * lightingCuePreset.supportLightScale;
     sawSpot.intensity  = toolAlpha * spotIntensity;
@@ -9998,7 +10116,9 @@ scene.add(particulateStreamCard);
     canvas.style.visibility    = 'visible';
     canvas.style.pointerEvents = heroVisible ? 'auto'    : 'none';
     vignette.style.visibility  = 'visible';
-    vignette.style.opacity = heroVisible ? String(Math.min(1, lensFinishPreset.vignetteStrength + readabilityClamp * 0.08)) : '0';
+    vignette.style.opacity = heroVisible
+      ? String(Math.min(1, lensFinishPreset.vignetteStrength + readabilityClamp * 0.08))
+      : String((_zoneActive ? 0.18 * _zoneT : 0).toFixed(3));
     vignette.style.background = `radial-gradient(ellipse ${(86 + lensFinishPreset.vignetteFocus * 8).toFixed(1)}% ${(68 + lensFinishPreset.vignetteFocus * 6).toFixed(1)}% at ${(50 + shotBeatPreset.cameraXBias * -44).toFixed(1)}% ${(45 + shotBeatPreset.cameraYBias * -38).toFixed(1)}%, transparent ${(38 + lensFinishPreset.vignetteFocus * 4).toFixed(1)}%, rgba(3,4,8, ${(0.42 + finishPreset.negativeFill * 0.18).toFixed(3)}) ${(70 + lensFinishPreset.vignetteStrength * 3).toFixed(1)}%, rgba(0,0,0, ${(0.88 + lensFinishPreset.vignetteStrength * 0.08).toFixed(3)}) 100%), linear-gradient(to top, rgba(0,0,0, ${(0.84 + finishPreset.negativeFill * 0.10).toFixed(3)}) 0%, transparent 38%), linear-gradient(to bottom, rgba(1,2,5, ${(0.48 + lensFinishPreset.coolShadowLift * 0.26).toFixed(3)}) 0%, transparent 22%)`;
     // CSS-layer depth of field: blur during reveal phases only
     const dofPhaseActive = DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.preReveal
@@ -10008,7 +10128,9 @@ scene.add(particulateStreamCard);
       : 0;
     vignette.style.backdropFilter = dofStrength > 0.3 ? `blur(${dofStrength.toFixed(1)}px)` : '';
     sceneGrade.style.visibility = 'visible';
-    sceneGrade.style.opacity = heroVisible ? String(Math.max(postFxPreset.gradeFloor * handoffPreset.gradeLift * (1 - scrollCopyCompression * 0.12), postFxPreset.gradeFloor * handoffPreset.gradeLift + activeCue.warm * 0.08 + atmosphereMetrics.titleHalo * 0.04 + scatterCoupling * 0.04 + magicIntensity * 0.03 + heroEmberLevel * 0.04 + releaseEnvelope * 0.10 + pulseWindow * 0.08 * lensPulseScale + lensFinishPreset.coolShadowLift * 0.08 - readabilityClamp * 0.08 - scrollCopyCompression * 0.18)) : '0';
+    sceneGrade.style.opacity = heroVisible
+      ? String(Math.max(postFxPreset.gradeFloor * handoffPreset.gradeLift * (1 - scrollCopyCompression * 0.12), postFxPreset.gradeFloor * handoffPreset.gradeLift + activeCue.warm * 0.08 + atmosphereMetrics.titleHalo * 0.04 + scatterCoupling * 0.04 + magicIntensity * 0.03 + heroEmberLevel * 0.04 + releaseEnvelope * 0.10 + pulseWindow * 0.08 * lensPulseScale + lensFinishPreset.coolShadowLift * 0.08 - readabilityClamp * 0.08 - scrollCopyCompression * 0.18))
+      : String((_zoneActive ? 0.12 * _zoneT : 0).toFixed(3));
     // Grade warm spot tracks wrench position for dynamic parallax
     const gradeWarmX = (clamp01((wrenchGroup.position.x + 5.5) / 11) * 100).toFixed(1);
     const gradeWarmY = (clamp01(1 - (wrenchGroup.position.y + 4.5) / 9) * 100).toFixed(1);
@@ -10028,7 +10150,7 @@ scene.add(particulateStreamCard);
             - readabilityClamp * 0.06
           ).toFixed(3)
         )
-      : '0';
+      : String((_zoneActive ? 0.06 * _zoneT : 0).toFixed(3));
     sceneLensAccent.style.transform = heroVisible
       ? `scale(${(1.008 + Math.max(0, lensEventPreset.chromaSplit * 0.20 + burstPulseWindow * 0.02)).toFixed(4)})`
       : 'scale(1.0)';
@@ -10123,14 +10245,20 @@ scene.add(particulateStreamCard);
       ? clamp01((getEffectiveScrollProgress() - SHOT_CONFIG.scrollTransitionStart) / 0.08)
       : 0;
     const splinePos = splineWeight > 0 ? getCameraJourneyPosition(getEffectiveScrollProgress()) : null;
+    const worldCamTarget = splineWeight > 0 ? getWorldCameraTarget() : null;
     const lerpRate = 0.04 * splineWeight;
     const baseX = (DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition ? -0.30 : -0.34 - DIRECTOR_STATE.revealMix * 0.10 - DIRECTOR_STATE.lockupMix * 0.14) + shotBeatPreset.cameraXBias + shotPreset.targetRotY * 0.18;
-    const targetX = splinePos ? THREE.MathUtils.lerp(baseX, splinePos.x, splineWeight) : baseX;
     const baseY = shotPreset.targetRotX * -0.24 + shotBeatPreset.cameraYBias;
-    const targetY = splinePos ? THREE.MathUtils.lerp(baseY, splinePos.y, splineWeight) : baseY;
+    // World camera target overrides spline when available (per-world authored camera)
+    const camRefX = worldCamTarget ? worldCamTarget.x : (splinePos ? splinePos.x : baseX);
+    const camRefY = worldCamTarget ? worldCamTarget.y : (splinePos ? splinePos.y : baseY);
+    const camRefZ = worldCamTarget ? worldCamTarget.z : (splinePos ? splinePos.z : scrollZ);
+    const targetX = splineWeight > 0 ? THREE.MathUtils.lerp(baseX, camRefX, splineWeight) : baseX;
+    const targetY = splineWeight > 0 ? THREE.MathUtils.lerp(baseY, camRefY, splineWeight) : baseY;
+    const targetZ = splineWeight > 0 ? THREE.MathUtils.lerp(scrollZ, camRefZ, splineWeight) : scrollZ;
     camera.position.x += (targetX - camera.position.x) * (0.05 + lerpRate);
     camera.position.y += (targetY - camera.position.y) * (0.05 + lerpRate);
-    camera.position.z += (scrollZ - camera.position.z) * 0.06;
+    camera.position.z += (targetZ - camera.position.z) * 0.06;
     camera.rotation.y  = camRotY + scrollRotY;
     camera.fov += (shotPreset.fov - camera.fov) * 0.08;
     camera.updateProjectionMatrix();
@@ -10148,7 +10276,7 @@ scene.add(particulateStreamCard);
     vortexGlowPlane.position.set(VORTEX_PARAMS.centerX * 0.5, VORTEX_PARAMS.centerY * 0.3, 1.0);
     vortexGlowPlane.quaternion.copy(camera.quaternion);
     const vgOpacity = SCENE_STATE.focus * 0.04 + SCENE_STATE.gather * 0.06 + SCENE_STATE.release * 0.14 + implPct * 0.16 + scatterCoupling * 0.08 + Math.sin(time * 0.00041) * 0.01;
-    vortexGlowPlane.material.opacity = Math.max(0, vgOpacity) * toolAlpha;
+    vortexGlowPlane.material.opacity = Math.max(0, vgOpacity) * environmentAlpha;
     vortexGlowPlane.material.color.setRGB(
       impl ? THREE.MathUtils.lerp(0.20, 0.08, implPct) : THREE.MathUtils.lerp(0.20, 0.12, SCENE_STATE.release * 0.4),
       impl ? THREE.MathUtils.lerp(0.07, 0.14, implPct) : THREE.MathUtils.lerp(0.07, 0.12, SCENE_STATE.release * 0.4),
@@ -10197,8 +10325,24 @@ scene.add(particulateStreamCard);
       bloomPass.threshold = bloomBase.threshold + activeThreshBias + 0.04 - lensFinishPreset.bloomDiscipline * 0.02 - SCENE_STATE.release * 0.02 - implPct * 0.02 + readabilityClamp * 0.04 * finishPreset.copyHighlightClamp;
       bloomPass.radius = Math.max(0.1, bloomBase.radius + postFxPreset.radiusBias - 0.05 + SCENE_STATE.focus * 0.02 + SCENE_STATE.release * 0.03 - finishPreset.supportSuppression * 0.01);
     }
+
+    /* ── Depth-of-Field driven by scroll & world state ── */
+    if (bokehPass) {
+      const dofFocus = _zoneActive ? THREE.MathUtils.lerp(8.0, 5.0, _zoneT) : 8.0;
+      const dofAperture = _zoneActive ? THREE.MathUtils.lerp(0.0008, 0.0015, _zoneT) : 0.0008;
+      bokehPass.uniforms['focus'].value += (dofFocus - bokehPass.uniforms['focus'].value) * 0.04;
+      bokehPass.uniforms['aperture'].value += (dofAperture - bokehPass.uniforms['aperture'].value) * 0.04;
+    }
+
+    /* ── Chromatic aberration intensity — subtle edge fringing ── */
+    if (chromaticPass) {
+      const caBase = 0.0012;
+      const caScroll = _zoneActive ? 0.0006 * _zoneT : 0;
+      chromaticPass.uniforms.uIntensity.value += ((caBase + caScroll) - chromaticPass.uniforms.uIntensity.value) * 0.05;
+    }
+
     if (scatterPass) {
-      updateVolumetricScatterPass(nowMs, toolAlpha, readabilityClamp, releaseProgress, implPct);
+      updateVolumetricScatterPass(nowMs, environmentAlpha, readabilityClamp, releaseProgress, implPct);
     }
 
     const postStartAt = performance.now();
@@ -10509,6 +10653,26 @@ scene.add(particulateStreamCard);
   loadEnvProps();
   loadZoneProps();
 
+  // Part D — Initialize cinematic world system (non-blocking).
+  // Registers all 9 worlds and 8 transitions with the WorldOrchestrator.
+  // Deferred asset loading is handled progressively by the orchestrator.
+  // Skipped entirely when prefers-reduced-motion to avoid heavy GPU work.
+  if (!prefersReduced) {
+    try {
+      initWorldOrchestrator({
+        scene,
+        camera,
+        renderer,
+        qualityTier: SCENE_CONFIG.qualityTier,
+        heroGroup: scene.getObjectByName('heroToolsGroup') || null,
+        workshopMesh: _workshopEnv || null,
+      });
+      initWorldDebugOverlay();
+    } catch (err) {
+      console.info('[three-scene] World orchestrator init skipped:', err?.message || err);
+    }
+  }
+
   /* ─── Timer cleanup on unload ─────────────────────────── */
   window.addEventListener('beforeunload', () => {
     clearTimeout(scrollSweepTimer);
@@ -10518,6 +10682,8 @@ scene.add(particulateStreamCard);
     if (densityRenderTarget) densityRenderTarget.dispose();
     if (densityPoints) densityPoints.geometry.dispose();
     if (densityPointMaterial) densityPointMaterial.dispose();
+    disposeWorldOrchestrator();
+    disposeWorldDebugOverlay();
   });
 
   /* ─── Print: hide canvas ──────────────────────────────── */
