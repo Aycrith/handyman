@@ -2756,7 +2756,8 @@ a.contact-detail:hover { color: var(--color-amber-light); }
   pointer-events: none;
   z-index: 1;
   opacity: var(--section-particle-density, 0);
-  transition: opacity 0.8s ease;
+  filter: blur(calc(var(--section-depth-blur, 0) * 2px));
+  transition: opacity 0.8s ease, filter 0.6s ease;
 }
 
 .ambient-particle {

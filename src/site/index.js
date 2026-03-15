@@ -824,9 +824,26 @@ function initAmbientGlow() {
   const hero = $('.hero');
   if (!hero) return;
 
-  // Subtle parallax on the hero's amber glow origin
-  // Done by animating a background-position-like effect via CSS var
-  // (pure visual enhancement — falls back gracefully)
+  // Step 9.5 — Animate depth layer CSS vars on scroll
+  ScrollTrigger.create({
+    trigger: hero,
+    start: 'top top',
+    end: 'bottom top',
+    onUpdate: (self) => {
+      const p = self.progress;
+      // Drive depth layer z-index perception via CSS vars
+      // Animate from default to heightened depth values as user scrolls past hero
+      gsap.quickSetter(document.documentElement, '--section-depth-near', 'css')(
+        (2 + p * 3).toFixed(2)
+      );
+      gsap.quickSetter(document.documentElement, '--section-depth-mid', 'css')(
+        (4 + p * 2).toFixed(2)
+      );
+      gsap.quickSetter(document.documentElement, '--section-depth-far', 'css')(
+        (1 + p * 1).toFixed(2)
+      );
+    },
+  });
 }
 
 

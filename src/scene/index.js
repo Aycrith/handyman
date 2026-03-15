@@ -806,6 +806,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         silhouetteMix: 0.52,
         occluderMix: 0.40,
         hangingMix: 0.42,
+        hazeLaneMix: 0.18,
         separationBias: 0.44,
       },
       reveal: {
@@ -814,6 +815,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         silhouetteMix: 0.58,
         occluderMix: 0.46,
         hangingMix: 0.54,
+        hazeLaneMix: 0.44,
         separationBias: 0.60,
       },
       lockup: {
@@ -822,6 +824,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         silhouetteMix: 0.72,
         occluderMix: 0.58,
         hangingMix: 0.60,
+        hazeLaneMix: 0.52,
         separationBias: 0.74,
       },
       interactiveIdle: {
@@ -830,6 +833,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         silhouetteMix: 0.64,
         occluderMix: 0.50,
         hangingMix: 0.52,
+        hazeLaneMix: 0.46,
         separationBias: 0.66,
       },
       scrollTransition: {
@@ -838,6 +842,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         silhouetteMix: 0.38,
         occluderMix: 0.28,
         hangingMix: 0.26,
+        hazeLaneMix: 0.20,
         separationBias: 0.48,
       },
     },
@@ -947,25 +952,25 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     precisionWorkshopBespoke: {
       steel: {
         color: 0xc6ccd0,
-        roughness: 0.20,
+        roughness: 0.18,
         metalness: 0.98,
         envMapIntensity: 1.04,
-        clearcoat: 0.24,
+        clearcoat: 0.20,
         clearcoatRoughness: 0.18,
         reflectivity: 0.68,
       },
       blackened_steel: {
         color: 0x2a2f38,
-        roughness: 0.34,
+        roughness: 0.30,
         metalness: 0.90,
-        envMapIntensity: 0.82,
+        envMapIntensity: 0.78,
         clearcoat: 0.18,
         clearcoatRoughness: 0.24,
         reflectivity: 0.56,
       },
       rubber: {
         color: 0x0d0f12,
-        roughness: 0.90,
+        roughness: 0.84,
         metalness: 0.03,
         envMapIntensity: 0.12,
         clearcoat: 0.02,
@@ -974,7 +979,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       },
       wood: {
         color: 0x7c5931,
-        roughness: 0.78,
+        roughness: 0.72,
         metalness: 0.02,
         envMapIntensity: 0.14,
         clearcoat: 0.05,
@@ -986,7 +991,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
         roughness: 0.26,
         metalness: 0.92,
         envMapIntensity: 0.88,
-        clearcoat: 0.16,
+        clearcoat: 0.12,
         clearcoatRoughness: 0.18,
         reflectivity: 0.62,
       },
@@ -1577,6 +1582,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     silhouettes: 0,
     occluders: 0,
     hangingDepth: 0,
+    hazeLanes: 0,
   };
   let lensEvent = prefersReduced ? 'disabled' : 'idle';
   const worldReadMetrics = {
@@ -3518,7 +3524,23 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     } else if (typeof config.emissive === 'number') {
       config.emissive = new THREE.Color(config.emissive);
     }
-    return new THREE.MeshPhysicalMaterial(config);
+    const mat = new THREE.MeshPhysicalMaterial(config);
+
+    // Step 8.3 — Assign PBR variation maps
+    if (PBR_VARIATION_MAPS) {
+      const mapKey = role === 'blackened_steel' ? 'steel' : role === 'ember_core' ? 'brass' : role;
+      const variationMap = PBR_VARIATION_MAPS[mapKey] || null;
+      if (variationMap) {
+        mat.roughnessMap = variationMap;
+        // Only assign metalnessMap for metallic roles
+        if (['steel', 'blackened_steel', 'brass', 'chrome'].includes(role)) {
+          mat.metalnessMap = variationMap;
+        }
+        mat.needsUpdate = true;
+      }
+    }
+
+    return mat;
   }
 
   function inferMaterialRole(mesh, toolId) {
@@ -3600,6 +3622,19 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     if (next.normalScale?.multiplyScalar) {
       next.normalScale = next.normalScale.clone().multiplyScalar(0.92);
     }
+
+    // Step 8.4 — Assign PBR variation maps to imported GLB meshes
+    if (PBR_VARIATION_MAPS && !next.roughnessMap) {
+      const mapKey = role === 'blackened_steel' ? 'steel' : role === 'ember_core' ? 'brass' : role;
+      const variationMap = PBR_VARIATION_MAPS[mapKey] || null;
+      if (variationMap) {
+        next.roughnessMap = variationMap;
+        if (['steel', 'blackened_steel', 'brass'].includes(role)) {
+          next.metalnessMap = variationMap;
+        }
+      }
+    }
+
     next.needsUpdate = true;
     return next;
   }
@@ -6167,6 +6202,219 @@ function makeWorkshopSurfaceTexture() {
   return texture;
 }
 
+// PBR Variation Texture Factories (Step 8.1)
+function makeBrushedMetalTexture(size = 256) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  // Base gunmetal fill
+  ctx.fillStyle = '#b4b8bc';
+  ctx.fillRect(0, 0, size, size);
+
+  // Horizontal streaks simulating directional brushing
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+  for (let i = 0; i < 70; i++) {
+    const y = Math.random() * size;
+    const width = 1 + Math.random() * 2;
+    const alpha = 0.04 + Math.random() * 0.14;
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(size, y);
+    ctx.stroke();
+  }
+
+  // Subtle radial vignette (darker toward edges)
+  const gradient = ctx.createRadialGradient(size / 2, size / 2, size * 0.2, size / 2, size / 2, size * 0.8);
+  gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+  gradient.addColorStop(1, 'rgba(0, 0, 0, 0.12)');
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(4, 4);
+  return texture;
+}
+
+function makePatinaTexture(size = 256) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  // Dark oxidized base
+  ctx.fillStyle = '#3c3c3c';
+  ctx.fillRect(0, 0, size, size);
+
+  // Patina spots (oxidation patches)
+  for (let i = 0; i < 15; i++) {
+    const x = Math.random() * size;
+    const y = Math.random() * size;
+    const radius = 8 + Math.random() * 14;
+    const hue = 25 + Math.random() * 35; // copper to teal range
+    const sat = 45 + Math.random() * 45;
+    const light = 35 + Math.random() * 25;
+    const alpha = 0.06 + Math.random() * 0.08;
+
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    gradient.addColorStop(0, `hsla(${hue}, ${sat}%, ${light}%, ${alpha})`);
+    gradient.addColorStop(1, `hsla(${hue}, ${sat}%, ${light - 10}%, 0)`);
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Coarse noise overlay
+  const image = ctx.getImageData(0, 0, size, size);
+  for (let i = 0; i < image.data.length; i += 4) {
+    const noiseVal = (Math.random() - 0.5) * 16;
+    image.data[i] += noiseVal;
+    image.data[i + 1] += noiseVal;
+    image.data[i + 2] += noiseVal;
+  }
+  ctx.putImageData(image, 0, 0);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(6, 6);
+  return texture;
+}
+
+function makeRubberGripTexture(size = 256) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  // Base rubber gray
+  ctx.fillStyle = '#505050';
+  ctx.fillRect(0, 0, size, size);
+
+  // Vertical knurl bands
+  for (let x = 0; x < size; x += 8) {
+    const isDark = Math.floor(x / 8) % 2 === 0;
+    ctx.fillStyle = isDark ? '#474747' : '#585858';
+    ctx.fillRect(x, 0, 8, size);
+  }
+
+  // Horizontal ridges (crosshatch knurl effect)
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
+  ctx.lineWidth = 0.5;
+  for (let y = 0; y < size; y += 14) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(size, y);
+    ctx.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(2, 3);
+  return texture;
+}
+
+function makeWoodGrainTexture(size = 256) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  // Base warm wood color
+  ctx.fillStyle = '#6b4423';
+  ctx.fillRect(0, 0, size, size);
+
+  // Horizontal wood grain lines with noise
+  for (let y = 0; y < size; y++) {
+    const offset = Math.sin(y * 0.08 + Math.random() * 0.5) * 12;
+    const lineColor = (y % 2 === 0) ? 180 : 200;
+    ctx.fillStyle = `rgb(${lineColor}, ${lineColor * 0.8}, ${lineColor * 0.7})`;
+    ctx.globalAlpha = 0.08;
+    ctx.fillRect(offset, y, size - Math.abs(offset), 1);
+  }
+
+  // Darker vertical grain lines
+  ctx.globalAlpha = 0.18;
+  ctx.strokeStyle = '#3d2415';
+  ctx.lineWidth = 0.8;
+  for (let x = 0; x < size; x += 18 + Math.random() * 10) {
+    const wobble = Math.sin(x * 0.05) * 8;
+    ctx.beginPath();
+    ctx.moveTo(x + wobble, 0);
+    ctx.lineTo(x + wobble, size);
+    ctx.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(1, 2);
+  return texture;
+}
+
+// PBR Variation Maps Registry (Step 8.2)
+const PBR_VARIATION_MAPS = {
+  steel: null,
+  chrome: null,
+  rubber: null,
+  wood: null,
+  brass: null,
+};
+
+// Step 8.6 — Deferred assignment of variation maps to inline materials
+function applyPBRVariationToInlineMaterials() {
+  if (!PBR_VARIATION_MAPS || !PBR_VARIATION_MAPS.steel) return;
+
+  // Steel roles
+  if (PBR_VARIATION_MAPS.steel) {
+    steelMat.roughnessMap = PBR_VARIATION_MAPS.steel;
+    steelMat.metalnessMap = PBR_VARIATION_MAPS.steel;
+    steelMat.roughness = 0.06;
+    steelMat.needsUpdate = true;
+
+    chromeMat.roughnessMap = PBR_VARIATION_MAPS.chrome;
+    chromeMat.metalnessMap = PBR_VARIATION_MAPS.chrome;
+    chromeMat.roughness = 0.01;
+    chromeMat.needsUpdate = true;
+
+    gunmetalMat.roughnessMap = PBR_VARIATION_MAPS.steel;
+    gunmetalMat.needsUpdate = true;
+  }
+
+  // Rubber grip
+  if (PBR_VARIATION_MAPS.rubber) {
+    darkMat.roughnessMap = PBR_VARIATION_MAPS.rubber;
+    darkMat.roughness = 0.68;
+    darkMat.needsUpdate = true;
+  }
+
+  // Wood handle
+  if (PBR_VARIATION_MAPS.wood) {
+    woodMat.roughnessMap = PBR_VARIATION_MAPS.wood;
+    woodMat.roughness = 0.78;
+    woodMat.needsUpdate = true;
+  }
+}
+
+function buildPBRVariationMaps() {
+  if (!PBR_VARIATION_MAPS) return;
+  PBR_VARIATION_MAPS.steel = makeBrushedMetalTexture(256);
+  PBR_VARIATION_MAPS.chrome = makeBrushedMetalTexture(256);
+  PBR_VARIATION_MAPS.rubber = makeRubberGripTexture(256);
+  PBR_VARIATION_MAPS.wood = makeWoodGrainTexture(256);
+  PBR_VARIATION_MAPS.brass = makePatinaTexture(256);
+  applyPBRVariationToInlineMaterials();
+}
+
+// Gate PBR maps to desktop/mobile tiers only
+if (SCENE_CONFIG.qualityTier !== 'low') {
+  buildPBRVariationMaps();
+}
+
 const workshopSurfaceTex = makeWorkshopSurfaceTexture();
 const floorPlane = new THREE.Mesh(
   new THREE.PlaneGeometry(28, 28, 1, 1),
@@ -6358,6 +6606,98 @@ const silhouetteTex = makeWorldMaskTexture('silhouette');
 const hangingDepthTex = makeWorldMaskTexture('hanging');
 const occluderTex = makeWorldMaskTexture('occluder');
 
+// Step 9.1 — Haze lane textures and cards
+function makeHazeLaneTexture(angle = 'left') {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+
+  // Base transparent background
+  ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+  ctx.fillRect(0, 0, 128, 512);
+
+  // Directional linear gradient along the long axis
+  const gradient = ctx.createLinearGradient(0, 0, 0, 512);
+  const amberColor = 'rgba(255, 200, 140, ';
+  gradient.addColorStop(0, amberColor + '0)');
+  gradient.addColorStop(0.4, amberColor + '0.18)');
+  gradient.addColorStop(0.5, amberColor + '0.28)');
+  gradient.addColorStop(0.6, amberColor + '0.18)');
+  gradient.addColorStop(1, amberColor + '0)');
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 128, 512);
+
+  // Inner core lane (narrower, higher alpha)
+  const coreGradient = ctx.createLinearGradient(0, 0, 0, 512);
+  coreGradient.addColorStop(0.2, 'rgba(255, 220, 160, 0)');
+  coreGradient.addColorStop(0.35, 'rgba(255, 220, 160, 0.32)');
+  coreGradient.addColorStop(0.65, 'rgba(255, 220, 160, 0.32)');
+  coreGradient.addColorStop(0.8, 'rgba(255, 220, 160, 0)');
+
+  ctx.fillStyle = coreGradient;
+  ctx.fillRect(32, 0, 64, 512);
+
+  // Horizontal noise streaks to break up banding
+  for (let i = 0; i < 7; i++) {
+    const y = Math.random() * 512;
+    ctx.strokeStyle = `rgba(255, 255, 255, ${0.02 + Math.random() * 0.03})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(128, y);
+    ctx.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.ClampToEdgeWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
+  return texture;
+}
+
+const hazeLaneLeftTex = makeHazeLaneTexture('left');
+const hazeLaneRightTex = makeHazeLaneTexture('right');
+
+// Step 9.2 — Particulate stream texture
+function makeParticulateStreamTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  // Base transparent
+  ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Scattered warm-gray dots with directional streaks
+  ctx.fillStyle = 'rgba(220, 200, 170, ';
+  for (let i = 0; i < 250; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    const size = 1.5 + Math.random() * 1;
+    const alpha = 0.08 + Math.random() * 0.14;
+
+    ctx.globalAlpha = alpha;
+    // Dot
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Directional streak (motion blur simulation)
+    ctx.globalAlpha = alpha * 0.5;
+    ctx.fillRect(x, y - 2, 1, 4);
+  }
+
+  ctx.globalAlpha = 1;
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(1.5, 3);
+  return texture;
+}
+
+const particulateStreamTex = makeParticulateStreamTexture();
+
 function makeWorldCard(width, height, {
   map = null,
   color = 0xffffff,
@@ -6436,6 +6776,37 @@ const hangingDepthCard = makeWorldCard(1.2, 6.8, {
 hangingDepthCard.position.set(3.85, 1.52, -3.1);
 hangingDepthCard.rotation.set(0.02, -0.14, 0.02);
 scene.add(hangingDepthCard);
+
+// Step 9.1 — Haze lane depth cards
+const hazeLaneLeft = makeWorldCard(3.2, 9.4, {
+  map: hazeLaneLeftTex,
+  color: 0xffa86a,
+  blending: THREE.AdditiveBlending,
+  renderOrder: 989,
+});
+hazeLaneLeft.position.set(-1.8, 0.8, -2.6);
+hazeLaneLeft.rotation.set(0.06, 0.22, -0.12);
+scene.add(hazeLaneLeft);
+
+const hazeLaneRight = makeWorldCard(2.6, 8.2, {
+  map: hazeLaneRightTex,
+  color: 0xffb880,
+  blending: THREE.AdditiveBlending,
+  renderOrder: 988,
+});
+hazeLaneRight.position.set(3.4, 1.2, -3.0);
+hazeLaneRight.rotation.set(-0.04, -0.18, 0.08);
+scene.add(hazeLaneRight);
+
+// Step 9.2 — Particulate stream card
+const particulateStreamCard = makeWorldCard(8, 10, {
+  map: particulateStreamTex,
+  color: 0xd4c8b8,
+  blending: THREE.NormalBlending,
+  renderOrder: 985,
+});
+particulateStreamCard.position.set(0.2, 1.4, -2.2);
+scene.add(particulateStreamCard);
 
   /* ─── Scan-line + glow layer ──────────────────────────── */
   const scanLineVerts = new Float32Array(6);
@@ -7992,6 +8363,14 @@ scene.add(hangingDepthCard);
     const overlayAlpha = Math.min(effectiveScrollProgress * 2, 1);
     document.documentElement.style.setProperty('--overlay-alpha', overlayAlpha.toFixed(3));
     document.documentElement.style.setProperty('--scene-warmth', Math.min(1, effectiveScrollProgress / 0.6).toFixed(3));
+
+    // Step 9.4 — Wire --section-depth-blur CSS var
+    const depthBlurValue = clamp01(
+      depthLayerMix.total * 0.6
+      + depthLayerMix.rearForge * 0.4
+    ).toFixed(3);
+    document.documentElement.style.setProperty('--section-depth-blur', depthBlurValue);
+
     const scrollingDown = currentScrollY > prevY;
     VORTEX_PARAMS.upwardDrift = scrollingDown ? 0.00018 : 0.00072;
     interactionCharge = Math.min(1.0, interactionCharge + SCENE_CONFIG.interaction.scrollBoost * 0.35);
@@ -8995,6 +9374,14 @@ scene.add(hangingDepthCard);
       * worldCopyGuard
       * (1 - scrollCopyCompression * 0.30)
       * 1.20;
+    // Step 9.3 — Haze lane target
+    const hazeLaneTarget = toolAlpha
+      * depthPreset.total
+      * (depthPreset.hazeLaneMix || 0.30)
+      * worldCuePreset.rearForge  // borrow rearForge cue since it's the same light source
+      * handoffPreset.hazeScale
+      * worldCopyGuard
+      * (1 - scrollCopyCompression * 0.58);
     const depthResponse = DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.reveal
       ? 0.22
       : (DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.lockup
@@ -9004,6 +9391,7 @@ scene.add(hangingDepthCard);
     depthLayerMix.silhouettes += (clamp01(silhouetteTarget) - depthLayerMix.silhouettes) * depthResponse;
     depthLayerMix.occluders += (clamp01(occluderTarget) - depthLayerMix.occluders) * depthResponse;
     depthLayerMix.hangingDepth += (clamp01(hangingTarget) - depthLayerMix.hangingDepth) * depthResponse;
+    depthLayerMix.hazeLanes += (clamp01(hazeLaneTarget) - depthLayerMix.hazeLanes) * depthResponse;
     depthLayerMix.total = clamp01(
       depthLayerMix.rearForge * 0.34
       + depthLayerMix.silhouettes * 0.38
@@ -9061,6 +9449,22 @@ scene.add(hangingDepthCard);
     );
     hangingDepthCard.material.opacity = depthLayerMix.hangingDepth * 0.42;
 
+    // Step 9.1 & 9.2 — Haze lanes and particulate stream opacity + drift
+    hazeLaneLeft.material.opacity = depthLayerMix.hazeLanes * 0.32;
+    hazeLaneRight.material.opacity = depthLayerMix.hazeLanes * 0.24;
+    particulateStreamCard.material.opacity = toolAlpha
+      * (depthPreset.hazeLaneMix || 0.30)
+      * 0.18
+      * handoffPreset.hazeScale
+      * worldCopyGuard
+      * (SCENE_CONFIG.qualityTier !== 'low' ? 1 : 0);
+
+    // UV drift for particulate stream
+    if (particulateStreamCard?.material?.map) {
+      particulateStreamCard.material.map.offset.y += delta * 0.000012;
+      particulateStreamCard.material.map.offset.x += Math.sin(time * 0.00008) * 0.000004;
+    }
+
     const heroLaneRect = protectedZoneState.heroTargetFrame.active ? protectedZoneState.heroTargetFrame : protectedZoneState.artLane;
     const heroBoundsRect = orbitLayoutState.projectedToolBounds.wrench;
     const heroWidth = heroBoundsRect.width || 0;
@@ -9103,6 +9507,7 @@ scene.add(hangingDepthCard);
     const copyShieldStrength = heroVisible && readabilityWindow.active
       ? Math.min(scrollHandoffState === 'idle' ? 0.28 : 0.40, 0.02 + postFxPreset.copyShieldBoost + handoffPreset.copyCalm + scrollCopyCompression * 0.14 + SCENE_STATE.readabilityBias * 0.10 + atmosphereMetrics.copy * 0.10 + SCENE_STATE.release * 0.03)
       : 0;
+    // Step 9.6 — Update worldEnergy to include new depth cards
     const worldEnergy = (
       rearForgeHazeCard.material.opacity * 1.8
       + coolBackscatterCard.material.opacity * 1.4
@@ -9110,6 +9515,9 @@ scene.add(hangingDepthCard);
       + rearSilhouetteSecondary.material.opacity * 0.8
       + benchOccluderCard.material.opacity * 0.9
       + hangingDepthCard.material.opacity * 0.8
+      + hazeLaneLeft.material.opacity * 0.6
+      + hazeLaneRight.material.opacity * 0.5
+      + particulateStreamCard.material.opacity * 0.4
     );
     heroReadMetrics.focalContrast = heroRead / Math.max(0.05, supportRead);
     heroReadMetrics.supportSuppression = clamp01(1 - (supportRead / Math.max(0.08, heroRead)));
