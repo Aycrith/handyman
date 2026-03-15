@@ -9,7 +9,8 @@ const THREE = window.THREE;
 const HERO_RUNTIME_ASSETS = Object.freeze({
   manifest: new URL('../../assets/models/hero/HERO-ASSET-MANIFEST.json', import.meta.url).href,
   preferred: {
-    wrench: new URL('../../assets/models/hero/hero-pipe-wrench.glb', import.meta.url).href,
+    // pbr_rivet_gun.glb replaces the bespoke wrench — it's a proper PBR scan with baked maps
+    wrench: new URL('../../assets/3dmodels/pbr_rivet_gun.glb', import.meta.url).href,
     hammer: new URL('../../assets/models/hero/hero-claw-hammer.glb', import.meta.url).href,
     saw: new URL('../../assets/models/hero/hero-handsaw.glb', import.meta.url).href,
   },
@@ -19,6 +20,12 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     saw: new URL('../../assets/models/handsaw.glb', import.meta.url).href,
   },
   hdr: new URL('../../assets/textures/hero/university_workshop_1k.hdr', import.meta.url).href,
+  environmentProps: {
+    toolbox: new URL('../../assets/3dmodels/industrial_toolbox.glb', import.meta.url).href,
+    rivetGun: new URL('../../assets/3dmodels/pbr_rivet_gun.glb', import.meta.url).href,
+    workshop: new URL('../../assets/3dmodels/workshop.glb', import.meta.url).href,
+    pointCloud: new URL('../../assets/3dmodels/xr_studio_-_space_is_more_than_a_surface_points.glb', import.meta.url).href,
+  },
 });
 
 (function () {
@@ -99,13 +106,18 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       lowMemory: lowMem,
     };
   })();
-  const _isLowEnd = _gpuProbe.lowEnd;
+  // Dev-mode force: .env.development sets VITE_DEV_FORCE_DESKTOP=true so npm run dev always
+  // shows full desktop quality regardless of GPU detection. Vite strips this from production builds.
+  const _devForceDesktop = import.meta.env?.VITE_DEV_FORCE_DESKTOP === 'true';
+  const _isLowEnd = _devForceDesktop ? false : _gpuProbe.lowEnd;
 
   /* ─── Reduced motion check ────────────────────────────── */
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const _isMobileViewport = window.innerWidth < 768;
-  const DEFAULT_QUALITY_TIER = _isLowEnd ? 'low' : (_isMobileViewport ? 'mobile' : 'desktop');
-  const ALLOW_DESKTOP_FX_OVERRIDE = SCENE_TEST_OVERRIDES.forceDesktopFX || SCENE_TEST_OVERRIDES.sceneTier === 'desktop';
+  const DEFAULT_QUALITY_TIER = _devForceDesktop
+    ? 'desktop'
+    : (_isLowEnd ? 'low' : (_isMobileViewport ? 'mobile' : 'desktop'));
+  const ALLOW_DESKTOP_FX_OVERRIDE = _devForceDesktop || SCENE_TEST_OVERRIDES.forceDesktopFX || SCENE_TEST_OVERRIDES.sceneTier === 'desktop';
   const ACTIVE_QUALITY_TIER = SCENE_TEST_OVERRIDES.sceneTier || DEFAULT_QUALITY_TIER;
   const CAN_RUN_DESKTOP_POST = ACTIVE_QUALITY_TIER === 'desktop' && (!_isLowEnd || ALLOW_DESKTOP_FX_OVERRIDE);
 
@@ -245,6 +257,48 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     [SCENE_DIRECTOR_STATE.interactiveIdle]: 'interactiveIdle',
     [SCENE_DIRECTOR_STATE.scrollTransition]: 'scrollTransition',
   });
+
+  // ── Workshop Journey: Scroll Zone Definitions (Phase E) ────────────────
+  // Per-zone environment targets. scrollStart/End are ratio fallbacks;
+  // resolveZoneBoundaries() overwrites them with live DOM measurements.
+  const SCROLL_ZONES = Object.freeze([
+    { id: 'hero',         scrollStart: 0.00, scrollEnd: 0.12,
+      lightRig: { key: 1.40, fill: 0.72, rim: 1.00, ground: 0.98 },
+      postFx:   { bloomGain: 0.68, thresholdBias: 0.06 },
+      bgColor:  { r: 0.007, g: 0.009, b: 0.012 }, fogDensity: 0.011,
+      particleStory: 'hero-orbit', exposureBias: 0.0 },
+
+    { id: 'services',     scrollStart: 0.12, scrollEnd: 0.28,
+      lightRig: { key: 0.82, fill: 0.48, rim: 0.64, ground: 0.60 },
+      postFx:   { bloomGain: 0.52, thresholdBias: 0.10 },
+      bgColor:  { r: 0.006, g: 0.007, b: 0.011 }, fogDensity: 0.009,
+      particleStory: 'services-drift', exposureBias: -0.06 },
+
+    { id: 'process',      scrollStart: 0.28, scrollEnd: 0.46,
+      lightRig: { key: 0.88, fill: 0.54, rim: 0.72, ground: 0.68 },
+      postFx:   { bloomGain: 0.56, thresholdBias: 0.09 },
+      bgColor:  { r: 0.008, g: 0.007, b: 0.006 }, fogDensity: 0.013,
+      particleStory: 'dust-drift', exposureBias: 0.04 },
+
+    { id: 'gallery',      scrollStart: 0.46, scrollEnd: 0.62,
+      lightRig: { key: 0.60, fill: 0.28, rim: 0.48, ground: 0.38 },
+      postFx:   { bloomGain: 0.44, thresholdBias: 0.14 },
+      bgColor:  { r: 0.004, g: 0.004, b: 0.005 }, fogDensity: 0.006,
+      particleStory: 'ember-scatter', exposureBias: -0.12 },
+
+    { id: 'about',        scrollStart: 0.62, scrollEnd: 0.76,
+      lightRig: { key: 0.92, fill: 0.60, rim: 0.76, ground: 0.72 },
+      postFx:   { bloomGain: 0.58, thresholdBias: 0.08 },
+      bgColor:  { r: 0.009, g: 0.007, b: 0.006 }, fogDensity: 0.010,
+      particleStory: 'ember-low', exposureBias: 0.02 },
+
+    { id: 'contact',      scrollStart: 0.76, scrollEnd: 1.00,
+      lightRig: { key: 1.06, fill: 0.66, rim: 0.88, ground: 0.82 },
+      postFx:   { bloomGain: 0.62, thresholdBias: 0.07 },
+      bgColor:  { r: 0.010, g: 0.008, b: 0.006 }, fogDensity: 0.012,
+      particleStory: 'ember-invitation', exposureBias: 0.06 },
+  ]);
+
   const SHOT_CONFIG = Object.freeze({
     introFallbackMs: 1700,
     preRevealEndMs: 520,
@@ -278,37 +332,37 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   const COMPOSITION_PRESETS = Object.freeze({
     desktop: {
       hammer: { position: { x: 0.86, y: 0.72, z: 0.88 }, scale: 0.72, opacity: 0.00, motion: 0.00 },
-      wrench: { position: { x: 1.52, y: 0.36, z: 1.20 }, scale: 1.44, opacity: 1.00, motion: 0.10 },
+      wrench: { position: { x: 1.52, y: 0.28, z: 1.20 }, scale: 0.72, opacity: 1.00, motion: 0.10 },
       saw: { position: { x: 0.52, y: -0.42, z: 1.12 }, scale: 0.40, opacity: 0.00, motion: 0.00 },
     },
     tablet: {
       hammer: { position: { x: 0.80, y: 0.64, z: 0.88 }, scale: 0.64, opacity: 0.00, motion: 0.00 },
-      wrench: { position: { x: 1.28, y: 0.28, z: 1.18 }, scale: 1.20, opacity: 1.00, motion: 0.08 },
+      wrench: { position: { x: 1.28, y: 0.22, z: 1.18 }, scale: 0.62, opacity: 1.00, motion: 0.08 },
       saw: { position: { x: 0.42, y: -0.38, z: 1.10 }, scale: 0.38, opacity: 0.00, motion: 0.00 },
     },
     mobile: {
       hammer: { position: { x: 0.62, y: 0.38, z: 0.92 }, scale: 0.40, opacity: 0.00, motion: 0.00 },
-      wrench: { position: { x: 1.10, y: 1.18, z: 1.20 }, scale: 1.02, opacity: 1.00, motion: 0.05 },
+      wrench: { position: { x: 1.10, y: 0.80, z: 1.20 }, scale: 0.52, opacity: 1.00, motion: 0.05 },
       saw: { position: { x: 0.28, y: 0.16, z: 1.08 }, scale: 0.32, opacity: 0.00, motion: 0.00 },
     },
     narrow: {
       hammer: { position: { x: 0.56, y: 0.34, z: 0.92 }, scale: 0.34, opacity: 0.00, motion: 0.00 },
-      wrench: { position: { x: 0.98, y: 1.02, z: 1.18 }, scale: 0.88, opacity: 1.00, motion: 0.04 },
+      wrench: { position: { x: 0.98, y: 0.72, z: 1.18 }, scale: 0.44, opacity: 1.00, motion: 0.04 },
       saw: { position: { x: 0.18, y: 0.06, z: 1.08 }, scale: 0.30, opacity: 0.00, motion: 0.00 },
     },
     low: {
       hammer: { position: { x: 0.56, y: 0.38, z: 0.92 }, scale: 0.34, opacity: 0.00, motion: 0.00 },
-      wrench: { position: { x: 1.00, y: 1.00, z: 1.18 }, scale: 0.84, opacity: 1.00, motion: 0.04 },
+      wrench: { position: { x: 1.00, y: 0.72, z: 1.18 }, scale: 0.44, opacity: 1.00, motion: 0.04 },
       saw: { position: { x: 0.20, y: 0.06, z: 1.08 }, scale: 0.30, opacity: 0.00, motion: 0.00 },
     },
   });
   const ORBIT_LAYOUT_PRESETS = Object.freeze({
     desktop: {
       compositionMode: 'stillLifeDesktop',
-      anchor: { x: 0.63, y: 0.52 },
+      anchor: { x: 0.62, y: 0.52 },
       heroPlaneZ: 1.16,
       heroScreenHeightRatio: 0.60,
-      heroScale: 0.92,
+      heroScale: 0.70,
       heroScaleBias: 1.0,
       heroMargins: { top: 0.07, right: 0.06, bottom: 0.11 },
       heroPose: { pitch: -0.122, yaw: 0.175, roll: -0.244 },
@@ -318,10 +372,10 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     },
     tablet: {
       compositionMode: 'tabletCluster',
-      anchor: { x: 0.62, y: 0.47 },
+      anchor: { x: 0.64, y: 0.47 },
       heroPlaneZ: 1.20,
       heroScreenHeightRatio: 0.47,
-      heroScale: 0.73,
+      heroScale: 0.58,
       heroScaleBias: 1.0,
       heroMargins: { top: 0.07, right: 0.06, bottom: 0.11 },
       heroPose: { pitch: -0.105, yaw: 0.157, roll: -0.209 },
@@ -331,10 +385,10 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     },
     mobile: {
       compositionMode: 'crownMobile',
-      anchor: { x: 0.57, y: 0.26 },
+      anchor: { x: 0.57, y: 0.32 },
       heroPlaneZ: 1.32,
       heroScreenHeightRatio: 0.38,
-      heroScale: 0.54,
+      heroScale: 0.42,
       heroScaleBias: 1.0,
       heroMargins: { top: 0.02, right: 0.04, bottom: 0.40 },
       heroPose: { pitch: -0.070, yaw: 0.122, roll: -0.175 },
@@ -344,10 +398,10 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     },
     narrow: {
       compositionMode: 'wrenchOnlyNarrow',
-      anchor: { x: 0.55, y: 0.25 },
+      anchor: { x: 0.55, y: 0.30 },
       heroPlaneZ: 1.36,
       heroScreenHeightRatio: 0.34,
-      heroScale: 0.50,
+      heroScale: 0.385,
       heroScaleBias: 1.0,
       heroMargins: { top: 0.02, right: 0.04, bottom: 0.38 },
       heroPose: { pitch: -0.070, yaw: 0.105, roll: -0.157 },
@@ -360,7 +414,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       anchor: { x: 0.55, y: 0.25 },
       heroPlaneZ: 1.32,
       heroScreenHeightRatio: 0.34,
-      heroScale: 0.48,
+      heroScale: 0.37,
       heroScaleBias: 1.0,
       heroMargins: { top: 0.02, right: 0.04, bottom: 0.36 },
       heroPose: { pitch: -0.070, yaw: 0.105, roll: -0.157 },
@@ -1358,6 +1412,21 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   const ACTIVE_LENS_EVENTS = LENS_EVENT_PRESETS.hybridEmberSignature;
   const ACTIVE_ENVIRONMENT_MAGIC = ENVIRONMENT_MAGIC_PRESETS.precisionWorkshopBespoke;
   const ACTIVE_PARTICLE_STORY = PARTICLE_STORY_PRESETS.hybridEmberSignature;
+
+  // ── Workshop Journey: Per-Zone Particle Stories (Phase E) ──────────────
+  // Parameter overrides keyed by particleStory ID from SCROLL_ZONES.
+  // wrenchAttractor: how strongly particles orbit the main tool
+  // hazeScale: atmospheric haze density multiplier
+  // sparkGate: spark/ember intensity gate
+  const SCROLL_ZONE_PARTICLE_STORIES = Object.freeze({
+    'hero-orbit':        { wrenchAttractor: 0.72, hazeScale: 1.00, sparkGate: 1.00 },
+    'services-drift':    { wrenchAttractor: 0.20, hazeScale: 0.48, sparkGate: 0.20 },
+    'dust-drift':        { wrenchAttractor: 0.28, hazeScale: 0.64, sparkGate: 0.30 },
+    'ember-scatter':     { wrenchAttractor: 0.16, hazeScale: 0.22, sparkGate: 0.50 },
+    'ember-low':         { wrenchAttractor: 0.34, hazeScale: 0.52, sparkGate: 0.36 },
+    'ember-invitation':  { wrenchAttractor: 0.42, hazeScale: 0.72, sparkGate: 0.44 },
+  });
+
   const ACTIVE_PARTICLE_SIGNATURE = PARTICLE_SIGNATURE_PRESETS.hybridEmberSignature;
   const ACTIVE_RELEASE_ENVELOPE = RELEASE_ENVELOPE_PRESETS.hybridEmberSignature;
   const ACTIVE_VOLUME_SHAFT = VOLUME_SHAFT_PRESETS.hybridEmberSignature;
@@ -1547,6 +1616,7 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   let heroAssetBuildStage = 'placeholder';
   let heroAssetVerificationState = 'manifest-unloaded';
   let heroAssetManifest = null;
+  let toolboxEnvGroup = null; // Part C — industrial toolbox background silhouette prop
   const heroAssetVerification = {
     manifestLoaded: false,
     packVerified: false,
@@ -1662,6 +1732,40 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   let magicPulseSource = 'idle';
   let lastMagicPulseUpdateAt = performance.now();
   const externalSectionTransition = { state: 'idle', progress: 0, source: 'scene' };
+
+  // ── Workshop Journey: Zone State (Phase E) ─────────────────────────────
+  const _zoneLightTarget = { key: 1.40, fill: 0.72, rim: 1.00, ground: 0.98 };
+  const _zoneBgTarget    = { r: 0.007, g: 0.009, b: 0.012 };
+  let _zoneFogTarget      = 0.011;
+  let _zoneExposureTarget = 0.0;
+  let _zoneBloomGain      = 0.68;
+  let _zoneThresholdBias  = 0.06;
+  let _zoneActive         = false;
+  let _zoneT              = 0;
+  let _workshopEnv        = null;
+  let _zoneResizeTimer    = null;
+
+  // ── Workshop Journey: Camera Spline (Phase C6) ─────────────────────────
+  // Subtle waypoints — ±0.3z, ±0.15x, ±0.08y amplitude.
+  // Content-first: movement barely perceptible, environment transitions more prominent.
+  const CAMERA_JOURNEY_WAYPOINTS = [
+    { t: 0.00, x: -0.34, y:  0.00, z: 5.82 },  // hero
+    { t: 0.12, x: -0.30, y:  0.00, z: 6.10 },  // scroll-transition start
+    { t: 0.28, x: -0.22, y:  0.05, z: 5.94 },  // services
+    { t: 0.46, x: -0.28, y:  0.02, z: 5.88 },  // process
+    { t: 0.62, x: -0.20, y: -0.03, z: 6.02 },  // gallery
+    { t: 0.76, x: -0.26, y:  0.04, z: 5.96 },  // about
+    { t: 1.00, x: -0.24, y:  0.02, z: 5.90 },  // contact
+  ];
+  let _cameraJourneyCurve = null;
+
+  const ZONE_STATE = {
+    activeId:      'hero',
+    nextId:        null,
+    blendProgress: 0,
+    resolvedZones: [],
+  };
+
   const POINTER_TRAIL_CAPACITY = SCENE_CONFIG.featureFlags.pointerTrail ? 7 : 0;
   const pointerTrail = Array.from({ length: POINTER_TRAIL_CAPACITY }, () => ({
     x: 0,
@@ -1767,6 +1871,113 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0b0d10);
   scene.fog = new THREE.FogExp2(0x141214, 0.026);
+
+  // ── Workshop Journey: Zone Boundary Resolver ───────────────────────────
+  // Computes scrollStart/End from live DOM element positions.
+  // Called at init and on resize (debounced). DOM-based because section
+  // heights shift with viewport size and Lenis H-scroll pinning.
+  function resolveZoneBoundaries() {
+    const docHeight = document.documentElement.scrollHeight;
+    const viewH = window.innerHeight;
+    const scrollableH = Math.max(1, docHeight - viewH);
+
+    const selectorMap = {
+      hero:         null,  // hero starts at 0
+      services:     '[data-scene-zone="services"]',
+      rhetoric:     '[data-scene-zone="rhetoric"]',
+      process:      '[data-scene-zone="process"]',
+      gallery:      '[data-scene-zone="gallery"]',
+      about:        '[data-scene-zone="about"]',
+      testimonials: '[data-scene-zone="testimonials"]',
+      contact:      '[data-scene-zone="contact"]',
+    };
+
+    // Build resolved list with DOM-measured scroll ratios
+    const resolved = SCROLL_ZONES.map((zone) => {
+      const selector = selectorMap[zone.id];
+      if (!selector) {
+        // hero zone always starts at 0
+        return { ...zone, scrollStart: 0, scrollEnd: 0.12 };
+      }
+      const el = document.querySelector(selector);
+      if (!el) return { ...zone };
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      const bottom = top + el.offsetHeight;
+      return {
+        ...zone,
+        scrollStart: Math.min(1, top / scrollableH),
+        scrollEnd:   Math.min(1, bottom / scrollableH),
+      };
+    });
+
+    ZONE_STATE.resolvedZones = resolved;
+  }
+
+  resolveZoneBoundaries();
+  window.addEventListener('resize', () => {
+    clearTimeout(_zoneResizeTimer);
+    _zoneResizeTimer = setTimeout(resolveZoneBoundaries, 220);
+  });
+
+  // initCameraJourneyCurve() called after scene init below
+  // ── Workshop Journey: Camera Journey Spline (Phase C6) ────────────────
+  // CatmullRomCurve3 through waypoints parameterised by scroll progress.
+  // Skipped when prefers-reduced-motion is set.
+  function initCameraJourneyCurve() {
+    if (prefersReduced) return;
+    const points = CAMERA_JOURNEY_WAYPOINTS.map(w => new THREE.Vector3(w.x, w.y, w.z));
+    _cameraJourneyCurve = new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.5);
+  }
+
+  function getCameraJourneyPosition(scrollProg) {
+    if (!_cameraJourneyCurve) return null;
+    const t = clamp01(scrollProg);
+    return _cameraJourneyCurve.getPoint(t);
+  }
+
+  // ── Workshop Journey: Zone Interpolator ───────────────────────────────
+  // Called every frame from updateSceneState() when scrollTransition phase active.
+  // Cross-fades between adjacent zones over a 0.04 scroll-unit window
+  // (≈1 viewport height), making transitions imperceptible at normal scroll speeds.
+  function updateScrollZone(scrollProg) {
+    const zones = ZONE_STATE.resolvedZones.length
+      ? ZONE_STATE.resolvedZones
+      : SCROLL_ZONES;
+
+    // Find active zone (last zone whose scrollStart <= scrollProg)
+    let activeIdx = 0;
+    for (let i = 0; i < zones.length; i++) {
+      if (scrollProg >= zones[i].scrollStart) activeIdx = i;
+    }
+    const activeZone = zones[activeIdx];
+    const nextZone = zones[activeIdx + 1] || activeZone;
+
+    // Compute cross-fade blend within a 0.04 scroll-unit window at zone boundary
+    const BLEND_WINDOW = 0.04;
+    const distToEnd = activeZone.scrollEnd - scrollProg;
+    const blendT = clamp01(1 - distToEnd / BLEND_WINDOW);
+
+    ZONE_STATE.activeId      = activeZone.id;
+    ZONE_STATE.nextId        = nextZone.id;
+    ZONE_STATE.blendProgress = blendT;
+
+    // Lerp all zone targets between active and next zones
+    const lerp1 = (a, b, t) => a + (b - a) * t;
+
+    _zoneLightTarget.key    = lerp1(activeZone.lightRig.key,    nextZone.lightRig.key,    blendT);
+    _zoneLightTarget.fill   = lerp1(activeZone.lightRig.fill,   nextZone.lightRig.fill,   blendT);
+    _zoneLightTarget.rim    = lerp1(activeZone.lightRig.rim,    nextZone.lightRig.rim,    blendT);
+    _zoneLightTarget.ground = lerp1(activeZone.lightRig.ground, nextZone.lightRig.ground, blendT);
+
+    _zoneBgTarget.r = lerp1(activeZone.bgColor.r, nextZone.bgColor.r, blendT);
+    _zoneBgTarget.g = lerp1(activeZone.bgColor.g, nextZone.bgColor.g, blendT);
+    _zoneBgTarget.b = lerp1(activeZone.bgColor.b, nextZone.bgColor.b, blendT);
+
+    _zoneFogTarget      = lerp1(activeZone.fogDensity,    nextZone.fogDensity,    blendT);
+    _zoneExposureTarget = lerp1(activeZone.exposureBias,  nextZone.exposureBias,  blendT);
+    _zoneBloomGain      = lerp1(activeZone.postFx.bloomGain,     nextZone.postFx.bloomGain,     blendT);
+    _zoneThresholdBias  = lerp1(activeZone.postFx.thresholdBias, nextZone.postFx.thresholdBias, blendT);
+  }
 
   function applyFallbackEnvironment() {
     const pmrem = new THREE.PMREMGenerator(renderer);
@@ -3630,7 +3841,10 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       next.clearcoatRoughness = THREE.MathUtils.lerp(next.clearcoatRoughness || 0, preset.clearcoatRoughness, 0.36);
     }
     if (preset?.color != null && next.color?.lerp) {
-      next.color.lerp(new THREE.Color(preset.color), 0.24);
+      // Near-white GLB base colors (bespoke-authored tools default to white) need a stronger
+      // blend to reach the preset material identity. Intentional colors use subtle 24% blend.
+      const isNearWhite = next.color.r > 0.85 && next.color.g > 0.85 && next.color.b > 0.85;
+      next.color.lerp(new THREE.Color(preset.color), isNearWhite ? 0.72 : 0.24);
     }
     if (materialTokens?.has('accent') && role === 'brass' && next.color?.offsetHSL) {
       next.color.offsetHSL(0.01, 0.04, 0.02);
@@ -3643,9 +3857,9 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     }
 
     // Step 8.4 — Assign PBR variation maps to imported GLB meshes
-    if (PBR_VARIATION_MAPS && !next.roughnessMap) {
+    if (!next.roughnessMap) {
       const mapKey = role === 'blackened_steel' ? 'steel' : role === 'ember_core' ? 'brass' : role;
-      const variationMap = PBR_VARIATION_MAPS[mapKey] || null;
+      const variationMap = (PBR_VARIATION_MAPS && PBR_VARIATION_MAPS[mapKey]) || null;
       if (variationMap) {
         next.roughnessMap = variationMap;
         if (['steel', 'blackened_steel', 'brass'].includes(role)) {
@@ -5108,6 +5322,14 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
       ...SCENE_CONFIG.featureFlags,
       experimentalGestures: SCENE_CONFIG.experimentalGestures,
       reducedMotion: prefersReduced,
+    },
+    zoneState: {
+      activeId:      ZONE_STATE.activeId,
+      nextId:        ZONE_STATE.nextId,
+      blendProgress: Number(ZONE_STATE.blendProgress.toFixed(3)),
+      zoneCount:     ZONE_STATE.resolvedZones.length,
+      zoneT:         Number(_zoneT.toFixed(3)),
+      active:        _zoneActive,
     },
   };
   };
@@ -7337,10 +7559,29 @@ scene.add(particulateStreamCard);
   }
 
   function populateWrenchFromGLB(gltf, sourceLabel = 'hero-glb', assetMeta = null) {
-    const model = _addGLBToGroup(gltf, wrenchGroup, wrenchParts, 2.2, assetMeta);
-    applyImportedToolMaterials(model, 'wrench', assetMeta);
-    if (assetMeta?.manifestEntry?.provenance !== 'external-processed') {
-      addHeroToolAccents('wrench');
+    // PBR scans from assets/3dmodels/ are often larger in native dimensions — use smaller targetSize
+    const targetSize = assetMeta?.isPBRScan ? 1.4 : 2.2;
+    const model = _addGLBToGroup(gltf, wrenchGroup, wrenchParts, targetSize, assetMeta);
+    // For PBR-scanned assets from assets/3dmodels/, preserve the GLB's embedded maps
+    // and only tune numeric properties (envMapIntensity, roughness) rather than replacing materials.
+    if (assetMeta?.isPBRScan) {
+      model.traverse(obj => {
+        if (!obj.isMesh || !obj.material) return;
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+        const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+        mats.forEach(m => {
+          if (m.isMeshStandardMaterial || m.isMeshPhysicalMaterial) {
+            m.envMapIntensity = 1.2;
+            m.needsUpdate = true;
+          }
+        });
+      });
+    } else {
+      applyImportedToolMaterials(model, 'wrench', assetMeta);
+      if (assetMeta?.manifestEntry?.provenance !== 'external-processed') {
+        addHeroToolAccents('wrench');
+      }
     }
     wrenchGroup.visible = true;
     toolAssetSource.wrench = sourceLabel;
@@ -7411,7 +7652,9 @@ scene.add(particulateStreamCard);
       const manifestEntry = getManifestToolEntry(toolId);
       try {
         const heroAsset = await loadGltfAsset(loader, preferredUrl);
-        onPopulate(heroAsset.gltf, 'hero-glb', { ...heroAsset, manifestEntry });
+        // Assets from assets/3dmodels/ have embedded PBR maps — flag them to preserve material pipeline
+        const isPBRScan = preferredUrl && preferredUrl.includes('3dmodels');
+        onPopulate(heroAsset.gltf, 'hero-glb', { ...heroAsset, manifestEntry, isPBRScan });
       } catch (heroErr) {
         if (legacyUrl) {
           try {
@@ -8605,7 +8848,40 @@ scene.add(particulateStreamCard);
   }
 
   function updateSceneState(now, readabilityClamp) {
-    const storyPreset = getParticleStoryPreset();
+    let storyPreset = getParticleStoryPreset();
+
+    // ── Workshop Journey: Zone system activation ────────────────────────
+    // Gates on scrollTransition phase (only fires after hero handoff).
+    // _zoneT blends in over the first 6% of scroll past the handoff point,
+    // making the zone system fade into control rather than snapping.
+    if (DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition) {
+      const scrollProg = getEffectiveScrollProgress();
+      _zoneT = clamp01((scrollProg - SHOT_CONFIG.scrollTransitionStart) / 0.06);
+      if (_zoneT > 0) {
+        updateScrollZone(scrollProg);
+        _zoneActive = true;
+      }
+    } else {
+      _zoneActive = false;
+      _zoneT = 0;
+    }
+
+    // ── Workshop Journey: Per-Zone Particle Story Override (Phase E) ──────
+    // Lerps zone-specific particle params into the active story preset.
+    // Skipped on quality=low (GPU budget preservation).
+    if (_zoneActive && ZONE_STATE.resolvedZones.length && SCENE_CONFIG.qualityTier !== 'low') {
+      const activeZone = ZONE_STATE.resolvedZones.find(z => z.id === ZONE_STATE.activeId);
+      const zoneStory = activeZone && SCROLL_ZONE_PARTICLE_STORIES[activeZone.particleStory];
+      if (zoneStory) {
+        storyPreset = { ...storyPreset };
+        Object.keys(zoneStory).forEach(key => {
+          if (typeof storyPreset[key] === 'number') {
+            storyPreset[key] = THREE.MathUtils.lerp(storyPreset[key], zoneStory[key], _zoneT);
+          }
+        });
+      }
+    }
+
     const signaturePreset = getParticleSignaturePreset();
     const intensityPreset = getMagicIntensityPreset();
     const releasePreset = getReleaseEnvelopePreset();
@@ -9504,6 +9780,31 @@ scene.add(particulateStreamCard);
     );
     hangingDepthCard.material.opacity = depthLayerMix.hangingDepth * 0.42;
 
+    // Workshop Journey — fade workshop env in as zone system activates
+    if (_workshopEnv) {
+      const targetOpacity = _zoneActive ? 0.35 * _zoneT : 0;
+      _workshopEnv.traverse(child => {
+        if (child.isMesh && child.material?.transparent) {
+          child.material.opacity += (targetOpacity - child.material.opacity) * 0.04;
+        }
+      });
+    }
+
+    // Part C — toolbox silhouette fades in with depth layer, hidden until scene is interactive
+    if (toolboxEnvGroup) {
+      const toolboxVisible = DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.interactiveIdle
+        || DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition;
+      const toolboxOpacity = depthLayerMix.hangingDepth * 0.72;
+      toolboxEnvGroup.visible = toolboxVisible && toolboxOpacity > 0.01;
+      if (toolboxEnvGroup.visible) {
+        toolboxEnvGroup.traverse(obj => {
+          if (obj.isMesh && obj.material?.transparent) {
+            obj.material.opacity = toolboxOpacity;
+          }
+        });
+      }
+    }
+
     // Step 9.1 & 9.2 — Haze lanes and particulate stream opacity + drift
     hazeLaneLeft.material.opacity = depthLayerMix.hazeLanes * 0.32;
     hazeLaneRight.material.opacity = depthLayerMix.hazeLanes * 0.24;
@@ -9719,8 +10020,18 @@ scene.add(particulateStreamCard);
       : 0;
     const scrollZ = shotPreset.z + shotBeatPreset.cameraZBias + (DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition ? scrollHandoffMix * 2.4 : 0);
     const scrollRotY = DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition ? scrollHandoffMix * 0.22 : 0;
-    camera.position.x += (((DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition ? -0.30 : -0.34 - DIRECTOR_STATE.revealMix * 0.10 - DIRECTOR_STATE.lockupMix * 0.14) + shotBeatPreset.cameraXBias + shotPreset.targetRotY * 0.18) - camera.position.x) * 0.05;
-    camera.position.y += ((shotPreset.targetRotX * -0.24 + shotBeatPreset.cameraYBias) - camera.position.y) * 0.05;
+    // Camera spline blend: weights in over first 8% of scroll past handoff point
+    const splineWeight = (!prefersReduced && _cameraJourneyCurve)
+      ? clamp01((getEffectiveScrollProgress() - SHOT_CONFIG.scrollTransitionStart) / 0.08)
+      : 0;
+    const splinePos = splineWeight > 0 ? getCameraJourneyPosition(getEffectiveScrollProgress()) : null;
+    const lerpRate = 0.04 * splineWeight;
+    const baseX = (DIRECTOR_STATE.phase === SCENE_DIRECTOR_STATE.scrollTransition ? -0.30 : -0.34 - DIRECTOR_STATE.revealMix * 0.10 - DIRECTOR_STATE.lockupMix * 0.14) + shotBeatPreset.cameraXBias + shotPreset.targetRotY * 0.18;
+    const targetX = splinePos ? THREE.MathUtils.lerp(baseX, splinePos.x, splineWeight) : baseX;
+    const baseY = shotPreset.targetRotX * -0.24 + shotBeatPreset.cameraYBias;
+    const targetY = splinePos ? THREE.MathUtils.lerp(baseY, splinePos.y, splineWeight) : baseY;
+    camera.position.x += (targetX - camera.position.x) * (0.05 + lerpRate);
+    camera.position.y += (targetY - camera.position.y) * (0.05 + lerpRate);
     camera.position.z += (scrollZ - camera.position.z) * 0.06;
     camera.rotation.y  = camRotY + scrollRotY;
     camera.fov += (shotPreset.fov - camera.fov) * 0.08;
@@ -9748,17 +10059,23 @@ scene.add(particulateStreamCard);
 
     /* ── Background breathes with particle energy ── */
     const bgBreath = Math.sin(time * 0.00031) * 0.5 + 0.5; // slow 0..1 pulse
-    const bgR = impl ? THREE.MathUtils.lerp(0.007 + bgBreath*0.0015, 0.001, implPct)
-                     : 0.007 + SCENE_STATE.scrollPhase * 0.006 + bgBreath*0.0015;
-    const bgG = impl ? THREE.MathUtils.lerp(0.009 + bgBreath*0.001, 0.003, implPct)
-                     : 0.009 + SCENE_STATE.focus * 0.0015 + bgBreath*0.001;
-    const bgB = impl ? THREE.MathUtils.lerp(0.012 + bgBreath*0.002, 0.020, implPct)
-                     : 0.012 + SCENE_STATE.release * 0.004 + bgBreath*0.002;
+    const heroBgR = impl ? THREE.MathUtils.lerp(0.007 + bgBreath*0.0015, 0.001, implPct)
+                        : 0.007 + SCENE_STATE.scrollPhase * 0.006 + bgBreath*0.0015;
+    const heroBgG = impl ? THREE.MathUtils.lerp(0.009 + bgBreath*0.001, 0.003, implPct)
+                        : 0.009 + SCENE_STATE.focus * 0.0015 + bgBreath*0.001;
+    const heroBgB = impl ? THREE.MathUtils.lerp(0.012 + bgBreath*0.002, 0.020, implPct)
+                        : 0.012 + SCENE_STATE.release * 0.004 + bgBreath*0.002;
+    // Zone blend: lerp from hero background to zone target as scroll progresses
+    const bgR = _zoneActive ? THREE.MathUtils.lerp(heroBgR, _zoneBgTarget.r, _zoneT) : heroBgR;
+    const bgG = _zoneActive ? THREE.MathUtils.lerp(heroBgG, _zoneBgTarget.g, _zoneT) : heroBgG;
+    const bgB = _zoneActive ? THREE.MathUtils.lerp(heroBgB, _zoneBgTarget.b, _zoneT) : heroBgB;
     scene.background.setRGB(bgR, bgG, bgB);
     const fogScale = orbitLayoutState.compositionMode === 'crownMobile' || orbitLayoutState.compositionMode === 'wrenchOnlyNarrow'
       ? 0.46
       : (orbitLayoutState.compositionMode === 'tabletCluster' ? 0.58 : 0.60);
-    scene.fog.density += (((0.011 + SCENE_STATE.focus * 0.0006 + SCENE_STATE.release * 0.0012 + scatterCoupling * 0.0007 + DIRECTOR_STATE.revealMix * 0.0005 + magicIntensity * 0.0004) * handoffPreset.hazeScale * storyPreset.hazeScale * lensFinishPreset.hazeScale * fogScale) - scene.fog.density) * 0.03;
+    const heroFogDensity = (0.011 + SCENE_STATE.focus * 0.0006 + SCENE_STATE.release * 0.0012 + scatterCoupling * 0.0007 + DIRECTOR_STATE.revealMix * 0.0005 + magicIntensity * 0.0004) * handoffPreset.hazeScale * storyPreset.hazeScale * lensFinishPreset.hazeScale * fogScale;
+    const targetFogDensity = _zoneActive ? THREE.MathUtils.lerp(heroFogDensity, _zoneFogTarget * fogScale, _zoneT) : heroFogDensity;
+    scene.fog.density += (targetFogDensity - scene.fog.density) * 0.03;
     floorPlane.material.roughness += ((0.52 + DIRECTOR_STATE.lockupMix * 0.08 + SCENE_STATE.release * 0.02 + finishPreset.negativeFill * 0.04) - floorPlane.material.roughness) * 0.08;
     floorPlane.material.metalness += ((0.16 + DIRECTOR_STATE.revealMix * 0.02) - floorPlane.material.metalness) * 0.08;
     floorPlane.material.envMapIntensity += ((0.42 + DIRECTOR_STATE.revealMix * 0.04 + activeCue.warm * 0.03 - magicPreset.floorReflectivityCut * 0.18) - floorPlane.material.envMapIntensity) * 0.08;
@@ -9766,12 +10083,20 @@ scene.add(particulateStreamCard);
     /* ── Dynamic bloom strength driven by vortex state ── */
     if (bloomPass) {
       const bloomBase = SCENE_CONFIG.tiers[SCENE_CONFIG.qualityTier].bloom;
+      const heroBloomGain = postFxPreset.bloomGain;
+      const activeBloomGain = _zoneActive
+        ? THREE.MathUtils.lerp(heroBloomGain, _zoneBloomGain ?? heroBloomGain, _zoneT)
+        : heroBloomGain;
+      const heroThreshBias = postFxPreset.thresholdBias;
+      const activeThreshBias = _zoneActive
+        ? THREE.MathUtils.lerp(heroThreshBias, _zoneThresholdBias ?? heroThreshBias, _zoneT)
+        : heroThreshBias;
       const bloomTarget = Math.min(
-        bloomBase.strength * postFxPreset.bloomGain * lensFinishPreset.bloomDiscipline + SCENE_STATE.focus * 0.01 + SCENE_STATE.release * 0.04 + implPct * 0.03 + scatterCoupling * 0.03 + magicPulseStrength * 0.02 - readabilityClamp * SCENE_CONFIG.readability.bloomClamp * finishPreset.copyHighlightClamp,
+        bloomBase.strength * activeBloomGain * lensFinishPreset.bloomDiscipline + SCENE_STATE.focus * 0.01 + SCENE_STATE.release * 0.04 + implPct * 0.03 + scatterCoupling * 0.03 + magicPulseStrength * 0.02 - readabilityClamp * SCENE_CONFIG.readability.bloomClamp * finishPreset.copyHighlightClamp,
         bloomBase.strength + 0.02
       );
       bloomPass.strength += (bloomTarget - bloomPass.strength) * 0.025; // slightly slower lerp + hard cap prevents mip-boundary banding
-      bloomPass.threshold = bloomBase.threshold + postFxPreset.thresholdBias + 0.04 - lensFinishPreset.bloomDiscipline * 0.02 - SCENE_STATE.release * 0.02 - implPct * 0.02 + readabilityClamp * 0.04 * finishPreset.copyHighlightClamp;
+      bloomPass.threshold = bloomBase.threshold + activeThreshBias + 0.04 - lensFinishPreset.bloomDiscipline * 0.02 - SCENE_STATE.release * 0.02 - implPct * 0.02 + readabilityClamp * 0.04 * finishPreset.copyHighlightClamp;
       bloomPass.radius = Math.max(0.1, bloomBase.radius + postFxPreset.radiusBias - 0.05 + SCENE_STATE.focus * 0.02 + SCENE_STATE.release * 0.03 - finishPreset.supportSuppression * 0.01);
     }
     if (scatterPass) {
@@ -9786,6 +10111,119 @@ scene.add(particulateStreamCard);
     }
     simulationMetrics.avgPostMs += (performance.now() - postStartAt - simulationMetrics.avgPostMs) * 0.12;
     markFrameRendered();
+  }
+
+  // Part C — Lazy background prop loader. Does not block startScene().
+  // industrial_toolbox.glb is positioned as a silhouetted background element at z:-5,
+  // bottom-left of frame, partially occluded by depth cards.
+  // workshop.glb fades in as the hero scroll-transition begins (zone system).
+  async function loadEnvProps() {
+
+    // ── Workshop Environment (workshop.glb) ────────────────────────────────
+    // Skip on low quality — not enough GPU budget.
+    // Fade in from opacity 0 as scroll zone system activates.
+    if (SCENE_CONFIG.qualityTier !== 'low') {
+      try {
+        const wLoader = new THREE.GLTFLoader();
+        const wGltf = await new Promise((resolve, reject) => {
+          wLoader.load(HERO_RUNTIME_ASSETS.environmentProps.workshop, resolve, undefined, reject);
+        });
+        const env = wGltf.scene;
+        env.name = 'workshopEnv';
+        env.scale.setScalar(0.8);
+        env.position.set(0, -1.2, -4.0);
+        env.rotation.y = Math.PI * 0.1;
+        env.traverse(child => {
+          if (child.isMesh) {
+            // Clone material so we can mutate opacity without affecting shared refs
+            child.material = child.material.clone();
+            child.material.transparent = true;
+            child.material.opacity = 0;
+            child.material.depthWrite = false;
+          }
+        });
+        scene.add(env);
+        _workshopEnv = env;
+        console.info('[three-scene] workshop.glb loaded as background environment.');
+      } catch (err) {
+        console.info('[three-scene] workshop.glb background env skipped:', err?.message || err);
+      }
+    }
+
+    // ── Point Cloud Atmosphere (desktop only) ──────────────────────────────
+    if (SCENE_CONFIG.qualityTier === 'desktop') {
+      try {
+        const pcLoader = new THREE.GLTFLoader();
+        const pcGltf = await new Promise((resolve, reject) => {
+          pcLoader.load(HERO_RUNTIME_ASSETS.environmentProps.pointCloud, resolve, undefined, reject);
+        });
+        pcGltf.scene.traverse(child => {
+          if (child.isMesh || child.isPoints) {
+            child.material = new THREE.PointsMaterial({
+              color: 0x998866,
+              size: 0.012,
+              transparent: true,
+              opacity: 0,
+              sizeAttenuation: true,
+              depthWrite: false,
+            });
+            // Convert mesh to points if not already
+            if (child.isMesh) {
+              const pts = new THREE.Points(child.geometry, child.material);
+              pts.name = 'workshopPointCloud';
+              pts.scale.setScalar(3.0);
+              pts.position.set(0, 0, -6.0);
+              scene.add(pts);
+            }
+          }
+        });
+        console.info('[three-scene] point cloud atmosphere loaded.');
+      } catch (err) {
+        console.info('[three-scene] point cloud atmosphere skipped:', err?.message || err);
+      }
+    }
+
+    // ── Industrial Toolbox (not on mobile) ─────────────────────────────────
+    if (SCENE_CONFIG.qualityTier === 'low') return;
+
+    try {
+      const loader = new THREE.GLTFLoader();
+      const gltf = await new Promise((resolve, reject) => {
+        loader.load(
+          HERO_RUNTIME_ASSETS.environmentProps.toolbox,
+          resolve,
+          undefined,
+          reject
+        );
+      });
+      const group = new THREE.Group();
+      group.name = 'toolboxEnvGroup';
+      gltf.scene.traverse(obj => {
+        if (!obj.isMesh) return;
+        // Silhouette treatment: near-black warm tone, slight env reflection for shape definition
+        const mat = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(0x1a1208),
+          roughness: 0.92,
+          metalness: 0.0,
+          envMapIntensity: 0.12,
+          emissiveIntensity: 0,
+          transparent: true,
+          opacity: 0.72,
+        });
+        obj.material = mat;
+      });
+      group.add(gltf.scene);
+      // Scale so toolbox reads ~1.8× wrench height in background
+      group.scale.setScalar(0.62);
+      // Bottom-left background position, deep z so depth cards occlude it
+      group.position.set(-1.8, -1.2, -5.0);
+      group.visible = false;
+      scene.add(group);
+      toolboxEnvGroup = group;
+      console.info('[three-scene] industrial_toolbox.glb loaded as background prop.');
+    } catch (err) {
+      console.info('[three-scene] industrial_toolbox background prop skipped:', err?.message || err);
+    }
   }
 
   function startScene() {
@@ -9813,6 +10251,11 @@ scene.add(particulateStreamCard);
       buildProceduralSaw();
       startScene();
     });
+
+  // Part C — Load industrial toolbox as a silhouette background prop (non-blocking).
+  // Loaded after hero tools complete so it never delays the hero reveal.
+  initCameraJourneyCurve();
+  loadEnvProps();
 
   /* ─── Timer cleanup on unload ─────────────────────────── */
   window.addEventListener('beforeunload', () => {

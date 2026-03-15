@@ -554,30 +554,11 @@ function initServiceCards() {
   const cards = $$('.service-card');
   if (!cards.length) return;
 
-  if (prefersReducedMotion) {
-    gsap.set(cards, { opacity: 1, y: 0 });
-    return;
-  }
-
-  // precision-stagger: cards enter with perspective-flip (B1)
-  cards.forEach((card, i) => {
-    gsap.set(card, { opacity: 0, y: 40, rotateX: -8, transformPerspective: 1200 });
-    gsap.to(card, {
-      opacity: 1,
-      y: 0,
-      rotateX: 0,
-      duration: 0.75,
-      delay: (i % 3) * 0.09 + Math.floor(i / 3) * 0.06,
-      ease: 'power3.out',
-      clearProps: 'rotateX,transformPerspective',
-      scrollTrigger: {
-        trigger: '.services__grid',
-        start: 'top 82%',
-        toggleActions: 'play none none none',
-        once: true,
-        invalidateOnRefresh: true,
-      },
-    });
+  ScrollTrigger.create({
+    trigger: '.services__grid', start: 'top 82%', once: true,
+    onEnter() {
+      precisionStagger(cards, { y: 40, scale: 0.97, stagger: 0.08, duration: 0.75 });
+    },
   });
 }
 
@@ -588,25 +569,13 @@ function initServiceCards() {
 
 function initTestimonials() {
   const blocks = $$('.testimonial');
-  if (!blocks.length || prefersReducedMotion) return;
+  if (!blocks.length) return;
 
-  blocks.forEach((block, i) => {
-    gsap.fromTo(block,
-      { opacity: 0, y: 38 },
-      {
-        opacity: 1, y: 0,
-        duration: 0.75,
-        delay: i * 0.12,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '.testimonials__grid',
-          start: 'top 87%',
-          toggleActions: 'play none none none',
-          once: true,
-          invalidateOnRefresh: true,
-        },
-      }
-    );
+  ScrollTrigger.create({
+    trigger: '.testimonials__grid', start: 'top 82%', once: true,
+    onEnter() {
+      precisionStagger(blocks, { y: 32, stagger: 0.07, duration: 0.65 });
+    },
   });
 }
 
@@ -656,25 +625,13 @@ function initCountUp() {
 
 function initPillars() {
   const pillars = $$('.pillar');
-  if (!pillars.length || prefersReducedMotion) return;
+  if (!pillars.length) return;
 
-  pillars.forEach((p, i) => {
-    gsap.fromTo(p,
-      { opacity: 0, y: 36 },
-      {
-        opacity: 1, y: 0,
-        duration: 0.75,
-        delay: i * 0.14,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '.pillars__grid',
-          start: 'top 84%',
-          toggleActions: 'play none none none',
-          once: true,
-          invalidateOnRefresh: true,
-        },
-      }
-    );
+  ScrollTrigger.create({
+    trigger: '.pillars__grid', start: 'top 82%', once: true,
+    onEnter() {
+      precisionStagger(pillars, { y: 30, stagger: 0.08, duration: 0.65 });
+    },
   });
 }
 
@@ -870,46 +827,26 @@ window.addEventListener('resize', () => {
 
 function initProcessSteps() {
   const steps = $$('.process-step');
-  if (!steps.length || prefersReducedMotion) return;
+  if (!steps.length) return;
 
-  steps.forEach((step, i) => {
-    gsap.fromTo(step,
-      { opacity: 0, y: 40 },
-      {
-        opacity: 1, y: 0,
-        duration: 0.75,
-        delay: i * 0.15,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '.process__steps',
-          start: 'top 82%',
-          toggleActions: 'play none none none',
-          once: true,
-          invalidateOnRefresh: true,
-        },
-      }
-    );
-  });
+  ScrollTrigger.create({
+    trigger: '.process__steps', start: 'top 80%', once: true,
+    onEnter() {
+      precisionStagger(steps, { y: 36, stagger: 0.09, duration: 0.70 });
 
-  // Animate connectors
-  $$('.process-step__connector').forEach((conn, i) => {
-    gsap.fromTo(conn,
-      { opacity: 0, scaleX: 0 },
-      {
-        opacity: 1, scaleX: 1,
-        transformOrigin: 'left center',
-        duration: 0.5,
-        delay: 0.2 + i * 0.15,
-        ease: 'power1.out',
-        scrollTrigger: {
-          trigger: '.process__steps',
-          start: 'top 82%',
-          toggleActions: 'play none none none',
-          once: true,
-          invalidateOnRefresh: true,
-        },
+      // Connector lines draw in after steps
+      const connectors = $$('.process-step__connector');
+      if (connectors.length) {
+        gsap.set(connectors, { scaleX: 0, transformOrigin: 'left center' });
+        gsap.to(connectors, {
+          scaleX: 1,
+          duration: 0.5,
+          ease: 'power1.out',
+          stagger: 0.15,
+          delay: 0.2,
+        });
       }
-    );
+    },
   });
 }
 
@@ -920,28 +857,13 @@ function initProcessSteps() {
 
 function initGallery() {
   const cards = $$('.gallery-card');
-  if (!cards.length || prefersReducedMotion) return;
+  if (!cards.length) return;
 
-  cards.forEach((card, i) => {
-    const col = i % 3;
-    const row = Math.floor(i / 3);
-    gsap.set(card, { opacity: 0, y: 36, scale: 0.97 });
-    gsap.to(card, {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      duration: 0.7,
-      delay: col * 0.08 + row * 0.05,
-      ease: 'expo.out',
-      clearProps: 'scale',
-      scrollTrigger: {
-        trigger: '.gallery__grid',
-        start: 'top 82%',
-        toggleActions: 'play none none none',
-        once: true,
-        invalidateOnRefresh: true,
-      },
-    });
+  ScrollTrigger.create({
+    trigger: '.gallery__grid', start: 'top 82%', once: true,
+    onEnter() {
+      precisionStagger(cards, { y: 28, scale: 0.98, stagger: 0.06, duration: 0.60 });
+    },
   });
 }
 
@@ -970,6 +892,10 @@ function initRhetoricalSection() {
   if (prefersReducedMotion || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
     return;
   }
+
+  // Section container fold — wraps the whole section entry
+  const inner = section.querySelector('.rhetoric-inner');
+  if (inner) sectionFold(inner, { start: 'top 85%', duration: 1.1 });
 
   const accents = $$('.rhetoric-kicker, .rhetoric-proof__item', section);
 
@@ -1522,6 +1448,57 @@ function initSectionFolds() {
 }
 
 
+/* ─────────────────────────────────────────────────────────
+   SCROLL ZONE DRIVER — WORKSHOP JOURNEY
+   Tracks which [data-scene-zone] section is active and
+   updates document.body.dataset.sceneZone + dispatches
+   scene:zone-change event for scene/index.js.
+───────────────────────────────────────────────────────── */
+
+function initScrollZoneDriver() {
+  if (prefersReducedMotion) return;
+  const zoneEls = Array.from($$('[data-scene-zone]')).map(el => ({
+    id: el.dataset.sceneZone, el, top: 0,
+  }));
+  if (!zoneEls.length) return;
+
+  let lastZone = null;
+  let resizeTimer = null;
+
+  function measure() {
+    zoneEls.forEach(z => {
+      z.top = z.el.getBoundingClientRect().top + window.scrollY;
+    });
+  }
+
+  function onScroll() {
+    const mid = window.scrollY + window.innerHeight * 0.4;
+    let active = zoneEls[0];
+    for (const z of zoneEls) {
+      if (mid >= z.top) active = z;
+    }
+    if (active.id !== lastZone) {
+      lastZone = active.id;
+      document.body.dataset.sceneZone = active.id;
+      window.dispatchEvent(new CustomEvent('scene:zone-change', {
+        detail: { zoneId: active.id },
+      }));
+    }
+  }
+
+  measure();
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(measure, 200);
+  });
+  if (typeof lenis !== 'undefined' && lenis) {
+    lenis.on('scroll', onScroll);
+  } else {
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+}
+
+
 function initAll() {
   initCursor();
   initMagneticButtons();
@@ -1547,6 +1524,7 @@ function initAll() {
   initParallaxSections();
   initSectionFolds();
   initServicesHScroll();
+  initScrollZoneDriver();
 }
 
 // Preloader must run immediately (before fonts) to register the progress callback

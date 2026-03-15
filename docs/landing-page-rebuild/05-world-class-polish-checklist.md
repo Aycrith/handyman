@@ -70,3 +70,17 @@ Reference sites: activetheory.net, dogstudio.co, henryheffernan.com, dragonfly.x
 - [ ] Director phase screenshots match reference quality bar
 - [ ] First 3 seconds feel staged — tool reveal has weight and ceremony
 - [ ] Scroll-out feels like a camera move, not a dissolve
+
+## Workshop Journey (Phase E — PRD 13)
+
+- [ ] Background color shifts noticeably but imperceptibly across all 6 zones (hero → services → process → gallery → about → contact)
+- [ ] Workshop environment geometry visible as ambient background — not competing with content
+- [ ] Camera makes a barely-perceptible drift through zones — environmental change is more prominent than camera movement
+- [ ] `window.__sceneDiagnostics().zoneState.activeId` updates correctly on scroll
+- [ ] `body.dataset.sceneZone` updates to match active section within one scroll step
+- [ ] Particles visibly quieter below hero fold (orbit energy drops in services zone)
+- [ ] Gallery zone: noticeably darker/higher contrast than adjacent zones
+- [ ] Contact zone: warmest, most inviting color temperature on the page
+- [ ] Hero intro choreography unaffected — zone system invisible at scrollProgress < 0.12
+- [ ] Low-end devices: workshop geometry not loaded, no broken state, no console errors
+- [ ] Reduced-motion: page fully readable, zone color shifts still occur (not motion), no zone driver side effects

@@ -38,10 +38,10 @@ const SHIPPED_TOOL_METADATA = Object.freeze({
     heroRole: 'support',
   },
   wrench: {
-    provenance: 'bespoke-authored',
-    sourceUrl: 'workspace://handyman/assets/models/hero/source/wrench.mjs',
-    license: 'Original work - workspace authored',
-    attribution: 'Handyman bespoke precision-workshop hero pack',
+    provenance: 'external-processed',
+    sourceUrl: 'workspace://handyman/assets/3dmodels/pbr_rivet_gun.glb',
+    license: 'See assets/3dmodels/source/',
+    attribution: 'PBR rivet gun scan — premium hero replacement',
     status: 'final-runtime',
     heroRole: 'primary',
   },
@@ -333,6 +333,9 @@ function buildStageFromTools(tools) {
   if (primary?.provenance === 'bespoke-authored') {
     return 'single-hero-bespoke';
   }
+  if (primary?.provenance === 'external-processed') {
+    return 'assembly-orbit-pbr-upgrade';
+  }
   return 'fallback';
 }
 
@@ -343,14 +346,14 @@ async function buildManifest(outputs) {
     const legacySha256 = LEGACY_PATHS[toolId] ? await fileSha256(LEGACY_PATHS[toolId]) : '';
     const toolConfig = SHIPPED_TOOLS[toolId];
     const entry = {
-      file: toolConfig.file,
+      file: output.file, // use output.file so PBR overrides use their actual filename
       sha256: output.sha256,
       status: toolConfig.status,
       provenance: toolConfig.provenance,
       sourceUrl: toolConfig.sourceUrl,
       license: toolConfig.license,
       attribution: toolConfig.attribution,
-      processedFrom: toolConfig.processedFrom,
+      ...(toolConfig.processedFrom ? { processedFrom: toolConfig.processedFrom } : {}),
       heroRole: toolConfig.heroRole,
       silhouetteProfile: toolConfig.silhouetteProfile,
       dimensions: toolConfig.dimensions,
@@ -374,14 +377,30 @@ async function buildManifest(outputs) {
   };
 }
 
+// Wrench has been replaced with pbr_rivet_gun.glb (PBR scan) — pipeline reads it directly
+// rather than generating it from the bespoke source descriptor.
+const PBR_HERO_OVERRIDES = Object.freeze({
+  wrench: path.join(ROOT_DIR, 'assets', '3dmodels', 'pbr_rivet_gun.glb'),
+});
+
 export async function generateHeroPack({ write = false } = {}) {
   const outputs = {};
   for (const toolId of HERO_BUILD_ORDER) {
     const toolConfig = SHIPPED_TOOLS[toolId];
-    const buffer = await buildDescriptorGlb(toolConfig.descriptor);
+    let buffer;
+    if (PBR_HERO_OVERRIDES[toolId]) {
+      // PBR scan: read the file directly, no procedural generation
+      buffer = await fs.readFile(PBR_HERO_OVERRIDES[toolId]);
+    } else {
+      buffer = await buildDescriptorGlb(toolConfig.descriptor);
+    }
 
+    // For PBR overrides, use the actual filename of the override asset
+    const outputFile = PBR_HERO_OVERRIDES[toolId]
+      ? path.basename(PBR_HERO_OVERRIDES[toolId])
+      : toolConfig.file;
     outputs[toolId] = {
-      file: toolConfig.file,
+      file: outputFile,
       buffer,
       sha256: sha256Hex(buffer),
     };
@@ -420,7 +439,8 @@ export async function verifyHeroPack() {
   for (const toolId of HERO_BUILD_ORDER) {
     const output = generated.outputs[toolId];
     const file = output.file;
-    const filePath = path.join(HERO_DIR, file);
+    // PBR override assets live in assets/3dmodels/, not HERO_DIR
+    const filePath = PBR_HERO_OVERRIDES[toolId] || path.join(HERO_DIR, file);
     let actualBuffer = null;
     try {
       actualBuffer = await fs.readFile(filePath);

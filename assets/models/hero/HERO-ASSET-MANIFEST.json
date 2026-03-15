@@ -2,7 +2,7 @@
   "assetSetVersion": "hero-pack-v5",
   "variant": "final",
   "contractVersion": "hero-asset-contract-v4",
-  "buildStage": "assembly-orbit-bespoke-pack",
+  "buildStage": "assembly-orbit-pbr-upgrade",
   "tools": {
     "hammer": {
       "file": "hero-claw-hammer.glb",
@@ -42,13 +42,13 @@
       }
     },
     "wrench": {
-      "file": "hero-pipe-wrench.glb",
-      "sha256": "da8b249023c5cbe6041a863f2e8f31fb69b499bfb658a7cea1e9f9e4628be07d",
+      "file": "pbr_rivet_gun.glb",
+      "sha256": "619be77153aa8f66a2b3ceb8112f559c69ef3e9b0b1579d69c390c2e945a4258",
       "status": "final-runtime",
-      "provenance": "bespoke-authored",
-      "sourceUrl": "workspace://handyman/assets/models/hero/source/wrench.mjs",
-      "license": "Original work - workspace authored",
-      "attribution": "Handyman bespoke precision-workshop hero pack",
+      "provenance": "external-processed",
+      "sourceUrl": "workspace://handyman/assets/3dmodels/pbr_rivet_gun.glb",
+      "license": "See assets/3dmodels/source/",
+      "attribution": "PBR rivet gun scan — premium hero replacement",
       "processedFrom": "assets/models/hero/source/wrench.mjs",
       "heroRole": "primary",
       "silhouetteProfile": "precision-pipe-wrench-hero",
