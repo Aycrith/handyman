@@ -1,0 +1,117 @@
+{
+  "version": "environment-v1",
+  "processedAt": "2026-03-15T14:13:34.969Z",
+  "assets": [
+    {
+      "file": "workshop-optimized.glb",
+      "role": "ACT 2 & 9: Workshop environment",
+      "size": 60949308,
+      "sha256": "a8d938745505069fdc5d0ed601cae0a37895351005fbb2cfbe3b47fc11661bf2",
+      "sourceSize": 66817328,
+      "reductionPct": "8.8",
+      "processedAt": "2026-03-15T14:13:36.064Z"
+    },
+    {
+      "file": "toolbox-optimized.glb",
+      "role": "ACT 2: Detailed toolbox",
+      "size": 38171128,
+      "sha256": "eb1a4080f9339128cbaef96ac529eb39584c99cbb5a9c6d81916a2e1448bcd5b",
+      "sourceSize": 38319844,
+      "reductionPct": "0.4",
+      "processedAt": "2026-03-15T14:13:36.445Z"
+    },
+    {
+      "file": "fence-optimized.glb",
+      "role": "ACT 2: Structural framing",
+      "size": 35894584,
+      "sha256": "79609787fff08d98690a2d41582b1bd54a0d68c3823744c1944839c9374d5055",
+      "sourceSize": 36631684,
+      "reductionPct": "2.0",
+      "processedAt": "2026-03-15T14:13:36.762Z"
+    },
+    {
+      "file": "rivet-gun-optimized.glb",
+      "role": "ACT 4: Precision tool prop",
+      "size": 27304904,
+      "sha256": "2c2ffedfc1d7a9dd7e06e4d9ed03ef8941c34d3e7a1a6fe941f53e24e3819a49",
+      "sourceSize": 27390512,
+      "reductionPct": "0.3",
+      "processedAt": "2026-03-15T14:13:37.073Z"
+    },
+    {
+      "file": "building-exterior-optimized.glb",
+      "role": "ACT 5: Completed project exterior",
+      "size": 16139096,
+      "sha256": "e97839b7f23f145a3b08501fe4cce8efb4824a886840965f13842278ed72443a",
+      "sourceSize": 16338052,
+      "reductionPct": "1.2",
+      "processedAt": "2026-03-15T14:13:37.229Z"
+    },
+    {
+      "file": "studio-pointcloud-optimized.glb",
+      "role": "ACT 6: Origin story point cloud",
+      "size": 2510044,
+      "sha256": "425c3be193e73af142a1c14657e3b572197b11e9e5fc419e47dda368769ca2ef",
+      "sourceSize": 12534980,
+      "reductionPct": "80.0",
+      "processedAt": "2026-03-15T14:13:37.542Z"
+    },
+    {
+      "file": "body-traces-optimized.glb",
+      "role": "ACT 6: Human element traces",
+      "size": 4008864,
+      "sha256": "8aa17a53e236cbdc251e298563823991b3b069318f0c1a5624b0e2c49358dff1",
+      "sourceSize": 24011684,
+      "reductionPct": "83.3",
+      "processedAt": "2026-03-15T14:13:38.093Z"
+    },
+    {
+      "file": "testimony-pointcloud-optimized.glb",
+      "role": "ACT 7: Testimony ambient space",
+      "size": 8603912,
+      "sha256": "0ca22f5430052ab5d7419051e667fa17bebe91ccb57beb04877e1f667396a780",
+      "sourceSize": 48286252,
+      "reductionPct": "82.2",
+      "processedAt": "2026-03-15T14:13:39.186Z"
+    },
+    {
+      "file": "ambient-pointcloud-optimized.glb",
+      "role": "ACT 7: Secondary ambient",
+      "size": 11082460,
+      "sha256": "9ef0ee65aec6a5df5790610702517178458358e786891101f172c974e7066d4e",
+      "sourceSize": 38750912,
+      "reductionPct": "71.4",
+      "processedAt": "2026-03-15T14:13:40.404Z"
+    },
+    {
+      "file": "wireframe-globe.glb",
+      "role": "ACT 5: Gallery centerpiece",
+      "size": 477696,
+      "sha256": "b0ac22cb7443e77ebc38bf7f4d7ce04ecd5d7247f7ee60afcd1b6b4dfb90acb3"
+    },
+    {
+      "file": "abstract-geometry.glb",
+      "role": "ACT 3: Rhetoric floating geometry",
+      "size": 151952,
+      "sha256": "4f62bd50dff5a8368806c4c208977b96c72ffca65aa296f39b6461fd188f7146"
+    },
+    {
+      "file": "hologram-form.glb",
+      "role": "ACT 3: Rhetoric holographic element",
+      "size": 771408,
+      "sha256": "be02c9e9eb90439bf3f2172201fed83600c32a3fa9682979c66fa24720f0cd9e"
+    },
+    {
+      "file": "wireframe-map.glb",
+      "role": "ACT 4: Process blueprint wireframe",
+      "size": 1100940,
+      "sha256": "ae09eab10c61f0f134f087934c97b6d21aaccb94b927aef8f2c8eb41685753a9"
+    },
+    {
+      "file": "toolbox-assembly.glb",
+      "role": "ACT 9: Workshop intimate prop",
+      "size": 125524,
+      "sha256": "7b5b00c8ceef52753cbf60772863044779991ee31bed16ac8df0bf0dd1ff74ff"
+    }
+  ]
+}
