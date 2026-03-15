@@ -392,11 +392,11 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     },
   });
   const LIGHT_RIG_PRESETS = Object.freeze({
-    preReveal: { key: 0.80, fill: 0.50, rim: 0.62, heroShadow: 0.54, ground: 0.62, orbit: 0.00, sawSpot: 0.00 },
-    reveal: { key: 1.18, fill: 0.68, rim: 0.88, heroShadow: 1.00, ground: 0.86, orbit: 0.00, sawSpot: 0.00 },
-    lockup: { key: 1.36, fill: 0.70, rim: 0.94, heroShadow: 1.18, ground: 0.90, orbit: 0.00, sawSpot: 0.00 },
-    interactiveIdle: { key: 1.28, fill: 0.66, rim: 0.88, heroShadow: 1.08, ground: 0.84, orbit: 0.00, sawSpot: 0.00 },
-    scrollTransition: { key: 0.88, fill: 0.54, rim: 0.68, heroShadow: 0.62, ground: 0.62, orbit: 0.00, sawSpot: 0.00 },
+    preReveal: { key: 0.80, fill: 0.50, rim: 0.62, heroShadow: 0.64, ground: 0.62, orbit: 0.00, sawSpot: 0.00 },
+    reveal: { key: 1.18, fill: 0.68, rim: 0.88, heroShadow: 1.14, ground: 0.86, orbit: 0.00, sawSpot: 0.00 },
+    lockup: { key: 1.36, fill: 0.70, rim: 0.94, heroShadow: 1.32, ground: 0.90, orbit: 0.00, sawSpot: 0.00 },
+    interactiveIdle: { key: 1.28, fill: 0.66, rim: 0.88, heroShadow: 1.22, ground: 0.84, orbit: 0.00, sawSpot: 0.00 },
+    scrollTransition: { key: 0.88, fill: 0.54, rim: 0.68, heroShadow: 0.72, ground: 0.62, orbit: 0.00, sawSpot: 0.00 },
   });
   const POST_FX_PRESETS = Object.freeze({
     preReveal: { bloomGain: 0.62, thresholdBias: 0.04, radiusBias: -0.06, gradeFloor: 0.26, copyShieldBoost: 0.03 },
@@ -2149,16 +2149,16 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   const shadowRes = window.innerWidth < 768 ? 1024 : 2048;
 
   // ── HERO SHADOW LIGHT: dedicated shadow source for wrench grounding
-  const heroShadowLight = new THREE.SpotLight(0xffe3b4, 1.34, 18, Math.PI / 7.8, 0.56, 1.0);
-  heroShadowLight.position.set(3.4, 4.8, 5.6);
-  heroShadowLight.target.position.set(2.5, -1.95, 1.4);
+  const heroShadowLight = new THREE.SpotLight(0xffe3b4, 1.62, 20, Math.PI / 7.2, 0.52, 1.0);
+  heroShadowLight.position.set(3.6, 5.2, 6.0);
+  heroShadowLight.target.position.set(2.5, -2.2, 1.4);
   heroShadowLight.castShadow = true;
   heroShadowLight.shadow.mapSize.width = shadowRes;
   heroShadowLight.shadow.mapSize.height = shadowRes;
-  heroShadowLight.shadow.radius = 4;
-  heroShadowLight.shadow.camera.near = 0.8;
-  heroShadowLight.shadow.camera.far = 18;
-  heroShadowLight.shadow.bias = -0.00035;
+  heroShadowLight.shadow.radius = 5.2;
+  heroShadowLight.shadow.camera.near = 0.6;
+  heroShadowLight.shadow.camera.far = 20;
+  heroShadowLight.shadow.bias = -0.00042;
   scene.add(heroShadowLight);
   scene.add(heroShadowLight.target);
 
@@ -6208,12 +6208,12 @@ function makeContactShadow(width, height) {
   );
 }
 
-const wrenchContactShadow = makeContactShadow(3.5, 2.1);
+const wrenchContactShadow = makeContactShadow(4.2, 2.6);
 wrenchContactShadow.rotation.x = -Math.PI / 2;
 wrenchContactShadow.position.set(2.15, -2.50, 1.95);
 scene.add(wrenchContactShadow);
 
-const hammerContactShadow = makeContactShadow(2.2, 1.4);
+const hammerContactShadow = makeContactShadow(2.8, 1.8);
 hammerContactShadow.rotation.x = -Math.PI / 2;
 hammerContactShadow.position.set(-3.0, -2.50, 1.2);
 scene.add(hammerContactShadow);
@@ -8854,8 +8854,8 @@ scene.add(hangingDepthCard);
     floorGlow.material.opacity  = toolAlpha * glowPulse;
     wrenchContactShadow.position.set(wrenchGroup.position.x + 0.04, -2.50, wrenchGroup.position.z + 0.04);
     hammerContactShadow.position.set(hammerGroup.position.x - 0.12, -2.50, hammerGroup.position.z - 0.06);
-    wrenchContactShadow.material.opacity = wrenchOpacity * (0.28 + lightRig.heroShadow * 0.30 + DIRECTOR_STATE.lockupMix * 0.08);
-    hammerContactShadow.material.opacity = hammerOpacity * (0.12 + lightRig.heroShadow * 0.16);
+    wrenchContactShadow.material.opacity = wrenchOpacity * (0.36 + lightRig.heroShadow * 0.38 + DIRECTOR_STATE.lockupMix * 0.12);
+    hammerContactShadow.material.opacity = hammerOpacity * (0.16 + lightRig.heroShadow * 0.22);
     DIRECTOR_STATE.contactShadowOpacity = Math.max(wrenchContactShadow.material.opacity, hammerContactShadow.material.opacity);
     const hammerRead = hammerOpacity * (0.76 + toolWakeState.hammer * 0.18 + lightingCuePreset.supportLightScale * 0.14);
     const sawRead = sawOpacity * (0.78 + toolWakeState.saw * 0.18 + lightingCuePreset.supportLightScale * 0.14);
