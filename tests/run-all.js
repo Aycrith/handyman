@@ -12,6 +12,7 @@ const SELF_SERVE_TESTS = [
   'validate-ui.js',
   'validate-effects.js',
   'validate-effects-desktop.js',
+  'validate-worlds.js',
 ];
 
 // Build once

@@ -7,7 +7,7 @@ const PORT = 8767;
 const BASE_URL = `http://localhost:${PORT}`;
 const EXPECTED_ASSET_SET_VERSION = 'hero-pack-v5';
 const EXPECTED_CONTRACT_VERSION = 'hero-asset-contract-v4';
-const EXPECTED_BUILD_STAGE = 'assembly-orbit-bespoke-pack';
+const EXPECTED_BUILD_STAGE = 'assembly-orbit-pbr-upgrade';
 
 (async () => {
   console.log('\n╔══════════════════════════════════════════╗');
