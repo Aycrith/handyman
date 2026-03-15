@@ -392,11 +392,11 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
     },
   });
   const LIGHT_RIG_PRESETS = Object.freeze({
-    preReveal: { key: 0.80, fill: 0.50, rim: 0.62, heroShadow: 0.64, ground: 0.62, orbit: 0.00, sawSpot: 0.00 },
-    reveal: { key: 1.18, fill: 0.68, rim: 0.88, heroShadow: 1.14, ground: 0.86, orbit: 0.00, sawSpot: 0.00 },
-    lockup: { key: 1.36, fill: 0.70, rim: 0.94, heroShadow: 1.32, ground: 0.90, orbit: 0.00, sawSpot: 0.00 },
-    interactiveIdle: { key: 1.28, fill: 0.66, rim: 0.88, heroShadow: 1.22, ground: 0.84, orbit: 0.00, sawSpot: 0.00 },
-    scrollTransition: { key: 0.88, fill: 0.54, rim: 0.68, heroShadow: 0.72, ground: 0.62, orbit: 0.00, sawSpot: 0.00 },
+    preReveal: { key: 0.88, fill: 0.54, rim: 0.70, heroShadow: 0.64, ground: 0.72, orbit: 0.00, sawSpot: 0.00 },
+    reveal: { key: 1.32, fill: 0.72, rim: 1.02, heroShadow: 1.14, ground: 1.00, orbit: 0.00, sawSpot: 0.00 },
+    lockup: { key: 1.48, fill: 0.76, rim: 1.08, heroShadow: 1.32, ground: 1.04, orbit: 0.00, sawSpot: 0.00 },
+    interactiveIdle: { key: 1.40, fill: 0.72, rim: 1.00, heroShadow: 1.22, ground: 0.98, orbit: 0.00, sawSpot: 0.00 },
+    scrollTransition: { key: 0.96, fill: 0.58, rim: 0.80, heroShadow: 0.72, ground: 0.74, orbit: 0.00, sawSpot: 0.00 },
   });
   const POST_FX_PRESETS = Object.freeze({
     preReveal: { bloomGain: 0.62, thresholdBias: 0.04, radiusBias: -0.06, gradeFloor: 0.26, copyShieldBoost: 0.03 },
@@ -2127,22 +2127,22 @@ const HERO_RUNTIME_ASSETS = Object.freeze({
   const ambientLight = new THREE.AmbientLight(0x6d5a45, 0.22);
   scene.add(ambientLight);
 
-  const keyLight = new THREE.RectAreaLight(0xffb25a, 1.58, 6.2, 4.8);
-  keyLight.position.set(-4.8, 4.9, 6.4);
+  const keyLight = new THREE.RectAreaLight(0xffb25a, 1.68, 6.4, 5.0);
+  keyLight.position.set(-5.0, 5.1, 6.6);
   keyLight.lookAt(2.3, 0.55, 1.5);
   scene.add(keyLight);
 
-  const fillLight = new THREE.RectAreaLight(0x7ea4d8, 0.58, 4.0, 5.0);
-  fillLight.position.set(5.8, 1.6, 3.2);
+  const fillLight = new THREE.RectAreaLight(0x7ea4d8, 0.62, 4.2, 5.2);
+  fillLight.position.set(6.0, 1.8, 3.4);
   fillLight.lookAt(2.7, 0.5, 1.4);
   scene.add(fillLight);
 
-  const rimAreaLight = new THREE.RectAreaLight(0xc1d5f0, 0.60, 5.4, 1.8);
-  rimAreaLight.position.set(2.6, 5.8, -3.5);
+  const rimAreaLight = new THREE.RectAreaLight(0xc1d5f0, 0.68, 5.6, 2.0);
+  rimAreaLight.position.set(2.8, 6.0, -3.6);
   rimAreaLight.lookAt(2.4, 0.6, 1.4);
   scene.add(rimAreaLight);
 
-  const groundGlow = new THREE.PointLight(0xd27a2f, 0.34, 12);
+  const groundGlow = new THREE.PointLight(0xd27a2f, 0.42, 14);
   groundGlow.position.set(2.2, -2.10, 2.0);
   scene.add(groundGlow);
 
