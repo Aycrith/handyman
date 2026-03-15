@@ -30,3 +30,10 @@ artifacts/
 
 # Git worktrees
 .worktrees/
+
+# Environment files
+.env
+.env.*
+
+# Large binary assets (use CDN or LFS)
+assets/models/hero/pbr_rivet_gun.glb
